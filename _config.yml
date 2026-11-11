@@ -21,11 +21,6 @@ last_updated: false # set to true if you want to display last updated in the foo
 impressum_path: # set to path to include impressum link in the footer, use the same path as permalink in a page, helps to conform with EU GDPR
 back_to_top: true # set to false to disable the back to top button
 
-# Local override: _includes/footer.liquid renders the IDEAS footer with the
-# DOE Office of Science ASCR acknowledgment and funder logos instead of the
-# theme's personal footer. A real block footer, not a fixed-bottom bar.
-footer_fixed: false
-
 # -----------------------------------------------------------------------------
 # Theme
 # -----------------------------------------------------------------------------
@@ -94,7 +89,10 @@ al_folio:
 # -----------------------------------------------------------------------------
 
 navbar_fixed: true
-footer_fixed: true
+# Local override: _includes/footer.liquid renders the IDEAS funding footer
+# (ASCR acknowledgment + funder logos) as a real block footer, not a
+# fixed-bottom bar.
+footer_fixed: false
 search_enabled: true
 socials_in_search: false # no social profiles on the IDEAS site
 posts_in_search: false # no blog posts; news items are indexed via their pages

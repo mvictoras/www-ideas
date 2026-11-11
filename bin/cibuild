@@ -8,6 +8,9 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+# The base path lives only in _config.yml (single source of truth).
+BASEURL=$(sed -n 's/^baseurl:[[:space:]]*//p' _config.yml | awk '{print $1}')
+
 export JEKYLL_ENV=production
 rm -rf _site
 bundle exec jekyll build
@@ -19,6 +22,6 @@ bundle exec htmlproofer ./_site \
   --disable-external \
   --allow-hash-href \
   --ignore-urls "/favicon.ico,/feed.xml" \
-  --swap-urls "^/www-ideas:"
+  --swap-urls "^${BASEURL}:"
 
 echo "Harness complete."

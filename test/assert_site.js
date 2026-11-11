@@ -9,34 +9,21 @@
  */
 const fs = require("fs");
 const path = require("path");
+const walk = require("./lib/walk");
 
 const SITE = path.join(__dirname, "..", "_site");
-const BASEURL = "/www-ideas";
 
-const NAV_PAGES = [
-  "index.html",
-  "research/index.html",
-  "use-cases/index.html",
-  "team/index.html",
-  "publications/index.html",
-  "software/index.html",
-  "news/index.html",
-  "events/index.html",
-];
+// The base path lives only in _config.yml (single source of truth per the
+// spec); the harness reads it from there instead of hardcoding it.
+const BASEURL = /^baseurl:\s*(\S*)/m.exec(fs.readFileSync(path.join(__dirname, "..", "_config.yml"), "utf8"))[1];
 
-const NAV_LINKS = ["/", "/research/", "/use-cases/", "/team/", "/publications/", "/software/", "/news/", "/events/"].map((p) => `${BASEURL}${p}`);
+// One list drives both checks: the built page path and the navbar link.
+const NAV_PATHS = ["/", "/research/", "/use-cases/", "/team/", "/publications/", "/software/", "/news/", "/events/"];
+const NAV_PAGES = NAV_PATHS.map((p) => (p === "/" ? "index.html" : `${p}index.html`));
+const NAV_LINKS = NAV_PATHS.map((p) => `${BASEURL}${p}`);
 
 let failures = [];
 const fail = (msg) => failures.push(msg);
-
-function walk(dir, ext, acc = []) {
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const p = path.join(dir, entry.name);
-    if (entry.isDirectory()) walk(p, ext, acc);
-    else if (p.endsWith(ext)) acc.push(p);
-  }
-  return acc;
-}
 
 const htmlFiles = walk(SITE, ".html");
 if (htmlFiles.length === 0) {
@@ -50,9 +37,10 @@ for (const p of NAV_PAGES) {
 }
 
 // 2. Per-page checks: navbar, wordmark, toggles, footer, no email/analytics.
-// Email-like addresses; `(?![\d.])` skips npm package versions in CDN URLs
-// (e.g. fontawesome-free@7.2.0), which are not personal data.
-const EMAIL_RE = /[A-Za-z0-9._%+-]+@(?![\d.])[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+/;
+// Email-like addresses. The domain must end in an alphabetic TLD (>= 2
+// letters), which skips npm package versions in CDN URLs (e.g.
+// fontawesome-free@7.2.0) while still matching real addresses.
+const EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/;
 const ANALYTICS_SNIPPETS = [
   "google-analytics.com",
   "googletagmanager.com",
@@ -94,12 +82,13 @@ for (const file of htmlFiles) {
   }
 }
 
-// 3. Sitemap uses the base path.
+// 3. Sitemap uses the configured site URL and base path.
+const SITE_URL = /^url:\s*(\S*)/m.exec(fs.readFileSync(path.join(__dirname, "..", "_config.yml"), "utf8"))[1];
 const sitemapPath = path.join(SITE, "sitemap.xml");
 if (fs.existsSync(sitemapPath)) {
   const sitemap = fs.readFileSync(sitemapPath, "utf8");
-  if (!sitemap.includes("https://mvictoras.github.io/www-ideas/")) {
-    fail("sitemap.xml: does not use the /www-ideas base path");
+  if (!sitemap.includes(`${SITE_URL}${BASEURL}/`)) {
+    fail(`sitemap.xml: does not use ${SITE_URL}${BASEURL}/ as its base path`);
   }
 } else {
   fail("missing sitemap.xml");

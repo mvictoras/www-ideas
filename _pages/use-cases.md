@@ -3,7 +3,7 @@ layout: page
 title: Use Cases
 permalink: /use-cases/
 nav_order: 3
-description: DOE science applications driving IDEAS
+description: DOE science applications motivating and validating IDEAS
 nav: true
 ---
 
