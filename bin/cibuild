@@ -1,1 +1,24 @@
+#!/usr/bin/env bash
+# IDEAS site test harness. Builds the production site (base path /www-ideas)
+# and runs the three test layers over the build output:
+#   1. the build itself + empty plugin-tag output check,
+#   2. HTML assertions over the built pages (test/assert_site.js),
+#   3. html-proofer for internal link/asset integrity.
+# Used by the deploy workflow and runnable locally.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+export JEKYLL_ENV=production
+rm -rf _site
 bundle exec jekyll build
+
+node test/check_build_output.js
+node test/assert_site.js
+
+bundle exec htmlproofer ./_site \
+  --disable-external \
+  --allow-hash-href \
+  --ignore-urls "/favicon.ico,/feed.xml" \
+  --swap-urls "^/www-ideas:"
+
+echo "Harness complete."

@@ -1,34 +1,31 @@
 ---
-layout: about
-title: about
+layout: page
+title: Home
 permalink: /
-subtitle: <a href='#'>Affiliations</a>. Address. Contacts. Motto. Etc.
-
-profile:
-  align: right
-  image: prof_pic.jpg
-  image_circular: false # crops the image to make it circular
-  more_info: >
-    <p>555 your office number</p>
-    <p>123 your address street</p>
-    <p>Your City, State 12345</p>
-
-selected_papers: true # includes a list of papers marked as "selected={true}"
-social: true # includes social icons at the bottom of the page
-
-announcements:
-  enabled: true # includes a list of news items
-  scrollable: true # adds a vertical scroll bar if there are more than 3 news items
-  limit: 5 # leave blank to include all the news in the `_news` folder
-
-latest_posts:
-  enabled: true
-  scrollable: true # adds a vertical scroll bar if there are more than 3 new posts items
-  limit: 3 # leave blank to include all the blog posts
+nav_order: 1
+description: IDEAS — Intelligent Data Exploration Assistant for Science
 ---
 
-Write your biography here. Tell the world about yourself. Link to your favorite [subreddit](https://www.reddit.com). You can put a picture in, too. The code is already in, just name your picture `prof_pic.jpg` and put it in the `img/` folder.
+<!-- Stub landing page. The custom hypothesis-hero landing layout is a later
+     ticket; this shell only needs a titled page that resolves at the base path. -->
 
-Put your address / P.O. box / other info right below your picture. You can also disable any of these elements by editing `profile` property of the YAML header of your `_pages/about.md`. Edit `_bibliography/papers.bib` and Jekyll will render your [publications page](/al-folio/publications/) automatically.
+<div class="post">
+  <header class="post-header">
+    <h1 class="post-title">IDEAS</h1>
+    <p class="post-description">Intelligent Data Exploration Assistant for Science</p>
+  </header>
 
-Link to your social media connections, too. This theme is set up to use [Font Awesome icons](https://fontawesome.com/) and [Academicons](https://jpswalsh.github.io/academicons/), like the ones below. Add your Facebook, Twitter, LinkedIn, Google Scholar, or just disable all of them.
+  <article>
+    <p>
+      IDEAS is the visualization thrust of the DOE ASCR Argonne Base program at
+      Argonne National Laboratory. We are building an intelligent data
+      exploration assistant for science: compact homomorphic representations of
+      scientific data that let rendering and analysis operate on the data
+      directly, driven by DOE science use cases.
+    </p>
+    <p>
+      Content stub — the Research, Use Cases, Team, Publications, Software,
+      News and Events sections are being filled in ticket by ticket.
+    </p>
+  </article>
+</div>

@@ -2,28 +2,29 @@
 # Site settings
 # -----------------------------------------------------------------------------
 
-title: blank # the website title (if blank, full name will be used instead)
-first_name: You
-middle_name: R.
-last_name: Name
-contact_note: >
-  You can even add a little note about which of these is the best way to reach you.
+title: IDEAS
 description: > # the ">" symbol means to ignore newlines until "footer_text:"
-  A simple, whitespace theme for academics. Based on [*folio](https://github.com/bogoli/-folio) design.
-footer_text: >
-  Powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio">al-folio</a> theme.
-  Hosted by <a href="https://pages.github.com/" target="_blank">GitHub Pages</a>.
-  Photos from <a href="https://unsplash.com" target="_blank">Unsplash</a>.
-keywords: jekyll, jekyll-theme, academic-website, portfolio-website # add your own keywords or leave empty
+  IDEAS (Intelligent Data Exploration Assistant for Science) is the visualization
+  thrust of the DOE ASCR Argonne Base program at Argonne National Laboratory.
+# Text wordmark placeholder; replaced once the team picks a logo concept.
+keywords: IDEAS, scientific visualization, Argonne, DOE Office of Science, ASCR
 lang: en # the language of your site (for example: en, fr, cn, ru, etc.)
 icon: ⚛️ # the emoji used as the favicon (alternatively, provide image name in /assets/img/)
 apple_touch_icon: # image name in /assets/img/ (or a rooted path / absolute URL) used for iOS home-screen bookmarks; needs a real 180x180 PNG, since Safari ignores the emoji favicon above. Left empty, iOS falls back to a screenshot of the page.
 
-url: https://alshedivat.github.io # the base hostname & protocol for your site
-baseurl: /al-folio # the subpath of your site, e.g. /blog/. Leave blank for root
+# Single source of truth for the site URL and base path. Moving to an
+# organization repository or custom domain only requires changing these two
+# values (and the GitHub Pages deploy target).
+url: https://mvictoras.github.io # the base hostname & protocol for your site
+baseurl: /www-ideas # the subpath of your site, e.g. /blog/. Leave blank for root
 last_updated: false # set to true if you want to display last updated in the footer
 impressum_path: # set to path to include impressum link in the footer, use the same path as permalink in a page, helps to conform with EU GDPR
 back_to_top: true # set to false to disable the back to top button
+
+# Local override: _includes/footer.liquid renders the IDEAS footer with the
+# DOE Office of Science ASCR acknowledgment and funder logos instead of the
+# theme's personal footer. A real block footer, not a fixed-bottom bar.
+footer_fixed: false
 
 # -----------------------------------------------------------------------------
 # Theme
@@ -66,15 +67,12 @@ al_folio:
     version: 4.1.18
     preflight: false
     css_entry: assets/tailwind/app.css
+  # Kept because al_folio_core's config contract warns when these are missing;
+  # the al_folio_distill gem itself is not installed, so Distill stays off.
   distill:
     engine: distillpub-template
     source: al-org-dev/distill-template#al-folio
     allow_remote_loader: false
-  features:
-    cv:
-      enabled: true
-    distill:
-      enabled: true
   compat:
     bootstrap:
       enabled: false
@@ -98,8 +96,8 @@ al_folio:
 navbar_fixed: true
 footer_fixed: true
 search_enabled: true
-socials_in_search: true
-posts_in_search: true
+socials_in_search: false # no social profiles on the IDEAS site
+posts_in_search: false # no blog posts; news items are indexed via their pages
 bib_search: true
 
 # Dimensions
@@ -133,81 +131,17 @@ google_site_verification: # your google-site-verification ID (Google Search Cons
 bing_site_verification: # out your bing-site-verification ID (Bing Webmaster)
 
 # -----------------------------------------------------------------------------
-# Blog
-# -----------------------------------------------------------------------------
-
-blog_name: al-folio # blog_name will be displayed in your blog page
-blog_description: a simple whitespace theme for academics
-permalink: /blog/:year/:title/
-lsi: false # produce an index for related posts
-
-# Pagination
-pagination:
-  enabled: true
-
-related_blog_posts:
-  enabled: true
-  max_related: 5
-
-# Giscus comments (RECOMMENDED)
-# Follow instructions on https://giscus.app/ to setup for your repo to fill out the information below.
-giscus:
-  repo: # <your-github-user-name>/<your-github-repo-name>
-  repo_id: # leave empty or specify your repo_id (see https://giscus.app/)
-  category: Comments # name of the category under which discussions will be created
-  category_id: # leave empty or specify your category_id (see https://giscus.app/)
-  mapping: title # identify discussions by post title
-  strict: 1 # use strict identification mode
-  reactions_enabled: 1 # enable (1) or disable (0) emoji reactions
-  input_position: bottom # whether to display input form below (bottom) or above (top) the comments
-  dark_theme: dark # name of the dark color scheme (preferred works well with al-folio dark mode)
-  light_theme: light # name of the light color scheme (preferred works well with al-folio light mode)
-  emit_metadata: 0
-  lang: en
-
-# Disqus comments (DEPRECATED)
-disqus_shortname: al-folio # put your disqus shortname
-# https://help.disqus.com/en/articles/1717111-what-s-a-shortname
-
-# External sources.
-# If you have blog posts published on medium.com or other external sources,
-# you can display them in your blog by adding a link to the RSS feed.
-# Optional: Set default categories and tags for posts from each source.
-external_sources:
-  - name: medium.com
-    rss_url: https://medium.com/@al-folio/feed
-    categories: [external-posts]
-    tags: [medium]
-  - name: Google Blog
-    posts:
-      - url: https://blog.google/technology/ai/google-gemini-update-flash-ai-assistant-io-2024/
-        published_date: 2024-05-14
-    categories: [external-posts]
-    tags: [google]
-
-# -----------------------------------------------------------------------------
-# Newsletter
-# -----------------------------------------------------------------------------
-
-newsletter:
-  enabled: false
-  endpoint: # your loops endpoint (e.g., https://app.loops.so/api/newsletter-form/YOUR-ENDPOINT)
-  # https://loops.so/docs/forms/custom-form
-
-# -----------------------------------------------------------------------------
 # Collections
 # -----------------------------------------------------------------------------
 
 collections:
-  books:
-    output: true
   news:
     defaults:
       layout: post
     output: true
   projects:
     output: true
-  teachings:
+  events:
     output: true
 
 # -----------------------------------------------------------------------------
@@ -244,12 +178,14 @@ exclude:
   - lighthouse_results/
   - package.json
   - package-lock.json
-  - _pages/about_einstein.md
+  - prototype/
   - purgecss.config.js
   - README.md
   - readme_preview/
   - gems/
   - migrations/
+  - requirements.txt
+  - test/
   - vendor
 keep_files:
   - CNAME
@@ -261,46 +197,30 @@ theme: al_folio_core
 # Plug-ins
 plugins:
   - jekyll-3rd-party-libraries
-  - jekyll-archives-v2
   - jekyll-cache-bust
   - jekyll-email-protect
   - jekyll-feed
-  - jekyll-get-json
   - jekyll-imagemagick
-  - jekyll-jupyter-notebook
   - jekyll-link-attributes
   - jekyll-minifier
-  - jekyll-paginate-v2
   - jekyll-regex-replace
-  - jekyll/scholar
+  - jekyll-scholar
   - jekyll-sitemap
-  - jekyll-socials
+  - jekyll-socials # `{% social_links %}` appears in the theme header template; rendering is disabled
   - jekyll-tabs
-  - jekyll-terser
   - jekyll-toc
-  - jekyll-twitter-plugin
   - jemoji
 
   # al-folio plugins
   - al_folio_core
   - al_icons
-  - al_folio_cv
-  - al_folio_distill
   - al_folio_upgrade
   - al_folio_bootstrap_compat
-  - al_cookie
-  - al_analytics
   - al_citations
-  - al_ext_posts
   - al_img_tools
   - al_search
-  - al_charts
   - al_math
-  - al_comments
-  - al_newsletter
   - al_email_protect
-  - al_marimo
-  - al_rtl
 
 # Sitemap settings
 defaults:
@@ -317,39 +237,19 @@ sass:
 # -----------------------------------------------------------------------------
 
 jekyll-minifier:
-  compress_javascript: false # set to false since we are using terser as the js minifier
+  compress_javascript: false # JS is shipped unminified; jekyll-terser was removed with the blog stack
   # CSS is already minified upstream (Tailwind build ships tailwind.css; main.scss is compiled
   # with sass `style: compressed`). Re-minifying via cssminify2 mangles Tailwind v4 spacing
   # tokens inside calc(), turning `var(--spacing)` into the invalid `var( -  - spacing)` and
   # breaking every spacing/positioning utility (e.g. .fixed-top -> broken navbar). Disable it.
   compress_css: false
-  # JS minification is delegated to jekyll-terser (compress_javascript above is false).
   exclude: ["robots.txt"]
 
 # -----------------------------------------------------------------------------
 # Terser
 # -----------------------------------------------------------------------------
 
-terser:
-  compress:
-    drop_console: true
-
-# -----------------------------------------------------------------------------
-# Jekyll Archives
-# -----------------------------------------------------------------------------
-
-jekyll-archives:
-  posts:
-    enabled: [year, tags, categories] # enables year, tag and category archives (remove if you need to disable one of them).
-    permalinks:
-      year: "/blog/:year/"
-      tags: "/blog/:type/:name/"
-      categories: "/blog/:type/:name/"
-  books:
-    enabled: [year, tags, categories] # enables year, tag and category archives (remove if you need to disable one of them).
-
-display_tags: ["formatting", "images", "links", "math", "code", "blockquotes"] # these tags will be displayed on the front page of your blog
-display_categories: ["external-services"] # these categories will be displayed on the front page of your blog
+# jekyll-terser was removed along with the blog stack; JavaScript ships unminified.
 
 # -----------------------------------------------------------------------------
 # Jekyll Scholar
@@ -382,11 +282,14 @@ scholar:
 
 # Display different badges withs stats for your publications
 # Customize badge behavior in _layouts/bib.liquid
+# Altmetric, Dimensions and InspireHEP badges load third-party scripts on every
+# visitor's browser; keep them off (no tracking, per the site spec). The Google
+# Scholar badge is a plain link and stays on.
 enable_publication_badges:
-  altmetric: true # Altmetric badge (Customization options: https://badge-docs.altmetric.com/index.html)
-  dimensions: true # Dimensions badge (Customization options: https://badge.dimensions.ai/)
-  google_scholar: true # Google Scholar badge (https://scholar.google.com/intl/en/scholar/citations.html)
-  inspirehep: true # Inspire HEP badge (https://help.inspirehep.net/knowledge-base/citation-metrics/)
+  altmetric: false
+  dimensions: false
+  google_scholar: true
+  inspirehep: false
 
 # Filter out certain bibtex entry keywords used internally from the bib output
 filtered_bibtex_keywords:
@@ -474,7 +377,6 @@ lazy_loading_images: true # enables lazy loading of images (recommended)
 
 enable_google_verification: false # enables google site verification
 enable_bing_verification: false # enables bing site verification
-enable_cookie_consent: false # enables GDPR-compliant cookie consent dialog (https://github.com/orestbida/cookieconsent)
 enable_masonry: true # enables automatic project cards arrangement
 enable_math: true # enables math typesetting (uses MathJax)
 enable_tooltips: false # enables automatic tooltip links generated for each section titles on pages and posts
@@ -657,14 +559,6 @@ third_party_libraries:
     url:
       js: "https://cdn.jsdelivr.net/npm/vanilla-back-to-top@{{version}}/dist/vanilla-back-to-top.min.js"
     version: "7.2.1"
-  vanilla-cookieconsent:
-    integrity:
-      css: "sha256-ygRrixsQlBByBZiOcJamh7JByO9fP+/l5UPtKNJmRsE="
-      js: "sha256-vG4vLmOB/AJbJ6awr7Wg4fxonG+fxAp4cIrbIFTvRXU="
-    url:
-      css: "https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@{{version}}/dist/cookieconsent.css"
-      js: "https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@{{version}}/dist/cookieconsent.umd.js"
-    version: "3.1.0"
   vega:
     integrity:
       js: "sha256-Yot/cfgMMMpFwkp/5azR20Tfkt24PFqQ6IQS+80HIZs="
@@ -689,25 +583,3 @@ third_party_libraries:
       js: "https://cdn.jsdelivr.net/npm/vega-lite@{{version}}/build/vega-lite.min.js"
       js_map: "https://cdn.jsdelivr.net/npm/vega-lite@{{version}}/build/vega-lite.min.js.map"
     version: "5.16.3"
-
-# -----------------------------------------------------------------------------
-# Get external JSON data
-# -----------------------------------------------------------------------------
-
-jekyll_get_json:
-  - data: resume
-    json: assets/json/resume.json # it can also be an url
-
-jsonresume:
-  - basics
-  - work
-  - education
-  - publications
-  - projects
-  - volunteer
-  - awards
-  - certificates
-  - skills
-  - languages
-  - interests
-  - references

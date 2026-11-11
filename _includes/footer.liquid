@@ -1,0 +1,47 @@
+{%- comment -%}
+  Local override of al-folio's _includes/footer.liquid (al_folio_core gem).
+
+  Replaces the personal "about" footer with the IDEAS funding footer:
+  the DOE Office of Science ASCR acknowledgment (contract DE-AC02-06CH11357)
+  and Argonne / DOE Office of Science logos. No contact email is published.
+
+  Tracked with the al-folio overrides audit (ADR-0001):
+  bundle exec al-folio upgrade overrides audit
+{%- endcomment -%}
+
+<footer class="sticky-bottom mt-5" role="contentinfo">
+  <style>
+    .ideas-footer-logo {
+      height: 48px;
+      width: auto;
+    }
+    html[data-theme='dark'] .ideas-footer-logo {
+      /* The logos have black wordmarks; keep them legible on dark backgrounds
+         by putting them on a white chip instead of inverting official colors. */
+      background: #ffffff;
+      border-radius: 6px;
+      padding: 4px 8px;
+    }
+  </style>
+  <div class="container">
+    <hr>
+    <div class="d-flex flex-column flex-sm-row align-items-center justify-content-center gap-3">
+      <img
+        src="{{ '/assets/img/logos/argonne.svg' | relative_url | bust_file_cache }}"
+        alt="Argonne National Laboratory logo"
+        class="ideas-footer-logo"
+        loading="lazy"
+      >
+      <img
+        src="{{ '/assets/img/logos/doe-office-of-science.svg' | relative_url | bust_file_cache }}"
+        alt="U.S. Department of Energy Office of Science logo"
+        class="ideas-footer-logo"
+        loading="lazy"
+      >
+    </div>
+    <p class="text-center mt-2 mb-0">
+      This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Advanced Scientific Computing Research
+      (ASCR) under Contract DE-AC02-06CH11357.
+    </p>
+  </div>
+</footer>
