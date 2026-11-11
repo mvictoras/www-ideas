@@ -1,0 +1,171 @@
+<!doctype html>
+<!-- PROTOTYPE — throwaway. Three geeky/technical logo concepts for the IDEAS site,
+     switchable via ?variant=A|B|C and the bottom bar (or ←/→). Winner sets the palette. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IDEAS Logo Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#f7f8fb; --fg:#0f172a; --muted:#5b6478; --card:#ffffff; --line:#e3e7ef; --ink:#0b1f3a; --accent:#f59e0b; --accent2:#0ea5e9; }
+  :root[data-theme="dark"] { --bg:#070d1a; --fg:#e6ebf5; --muted:#93a0b8; --card:#0e1729; --line:#1e2a42; --ink:#e6ebf5; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font-family:Inter, system-ui, sans-serif; padding-bottom:90px; }
+  .proto-note { font:12px/1.4 "JetBrains Mono", monospace; color:var(--muted); padding:8px 16px; border-bottom:1px dashed var(--line); }
+  header.site { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 24px; background:var(--card); border-bottom:1px solid var(--line); flex-wrap:wrap; }
+  nav a { color:var(--muted); text-decoration:none; font-size:14px; margin-left:18px; }
+  nav a:first-child { color:var(--fg); font-weight:600; }
+  .hero { max-width:1000px; margin:0 auto; padding:56px 24px 24px; display:grid; grid-template-columns:1.2fr 1fr; gap:40px; align-items:center; }
+  .hero h1 { font-size:34px; line-height:1.15; margin:0 0 14px; letter-spacing:-0.02em; }
+  .hero p { color:var(--muted); line-height:1.6; margin:0 0 18px; }
+  .btn { display:inline-block; background:var(--accent); color:#111; font-weight:700; padding:10px 16px; border-radius:6px; text-decoration:none; font-size:14px; }
+  .event { margin-top:18px; border:1px solid var(--line); background:var(--card); border-left:4px solid var(--accent); padding:12px 14px; border-radius:6px; font-size:14px; }
+  .event b { display:block; margin-bottom:2px; }
+  .big { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:28px; display:flex; align-items:center; justify-content:center; min-height:220px; }
+  .panel { max-width:1000px; margin:0 auto; padding:8px 24px 24px; display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .panel > div { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; }
+  .panel h3 { margin:0 0 12px; font:700 12px "JetBrains Mono", monospace; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+  .fav { display:flex; gap:18px; align-items:flex-end; }
+  .fav span { display:block; font:11px "JetBrains Mono", monospace; color:var(--muted); text-align:center; margin-top:4px; }
+  .sw { display:flex; gap:8px; flex-wrap:wrap; }
+  .sw div { width:56px; }
+  .sw i { display:block; height:36px; border-radius:6px; border:1px solid var(--line); }
+  .sw code { font-size:10px; color:var(--muted); }
+  .why { font-size:13px; line-height:1.55; color:var(--muted); margin:0; }
+  .bar { position:fixed; left:50%; bottom:18px; transform:translateX(-50%); display:flex; align-items:center; gap:10px; background:#111; color:#fff; padding:8px 10px; border-radius:999px; box-shadow:0 8px 30px rgba(0,0,0,.35); font:13px "JetBrains Mono", monospace; z-index:10; }
+  .bar button { background:#2a2a2a; color:#fff; border:0; border-radius:999px; width:32px; height:32px; cursor:pointer; font-size:15px; }
+  .bar .lbl { min-width:220px; text-align:center; }
+  .bar .theme { width:auto; padding:0 12px; }
+  @media (max-width:760px){ .hero{grid-template-columns:1fr;} .panel{grid-template-columns:1fr;} nav{display:none;} }
+</style>
+</head>
+<body>
+<div class="proto-note">PROTOTYPE · logo concepts · not the real site · ?variant=A|B|C · ←/→ to cycle</div>
+<header class="site"><div id="logo-header"></div>
+  <nav><a>Home</a><a>Research</a><a>Use Cases</a><a>Team</a><a>Publications</a><a>Software</a><a>News</a><a>Events</a></nav>
+</header>
+<section class="hero">
+  <div>
+    <h1>AI-powered visualization for exascale science.</h1>
+    <p>IDEAS researches compact homomorphic data representations, AI-driven rendering, and LLM-based assistants so scientists can explore massive simulation and experimental data in real time.</p>
+    <a class="btn">Explore the research →</a>
+    <div class="event"><b>All-Hands Meeting · Feb 2–3, 2027</b>Argonne National Laboratory · in person · RSVP required</div>
+  </div>
+  <div class="big" id="logo-big"></div>
+</section>
+<section class="panel">
+  <div><h3>Favicon</h3><div class="fav" id="fav"></div></div>
+  <div><h3>Palette</h3><div class="sw" id="sw"></div></div>
+  <div><h3>Concept</h3><p class="why" id="why"></p></div>
+</section>
+<div class="bar"><button id="prev" aria-label="previous">←</button><span class="lbl" id="lbl"></span><button id="next" aria-label="next">→</button><button class="theme" id="theme">◐ theme</button></div>
+
+<script>
+// ---------- Variant A: voxel wordmark (volume grid + transfer function + sparse samples) ----------
+const FONT = {
+  I:["###",".#.",".#.",".#.","###"],
+  D:["###.","#..#","#..#","#..#","###."],
+  E:["###","#..","##.","#..","###"],
+  A:[".##.","#..#","####","#..#","#..#"],
+  S:[".###","#...",".##.","...#","###."]
+};
+const TF = ["#1e3a8a","#1d4ed8","#0284c7","#0ea5e9","#14b8a6","#84cc16","#f59e0b"]; // transfer-function ramp
+function voxelWord(word, cell, opts={}) {
+  const gap = 1, cols = []; word.split("").forEach((ch,i)=>{ FONT[ch].forEach((row,y)=>{}) });
+  let x0 = 0, rects = [], dots = [], W = 0;
+  word.split("").forEach(ch => { W += FONT[ch][0].length + 1; }); W -= 1;
+  const H = 5, pad = 1;
+  word.split("").forEach(ch => {
+    const g = FONT[ch];
+    g.forEach((row,y) => row.split("").forEach((c,x) => {
+      const gx = x0 + x, px = (gx+pad)*cell, py = (y+pad)*cell;
+      if (c === "#") {
+        const col = TF[Math.min(TF.length-1, Math.floor(gx / W * TF.length))];
+        const sparse = ((gx*7 + y*3) % 11) === 0;               // "not sampled" voxel
+        rects.push(sparse
+          ? `<rect x="${px+1}" y="${py+1}" width="${cell-3}" height="${cell-3}" rx="1.5" fill="none" stroke="${col}" stroke-width="1.5"/>`
+          : `<rect x="${px+0.5}" y="${py+0.5}" width="${cell-2}" height="${cell-2}" rx="1.5" fill="${col}"/>`);
+      } else if (opts.grid !== false) {
+        dots.push(`<circle cx="${px+cell/2-0.5}" cy="${py+cell/2-0.5}" r="0.9" fill="currentColor" opacity=".28"/>`);
+      }
+    }));
+    x0 += g[0].length + 1;
+  });
+  const vw = (W+2*pad)*cell, vh = (H+2*pad)*cell;
+  return {svg:`<svg viewBox="0 0 ${vw} ${vh}" width="${vw}" height="${vh}" style="color:var(--fg)" role="img" aria-label="IDEAS">${dots.join("")}${rects.join("")}</svg>`, vw, vh};
+}
+function A_header(){ const v = voxelWord("IDEAS", 8, {grid:false}); return `<div style="display:flex;align-items:center;gap:12px">${v.svg}<span style="font:600 11px/1.25 'JetBrains Mono',monospace;color:var(--muted);max-width:170px">intelligent data exploration<br>assistant for science</span></div>`; }
+function A_big(){ const v = voxelWord("IDEAS", 22); return `<div style="text-align:center">${v.svg.replace(/width="\d+" height="\d+"/, 'width="100%" style="max-width:420px;color:var(--fg)"')}<div style="font:12px 'JetBrains Mono',monospace;color:var(--muted);margin-top:10px">5×19 voxels · colormap = transfer function · hollow = unsampled</div></div>`; }
+function A_fav(s){ // 5x5 'i' voxel
+  const g=["..#..",".....",".##..","..#..",".###."]; let r=""; const c=s/5;
+  g.forEach((row,y)=>row.split("").forEach((ch,x)=>{ if(ch==="#") r+=`<rect x="${x*c}" y="${y*c}" width="${c*0.9}" height="${c*0.9}" fill="${TF[Math.min(6,y+1)]}"/>`;}));
+  return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" style="background:#0b1f3a;border-radius:${s/6}px">${r}</svg>`;
+}
+
+// ---------- Variant B: ray-cast mark (camera, rays, gaussian splat, sample points) ----------
+function B_mark(size, id){
+  const rays = [-18,-9,0,9,18].map((dy,i)=>{
+    const y2 = 32 + dy*1.35;
+    const samples = [0.55,0.68,0.81,0.94].map(t=>`<circle cx="${8+ (60-8)*t}" cy="${32+(y2-32)*t}" r="${i===2?1.6:1.1}" fill="var(--accent)" opacity="${i===2?1:.7}"/>`).join("");
+    return `<line x1="8" y1="32" x2="60" y2="${y2}" stroke="var(--ink)" stroke-width="${i===2?1.6:1}" opacity="${i===2?1:.55}"/>${samples}`;
+  }).join("");
+  return `<svg width="${size}" height="${size}" viewBox="0 0 64 64" role="img" aria-label="IDEAS mark">
+    <defs><radialGradient id="g${id}" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="var(--accent2)" stop-opacity=".95"/><stop offset=".55" stop-color="var(--accent2)" stop-opacity=".35"/><stop offset="1" stop-color="var(--accent2)" stop-opacity="0"/></radialGradient></defs>
+    <ellipse cx="40" cy="31" rx="16" ry="9" transform="rotate(-28 40 31)" fill="url(#g${id})"/>
+    ${rays}
+    <rect x="3" y="27" width="10" height="10" rx="2" fill="var(--ink)"/>
+    <circle cx="8" cy="32" r="2.2" fill="var(--accent)"/>
+  </svg>`;
+}
+function B_header(){ return `<div style="display:flex;align-items:center;gap:10px">${B_mark(42,'h')}<div><div style="font:800 22px/1 'JetBrains Mono',monospace;letter-spacing:.06em;color:var(--ink)">IDEAS</div><div style="font:10px 'JetBrains Mono',monospace;color:var(--muted);margin-top:3px">∫ L(x,ω) · data → insight</div></div></div>`; }
+function B_big(){ return `<div style="display:flex;align-items:center;gap:22px;flex-wrap:wrap;justify-content:center">${B_mark(150,'b')}<div><div style="font:800 54px/1 'JetBrains Mono',monospace;letter-spacing:.06em;color:var(--ink)">IDEAS</div><div style="font:12px/1.5 'JetBrains Mono',monospace;color:var(--muted);margin-top:8px">intelligent data exploration<br>assistant for science</div></div></div>`; }
+function B_fav(s){ return `<div style="background:#0b1f3a;border-radius:${s/6}px;width:${s}px;height:${s}px;--ink:#e6ebf5">${B_mark(s,'f'+s)}</div>`; }
+
+// ---------- Variant C: terminal prompt (assistant as a CLI; cursor = colormap block) ----------
+function C_cursor(h){ return `<span style="display:inline-block;width:${h*0.55}px;height:${h}px;vertical-align:-${h*0.14}px;margin-left:${h*0.08}px;background:linear-gradient(180deg,#f59e0b,#ef4444 35%,#7c3aed 70%,#1e3a8a);animation:blink 1.1s steps(1) infinite"></span>`; }
+function C_header(){ return `<div style="font:700 22px 'JetBrains Mono',monospace;color:var(--ink);display:flex;align-items:center;gap:2px"><span style="color:var(--accent)">❯</span>&nbsp;ideas${C_cursor(22)}</div>`; }
+function C_big(){ return `<div style="width:100%;max-width:440px;background:#0b1220;border-radius:10px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.25);font-family:'JetBrains Mono',monospace">
+  <div style="display:flex;gap:6px;padding:9px 12px;background:#141d30"><i style="width:10px;height:10px;border-radius:50%;background:#ef4444"></i><i style="width:10px;height:10px;border-radius:50%;background:#f59e0b"></i><i style="width:10px;height:10px;border-radius:50%;background:#22c55e"></i></div>
+  <div style="padding:22px 22px 26px;color:#e6ebf5">
+    <div style="font-size:52px;font-weight:800;line-height:1"><span style="color:#ff6b4a">❯</span> ideas${C_cursor(48)}</div>
+    <div style="font-size:12px;color:#7d8aa5;margin-top:14px">// intelligent data exploration assistant for science</div>
+    <div style="font-size:12px;color:#7d8aa5;margin-top:4px">$ ideas "find bullet-cluster analogs in frontier-e"</div>
+  </div></div>`; }
+function C_fav(s){ return `<svg width="${s}" height="${s}" viewBox="0 0 32 32" style="border-radius:${s/6}px"><defs><linearGradient id="cg${s}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f59e0b"/><stop offset=".4" stop-color="#ef4444"/><stop offset=".75" stop-color="#7c3aed"/><stop offset="1" stop-color="#3b5bdb"/></linearGradient></defs><rect width="32" height="32" fill="#0b1220"/><path d="M7 9 L14 16 L7 23" stroke="#ff6b4a" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="17" y="9" width="8" height="14" fill="url(#cg${s})"/></svg>`; }
+
+const V = {
+  A:{ name:"Voxel wordmark", header:A_header, big:A_big, fav:A_fav,
+      pal:[["#0b1f3a","ink"],["#1d4ed8","blue"],["#0ea5e9","sky"],["#14b8a6","teal"],["#f59e0b","amber"]], accent:"#f59e0b", accent2:"#0ea5e9",
+      why:"IDEAS spelled in voxels sampled through a volume: the colormap is a transfer function, and the hollow cells are voxels skipped by sparse sampling (importance masks). Background dots show the empty volume grid. Reads as sci-vis right away. At small sizes it becomes a voxel 'i'." },
+  B:{ name:"Ray-cast mark", header:B_header, big:B_big, fav:B_fav,
+      pal:[["#0b1f3a","ink"],["#0ea5e9","splat"],["#f59e0b","samples"],["#e6ebf5","paper"],["#5b6478","slate"]], accent:"#f59e0b", accent2:"#0ea5e9",
+      why:"A camera casts rays through a 3D Gaussian splat, and the amber dots are sample points along each ray. It covers rendering (ray tracing), representations (Gaussians/INRs) and sparse sampling in one figure. Paired with a blueprint-style mono wordmark and a rendering-equation subtitle." },
+  C:{ name:"Terminal prompt", header:C_header, big:C_big, fav:C_fav,
+      pal:[["#0b1220","term"],["#ff6b4a","prompt"],["#f59e0b","hot"],["#7c3aed","violet"],["#3b5bdb","cold"]], accent:"#ff6b4a", accent2:"#7c3aed",
+      why:"The assistant as a command line: ❯ ideas, with a blinking cursor whose fill is a scientific colormap ramp (data in the prompt). The most 'geek' of the three, and it puts the AI assistant first. The favicon (❯ plus a colormap block) stays clear at 16px." }
+};
+const KEYS = Object.keys(V);
+function render(k){
+  const v = V[k]; const root = document.documentElement;
+  root.style.setProperty("--accent", v.accent); root.style.setProperty("--accent2", v.accent2);
+  document.getElementById("logo-header").innerHTML = v.header();
+  document.getElementById("logo-big").innerHTML = v.big();
+  document.getElementById("fav").innerHTML = [16,32,64].map(s=>`<div>${v.fav(s)}<span>${s}px</span></div>`).join("");
+  document.getElementById("sw").innerHTML = v.pal.map(([c,n])=>`<div><i style="background:${c}"></i><code>${c}<br>${n}</code></div>`).join("");
+  document.getElementById("why").textContent = v.why;
+  document.getElementById("lbl").textContent = `${k} (${v.name})`;
+  const u = new URL(location); u.searchParams.set("variant", k); history.replaceState(null,"",u);
+}
+let cur = new URL(location).searchParams.get("variant"); if(!V[cur]) cur = "A";
+const step = d => { cur = KEYS[(KEYS.indexOf(cur)+d+KEYS.length)%KEYS.length]; render(cur); };
+document.getElementById("prev").onclick = ()=>step(-1);
+document.getElementById("next").onclick = ()=>step(1);
+document.getElementById("theme").onclick = ()=>{ const r=document.documentElement; r.dataset.theme = r.dataset.theme==="dark" ? "light" : "dark"; };
+addEventListener("keydown", e=>{ if(e.target.closest("input,textarea,[contenteditable]")) return; if(e.key==="ArrowLeft") step(-1); if(e.key==="ArrowRight") step(1); });
+const st = document.createElement("style"); st.textContent="@keyframes blink{50%{opacity:0}}"; document.head.appendChild(st);
+render(cur);
+</script>
+</body>
+</html>
