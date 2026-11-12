@@ -440,6 +440,31 @@ if (!fs.existsSync(RESEARCH_PAGE)) {
   if (/\bTIDES\b/.test(researchHtml)) {
     fail("research/index.html: mentions TIDES; the Research page must carry no TIDES material");
   }
+
+  // Research figures: the IDEAS overview (on the page) and the
+  // representative-pixels figure (in the first Objective). Each must be
+  // captioned, have alt text, and resolve to a file under the base path.
+  const RESEARCH_FIGURES = [
+    { name: "IDEAS overview", file: "ideas-overview.png" },
+    { name: "representative pixels", file: "representative-pixels.png" },
+  ];
+  for (const figure of RESEARCH_FIGURES) {
+    const srcPattern = `src="${BASEURL}/assets/img/research/${figure.file}"`;
+    if (!researchHtml.includes(srcPattern)) {
+      fail(`research/index.html: ${figure.name} figure does not reference ${BASEURL}/assets/img/research/${figure.file}`);
+    }
+    if (!fs.existsSync(path.join(SITE, "assets", "img", "research", figure.file))) {
+      fail(`assets/img/research/${figure.file}: not published in the build`);
+    }
+    const figureBlock = researchHtml.match(new RegExp(`<figure[^>]*>(?:(?!</figure>)[\\s\\S])*?${srcPattern.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&")}[\\s\\S]*?</figure>`));
+    if (!figureBlock) {
+      fail(`research/index.html: ${figure.name} is not inside a <figure>`);
+    } else {
+      if (!/<img[^>]*\salt="[^"]+"/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no alt text`);
+      if (!/<figcaption>[\s\S]*?\S[\s\S]*?<\/figcaption>/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no caption`);
+      if (!/Credit:/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no credit line`);
+    }
+  }
 }
 
 if (failures.length > 0) {

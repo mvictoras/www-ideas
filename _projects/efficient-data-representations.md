@@ -4,6 +4,10 @@ slug: efficient-data-representations
 category: objective
 importance: 1
 description: Compact, computation-ready homomorphic representations that reduce the size of massive scientific datasets while keeping their analytical and visual fidelity, so they can be explored interactively.
+figure:
+  src: assets/img/research/representative-pixels.png
+  alt: Three rows of panels, one each for 5%, 10% and 30% of total pixels, showing the selected representative pixels on a rendered volume, zoomed detail views, and the speed-up for each subset.
+  caption: "Representative pixels for accelerating the reconstruction neural network: 5%, 10% and 30% of total pixels, with the speed-up each subset achieves."
 ---
 
 ### Research questions
