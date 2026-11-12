@@ -85,44 +85,27 @@ layout: page
 
 {{ story[0] }}
 
-{% assign active_use_cases = site.projects | where: 'category', 'use-case' | where: 'status', 'active' | sort: 'importance' %}
-{% assign upcoming_use_cases = site.projects | where: 'category', 'use-case' | where: 'status', 'upcoming' | sort: 'importance' %}
-
-<div class="use-case-group" id="active">
-  <h2>Active</h2>
-  {% for use_case in active_use_cases %}
-    <section class="use-case" id="{{ use_case.slug }}">
-      <p class="use-case-kicker">Active Use Case</p>
-      <h2>{{ use_case.title }}</h2>
-      <p class="use-case-tagline">{{ use_case.tagline }}</p>
-      {{ use_case.content | markdownify }}
-      {% if use_case.figure %}
-        <figure class="use-case-figure">
-          <img src="{{ use_case.figure.src | relative_url }}" alt="{{ use_case.figure.alt }}">
-          <figcaption>{{ use_case.figure.caption }} Credit: {{ use_case.figure.credit }}</figcaption>
-        </figure>
-      {% endif %}
-    </section>
-  {% endfor %}
-</div>
-
-<div class="use-case-group" id="upcoming">
-  <h2>Upcoming</h2>
-  {% for use_case in upcoming_use_cases %}
-    <section class="use-case" id="{{ use_case.slug }}">
-      <p class="use-case-kicker">Upcoming Use Case</p>
-      <h2>{{ use_case.title }}</h2>
-      <p class="use-case-tagline">{{ use_case.tagline }}</p>
-      {{ use_case.content | markdownify }}
-      {% if use_case.figure %}
-        <figure class="use-case-figure">
-          <img src="{{ use_case.figure.src | relative_url }}" alt="{{ use_case.figure.alt }}">
-          <figcaption>{{ use_case.figure.caption }} Credit: {{ use_case.figure.credit }}</figcaption>
-        </figure>
-      {% endif %}
-    </section>
-  {% endfor %}
-</div>
+{% assign use_case_statuses = 'active,upcoming' | split: ',' %}
+{% for status in use_case_statuses %}
+  {% assign use_cases = site.projects | where: 'category', 'use-case' | where: 'status', status | sort: 'importance' %}
+  <div class="use-case-group" id="{{ status }}">
+    <h2>{{ status | capitalize }}</h2>
+    {% for use_case in use_cases %}
+      <section class="use-case" id="{{ use_case.slug }}">
+        <p class="use-case-kicker">{{ status | capitalize }} Use Case</p>
+        <h2>{{ use_case.title }}</h2>
+        <p class="use-case-tagline">{{ use_case.tagline }}</p>
+        {{ use_case.content | markdownify }}
+        {% if use_case.figure %}
+          <figure class="use-case-figure">
+            <img src="{{ use_case.figure.src | relative_url }}" alt="{{ use_case.figure.alt }}">
+            <figcaption>{{ use_case.figure.caption }} Credit: {{ use_case.figure.credit }}</figcaption>
+          </figure>
+        {% endif %}
+      </section>
+    {% endfor %}
+  </div>
+{% endfor %}
 
 {% if story[1] %}
   <div class="use-cases-closing">

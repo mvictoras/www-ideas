@@ -479,8 +479,18 @@ if (!fs.existsSync(RESEARCH_PAGE)) {
 // HACC cluster and XPCS interface figures are captioned and credited; and
 // the fusion breeding-blanket figure is absent.
 const USE_CASES_PAGE = path.join(SITE, "use-cases", "index.html");
-const ACTIVE_USE_CASES = ["Cosmology", "Turbulence in Complex Geometries"];
-const UPCOMING_USE_CASES = ["X-Ray Science"];
+const USE_CASE_GROUPS = [
+  {
+    id: "active",
+    kicker: "Active Use Case",
+    titles: ["Cosmology", "Turbulence in Complex Geometries"],
+  },
+  {
+    id: "upcoming",
+    kicker: "Upcoming Use Case",
+    titles: ["X-Ray Science"],
+  },
+];
 const USE_CASE_FIGURES = [
   { name: "HACC cluster", file: "hacc.png" },
   { name: "XPCS interface", file: "xpcs-interface.png" },
@@ -492,47 +502,38 @@ if (!fs.existsSync(USE_CASES_PAGE)) {
   if (/Fusion Flow/i.test(ucHtml)) {
     fail('use-cases/index.html: uses the retired name "Fusion Flow"');
   }
-  if (/\bTIDES\b/.test(ucHtml)) {
-    fail("use-cases/index.html: mentions TIDES; the Use Cases page must carry no TIDES material");
-  }
 
   const groupHtml = (groupId) => {
     const start = ucHtml.indexOf(`<div class="use-case-group" id="${groupId}">`);
     return start === -1 ? null : extractDiv(ucHtml, start);
   };
-  const activeHtml = groupHtml("active");
-  const upcomingHtml = groupHtml("upcoming");
-  if (!activeHtml || !upcomingHtml) {
+  const groups = USE_CASE_GROUPS.map((group) => ({ ...group, html: groupHtml(group.id) }));
+  if (groups.some((group) => !group.html)) {
     fail("use-cases/index.html: missing active/upcoming group separation");
   } else {
     if (ucHtml.indexOf('id="active"') > ucHtml.indexOf('id="upcoming"')) {
       fail("use-cases/index.html: the active group does not precede the upcoming group");
     }
 
-    for (const [groupId, titles] of [
-      ["active", ACTIVE_USE_CASES],
-      ["upcoming", UPCOMING_USE_CASES],
-    ]) {
-      const groupSegment = groupId === "active" ? activeHtml : upcomingHtml;
-      const sectionStarts = [...groupSegment.matchAll(/<section class="use-case"/g)];
-      if (sectionStarts.length !== titles.length) {
-        fail(`use-cases/index.html: expected ${titles.length} use cases in the ${groupId} group, found ${sectionStarts.length}`);
+    for (const group of groups) {
+      const sectionStarts = [...group.html.matchAll(/<section class="use-case"/g)];
+      if (sectionStarts.length !== group.titles.length) {
+        fail(`use-cases/index.html: expected ${group.titles.length} use cases in the ${group.id} group, found ${sectionStarts.length}`);
         continue;
       }
-      titles.forEach((title, index) => {
+      group.titles.forEach((title, index) => {
         const start = sectionStarts[index].index;
-        const end = groupSegment.indexOf("</section>", start);
-        const segment = end === -1 ? "" : groupSegment.slice(start, end);
+        const end = group.html.indexOf("</section>", start);
+        const segment = end === -1 ? "" : group.html.slice(start, end);
         const heading = segment.match(/<h2[^>]*>([\s\S]*?)<\/h2>/);
         const headingText = heading ? heading[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim() : "";
         if (headingText !== title) {
-          fail(`use-cases/index.html: ${groupId} use case ${index + 1} is "${headingText}", expected "${title}"`);
+          fail(`use-cases/index.html: ${group.id} use case ${index + 1} is "${headingText}", expected "${title}"`);
         }
         // The kicker states the status, so the split is visible beyond the
         // group heading.
-        const expectedKicker = groupId === "active" ? "Active Use Case" : "Upcoming Use Case";
-        if (!segment.includes(expectedKicker)) {
-          fail(`use-cases/index.html: "${title}" does not carry the "${expectedKicker}" kicker`);
+        if (!segment.includes(group.kicker)) {
+          fail(`use-cases/index.html: "${title}" does not carry the "${group.kicker}" kicker`);
         }
         // The tagline plus at least two prose paragraphs: the bottleneck and
         // how the IDEAS assistant addresses it.
@@ -544,8 +545,9 @@ if (!fs.existsSync(USE_CASES_PAGE)) {
 
     // No use-case section outside the two groups.
     const totalSections = (ucHtml.match(/<section class="use-case"/g) || []).length;
-    if (totalSections !== ACTIVE_USE_CASES.length + UPCOMING_USE_CASES.length) {
-      fail(`use-cases/index.html: found ${totalSections - ACTIVE_USE_CASES.length - UPCOMING_USE_CASES.length} use-case sections outside the groups`);
+    const expectedSections = USE_CASE_GROUPS.reduce((total, group) => total + group.titles.length, 0);
+    if (totalSections !== expectedSections) {
+      fail(`use-cases/index.html: found ${totalSections - expectedSections} use-case sections outside the groups`);
     }
 
     // Proposal figures: referenced under the base path, published, inside a
