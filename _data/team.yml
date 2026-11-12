@@ -56,17 +56,47 @@
   links:
     homepage: https://www.anl.gov/profile/orcun-yildiz
     scholar: https://scholar.google.com/citations?user=TFK_730AAAAJ
+- name: Joseph A. Insley
+  role: Team Lead, Visualization and Data Analytics
+  institution: Argonne National Laboratory
+  links:
+    homepage: https://www.alcf.anl.gov/about/people/joseph-insley
+    scholar: https://scholar.google.com/citations?user=1JGEFXsAAAAJ
+- name: Mengjiao Han
+  role: Postdoctoral Appointee
+  institution: Argonne National Laboratory
+  links:
+    homepage: https://www.alcf.anl.gov/about/people/mengjiao-han
+    scholar: https://scholar.google.com/citations?user=9ZcCZkoAAAAJ
+- name: Janet Knowles
+  role: Principal Software Development Specialist
+  institution: Argonne National Laboratory
+  links:
+    homepage: https://www.alcf.anl.gov/about/people/janet-knowles
 - name: Kwan-Liu Ma
   role: Distinguished Professor
   institution: University of California, Davis
   links:
     homepage: https://www.cs.ucdavis.edu/~ma/
+- name: Kai-Chen Tung
+  role: PhD Student
+  institution: University of California, Davis
+- name: Michael R. Martin
+  role: PhD Student
+  institution: University of California, Davis
+  links:
+    homepage: https://michaelmartintech.github.io/
+    orcid: https://orcid.org/0009-0001-1528-9965
+    github: https://github.com/MichaelMartinTech
 - name: Hongfeng Yu
   role: Professor
   institution: University of Nebraska–Lincoln
   links:
     homepage: https://cse.unl.edu/~yu
     scholar: https://scholar.google.com/citations?user=yeWsFW4AAAAJ
+- name: Xinyan Xie
+  role: Research Scientist
+  institution: University of Nebraska–Lincoln
 - name: Jianxin Sun
   role: Assistant Professor
   institution: University of Cincinnati
@@ -81,6 +111,9 @@
     homepage: https://cs.uic.edu/profiles/luc-renambot
     orcid: https://orcid.org/0000-0001-7067-3962
     github: https://github.com/renambot-uic
+- name: Riccardo Bonfanti
+  role: Graduate Student
+  institution: University of Illinois Chicago
 - name: Cory Quammen
   role: Technical Leader, Scientific Computing
   institution: Kitware
