@@ -1,3 +1,4 @@
 # Last-name → list of first-name variants used to render coauthor names in
-# publication author lists. Filled with IDEAS Team Members by the
-# publications ticket; team-member bolding will come from the team data file.
+# publication author lists as links. Team-member bolding does NOT live here —
+# it is sourced from _data/team.yml by _layouts/bib.liquid (issue #4). Add an
+# entry only to link a frequent coauthor to an external profile.

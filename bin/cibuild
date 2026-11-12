@@ -18,9 +18,12 @@ bundle exec jekyll build
 node test/check_build_output.js
 node test/assert_site.js
 
+# al-folio's publication "Abs"/"Bib" toggles are <a role="button"> without
+# href (JS-only anchors, valid HTML5). --allow-missing-href permits those.
 bundle exec htmlproofer ./_site \
   --disable-external \
   --allow-hash-href \
+  --allow-missing-href \
   --ignore-urls "/favicon.ico,/feed.xml" \
   --swap-urls "^${BASEURL}:"
 

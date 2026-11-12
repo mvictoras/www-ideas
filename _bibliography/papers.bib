@@ -1,7 +1,131 @@
 % IDEAS publications.
-% Seeded entries (NL2SciVis, "Do Large Language Models Speak Scientific
-% Workflows?", GSCache, Importance Mask Synthesis) are added by the
-% publications ticket. Team-member bolding in author lists will be sourced
-% from the team data file.
+%
+% Rendered on the Publications page by jekyll-scholar, grouped by year
+% (descending). Team Members' names are bolded automatically from
+% _data/team.yml (see _layouts/bib.liquid) — adding a Team Member there
+% bolds them here without any change to this file's config.
+%
+% Fields with special meaning:
+%   bibtex_show  — shows the "Bib" BibTeX-export button and hidden block.
+%   abstract     — shows the "Abs" toggle and hidden abstract. It is filtered
+%                  out of the exported BibTeX by filtered_bibtex_keywords.
+%   doi          — rendered as a https://doi.org/ link.
 
-% (empty for now)
+@inproceedings{mathai2026nl2scivis,
+  title     = {NL2SciVis: A Benchmark for Natural Language to Scientific Visualization},
+  author    = {Mathai, Manish and Han, Mengjiao and Knowles, Janet and Mateevitsi, Victor A. and Rizzi, Silvio and Childs, Hank},
+  booktitle = {EuroVis 2026 — Short Papers},
+  year      = {2026},
+  doi       = {10.2312/evs.20261017},
+  bibtex_show = {true},
+  abstract  = {
+    Scientific visualization (SciVis) tools enable exploration of complex
+    scientific datasets but present a steep learning curve, creating hurdles
+    for scientists and making it difficult to evaluate natural-language
+    interfaces to them. We present NL2SciVis, a benchmark for natural language
+    to scientific visualization: each task feeds a prompt to a large language
+    model, executes the generated code in ParaView, and applies two gates — an
+    execution gate checking that a valid state file was produced, and a
+    technique gate checking that the visualization method, field, and
+    parameters are correct. A task passes only if both gates pass, so the
+    protocol verifies pipeline correctness rather than visual similarity
+    alone.
+  }
+}
+
+@inproceedings{yildiz2025llmworkflows,
+  title     = {Do Large Language Models Speak Scientific Workflows?},
+  author    = {Yildiz, Orcun and Peterka, Tom},
+  booktitle = {Workshops of the International Conference on High Performance Computing, Networking, Storage and Analysis (SC-W 2025): Workshop on Workflows in Support of Large-Scale Science (WORKS)},
+  pages     = {2225--2233},
+  year      = {2025},
+  doi       = {10.1145/3731599.3767578},
+  bibtex_show = {true},
+  abstract  = {
+    In this work, we conduct an experimental study to explore applicability of
+    LLMs for configuring, annotating, and translating scientific workflows. We
+    use three different workflow-specific experiments and evaluate several
+    open- and closed-source language models using state-of-the-art workflow
+    systems. Our studies reveal that LLMs often struggle due to a lack of
+    training data for scientific workflows. We further observe that the
+    performance of LLMs varies across experiments and workflow systems. We
+    discuss the implications of our findings and draw attention to several
+    approaches extending LLM capabilities for scientific workflows. Our
+    findings can help workflow developers and users in understanding LLM
+    capabilities in scientific workflows, and motivate further research
+    applying LLMs to workflows.
+  }
+}
+
+@article{bauer2026gscache,
+  title   = {GSCache: Real-Time Radiance Caching for Volume Path Tracing Using 3D Gaussian Splatting},
+  author  = {Bauer, David and Wu, Qi and Gadirov, Hamid and Ma, Kwan-Liu},
+  journal = {IEEE Transactions on Visualization and Computer Graphics},
+  volume  = {32},
+  number  = {1},
+  pages   = {901--911},
+  year    = {2026},
+  doi     = {10.1109/TVCG.2025.3634634},
+  bibtex_show = {true},
+  abstract  = {
+    Real-time path tracing is rapidly becoming the standard for rendering in
+    entertainment and professional applications. In scientific visualization,
+    volume rendering plays a crucial role in helping researchers analyze and
+    interpret complex 3D data. Recently, photorealistic rendering techniques
+    have gained popularity in scientific visualization, yet they face
+    significant challenges. One of the most prominent issues is slow rendering
+    performance and high pixel variance caused by Monte Carlo integration. In
+    this work, we introduce a novel radiance caching approach for path-traced
+    volume rendering. Our method leverages advances in volumetric scene
+    representation and adapts 3D Gaussian splatting to function as a
+    multi-level, path-space radiance cache. This cache is designed to be
+    trainable on the fly, dynamically adapting to changes in scene parameters
+    such as lighting configurations and transfer functions. By incorporating
+    our cache, we achieve less noisy, higher-quality images without increasing
+    rendering costs. To evaluate our approach, we compare it against a
+    baseline path tracer that supports uniform sampling and next-event
+    estimation and the state-of-the-art for neural radiance caching. Through
+    both quantitative and qualitative analyses, we demonstrate that our
+    path-space radiance cache is a robust solution that is easy to integrate
+    and significantly enhances the rendering quality of volumetric
+    visualization applications while maintaining comparable computational
+    efficiency.
+  }
+}
+
+@article{sun2026importancemask,
+  title   = {Make the Fastest Faster: Importance Mask Synthesis for Interactive Volume Visualization Using Reconstruction Neural Networks},
+  author  = {Sun, Jianxin and Lenz, David and Yu, Hongfeng and Peterka, Tom},
+  journal = {IEEE Transactions on Visualization and Computer Graphics},
+  volume  = {32},
+  number  = {2},
+  pages   = {1481--1496},
+  year    = {2026},
+  doi     = {10.1109/TVCG.2025.3621079},
+  bibtex_show = {true},
+  abstract  = {
+    Visualizing a large-scale volumetric dataset with high resolution is
+    challenging due to the substantial computational time and space
+    complexity. Recent deep learning-based image inpainting methods
+    significantly improve rendering latency by reconstructing a
+    high-resolution image for visualization in constant time on GPU from a
+    partially rendered image where only a portion of pixels go through the
+    expensive rendering pipeline. However, existing solutions need to render
+    every pixel of either a predefined regular sampling pattern or an
+    irregular sample pattern predicted from a low-resolution image rendering.
+    Both methods require a significant amount of expensive pixel-level
+    rendering. In this work, we provide Importance Mask Learning (IML) and
+    Synthesis (IMS) networks, which are the first attempts to directly
+    synthesize important regions of the regular sampling pattern from the
+    user's view parameters, to further minimize the number of pixels to
+    render by jointly considering the dataset, user behavior, and the
+    downstream reconstruction neural network. Our solution is a unified
+    framework to handle various types of inpainting methods through the
+    proposed differentiable compaction/decompaction layers. Experiments show
+    our method can further improve the overall rendering latency of
+    state-of-the-art volume visualization methods using reconstruction neural
+    network for free when rendering scientific volumetric datasets. Our method
+    can also directly optimize the off-the-shelf pre-trained reconstruction
+    neural networks without elongated retraining.
+  }
+}

@@ -30,6 +30,10 @@ Current overrides:
 - `_includes/footer.liquid` — IDEAS funding footer (DOE Office of Science ASCR
   acknowledgment with contract DE-AC02-06CH11357, Argonne and DOE Office of
   Science logos, no contact email) replacing the theme's personal footer.
+- `_layouts/bib.liquid` — Team Member author bolding generalized from
+  al-folio's single-owner model: every name in `_data/team.yml` is rendered
+  bold in author lists (issue #4), and article/inproceedings entries also
+  show volume, issue and pages.
 
 After any change to a shadowed file (and after every gem version bump), re-run
 the audit and `accept` the new upstream hash.

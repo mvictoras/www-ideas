@@ -4,8 +4,10 @@
  *
  * Covers the site-shell acceptance criteria (nav pages, IDEAS title/wordmark,
  * search + dark-mode toggles, ASCR footer with both funder logos, no
- * email/mailto, no analytics, no removed al-folio features) and the Team-page
- * acceptance criteria (grid matches _data/team.yml 1:1).
+ * email/mailto, no analytics, no removed al-folio features), the Team-page
+ * acceptance criteria (grid matches _data/team.yml 1:1) and the
+ * Publications-page acceptance criteria (every BibTeX entry rendered, grouped
+ * by year, with Team Member names bolded from the team data file).
  */
 const fs = require("fs");
 const path = require("path");
@@ -25,6 +27,20 @@ const NAV_LINKS = NAV_PATHS.map((p) => `${BASEURL}${p}`);
 
 let failures = [];
 const fail = (msg) => failures.push(msg);
+
+// Data-file values could contain characters HTML escapes in rendered text.
+const escapeHtml = (value) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+// Returns the complete <div ...>...</div> starting at html[startIndex] (the
+// index of an opening <div), tracking nesting depth.
+const extractDiv = (html, startIndex) => {
+  let depth = 0;
+  for (const match of html.slice(startIndex).matchAll(/<div\b[^>]*>|<\/div>/gi)) {
+    depth += match[0].toLowerCase() === "</div>" ? -1 : 1;
+    if (depth === 0) return html.slice(startIndex, startIndex + match.index + match[0].length);
+  }
+  return null;
+};
 
 const htmlFiles = walk(SITE, ".html");
 if (htmlFiles.length === 0) {
@@ -132,18 +148,6 @@ if (!fs.existsSync(TEAM_PAGE)) {
     const nameHeadings = (teamHtml.match(/<h2 class="team-name"/g) || []).length;
     if (h2s !== nameHeadings) fail("team/index.html: contains headings other than team-member names");
 
-    // Data-file values could contain characters HTML escapes in rendered text.
-    const escapeHtml = (value) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-
-    const extractDiv = (html, startIndex) => {
-      let depth = 0;
-      for (const match of html.slice(startIndex).matchAll(/<div\b[^>]*>|<\/div>/gi)) {
-        depth += match[0].toLowerCase() === "</div>" ? -1 : 1;
-        if (depth === 0) return html.slice(startIndex, startIndex + match.index + match[0].length);
-      }
-      return null;
-    };
-
     const teamGridHtml = gridStarts.length === 1 ? extractDiv(teamHtml, gridStarts[0].index) : null;
     if (!teamGridHtml) {
       fail("team/index.html: team grid is not a complete div");
@@ -218,6 +222,151 @@ if (!fs.existsSync(TEAM_PAGE)) {
         }
       }
     }
+  }
+}
+
+// 6. Publications: every entry in _bibliography/papers.bib is rendered on the
+// Publications page, grouped by year, with a DOI link, BibTeX export and
+// abstract toggle — and Team Member names in author lists are bold from the
+// team data file, while non-members are plain.
+const PUBLICATIONS_PAGE = path.join(SITE, "publications", "index.html");
+if (!fs.existsSync(PUBLICATIONS_PAGE)) {
+  fail("publications/index.html: missing — the Publications page did not build");
+} else {
+  const bibText = fs.readFileSync(path.join(__dirname, "..", "_bibliography", "papers.bib"), "utf8");
+  const bibEntries = [];
+  const entryStart = /^@(\w+)\{\s*([^,\s]+),/gm;
+  let entryMatch;
+  while ((entryMatch = entryStart.exec(bibText)) !== null) {
+    const nextEntry = bibText.indexOf("\n@", entryMatch.index + 1);
+    const block = bibText.slice(entryMatch.index, nextEntry === -1 ? undefined : nextEntry);
+    const field = (name) => {
+      const m = block.match(new RegExp(`^\\s*${name}\\s*=\\s*\\{([\\s\\S]*?)\\},?\\s*$`, "m"));
+      return m ? m[1].replace(/\s+/g, " ").trim() : null;
+    };
+    bibEntries.push({
+      key: entryMatch[2],
+      authors: (field("author") || "").split(" and ").map((a) => {
+        const [last, first = ""] = a.split(",").map((s) => s.trim());
+        return { last, first };
+      }),
+      year: field("year"),
+      doi: field("doi"),
+      volume: field("volume"),
+      number: field("number"),
+      pages: field("pages"),
+    });
+  }
+  if (bibEntries.length === 0) fail("_bibliography/papers.bib: no BibTeX entries found");
+
+  const team = yaml.load(fs.readFileSync(path.join(__dirname, "..", "_data", "team.yml"), "utf8"));
+
+  // Mirrors the layout's matching rule: case-insensitive last name plus first
+  // name, allowing published middle initials ("Victor A." matches "Victor").
+  const isTeamMember = (last, first) =>
+    team.some((member) => {
+      const nameParts = member.name.trim().split(" ");
+      const memberLast = nameParts[nameParts.length - 1].toLowerCase();
+      if (memberLast !== last.toLowerCase()) return false;
+      const memberFirst = nameParts.slice(0, -1).join(" ").toLowerCase();
+      const authorFirst = first.toLowerCase();
+      if (memberFirst === authorFirst) return true;
+      const [shorter, longer] = memberFirst.length <= authorFirst.length ? [memberFirst, authorFirst] : [authorFirst, memberFirst];
+      return longer.startsWith(shorter) && longer[shorter.length] === " ";
+    });
+
+  const pubsHtml = fs.readFileSync(PUBLICATIONS_PAGE, "utf8");
+
+  // Every bib entry renders exactly once, keyed by its citation key.
+  for (const entry of bibEntries) {
+    const entryDivs = [...pubsHtml.matchAll(new RegExp(`<div id="${entry.key}"(?:\\s|>)`, "g"))];
+    if (entryDivs.length !== 1) {
+      fail(`publications/index.html: expected exactly one rendered entry for ${entry.key}, found ${entryDivs.length}`);
+      continue;
+    }
+    const entryDiv = extractDiv(pubsHtml, entryDivs[0].index);
+    if (!entryDiv) {
+      fail(`publications/index.html: entry ${entry.key} is not a complete div`);
+      continue;
+    }
+
+    const authorDivMatch = entryDiv.match(/<div class="author">([\s\S]*?)<\/div>/);
+    if (!authorDivMatch) {
+      fail(`publications/index.html: entry ${entry.key} has no author list`);
+      continue;
+    }
+    const authorHtml = authorDivMatch[1];
+    const strongTexts = [...authorHtml.matchAll(/<strong>([\s\S]*?)<\/strong>/g)].map((m) =>
+      m[1]
+        .replace(/<[^>]+>/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+    );
+
+    for (const author of entry.authors) {
+      const renderedName = `${author.first} ${author.last}`.replace(/\s+/g, " ").trim();
+      if (isTeamMember(author.last, author.first)) {
+        if (!strongTexts.some((t) => t.toLowerCase() === renderedName.toLowerCase())) {
+          fail(`publications/index.html: Team Member "${renderedName}" is not bold in the ${entry.key} author list`);
+        }
+      } else if (strongTexts.some((t) => t.toLowerCase().includes(author.last.toLowerCase()))) {
+        fail(`publications/index.html: non-member "${renderedName}" is bold in the ${entry.key} author list`);
+      }
+    }
+
+    if (entry.doi && !entryDiv.includes(`href="https://doi.org/${entry.doi}"`)) {
+      fail(`publications/index.html: entry ${entry.key} does not link its DOI ${entry.doi}`);
+    }
+    if (!entryDiv.includes('class="bibtex btn') || !entryDiv.includes('class="bibtex hidden"')) {
+      fail(`publications/index.html: entry ${entry.key} has no BibTeX export`);
+    }
+    if (!entryDiv.includes('class="abstract btn') || !entryDiv.includes('class="abstract hidden"')) {
+      fail(`publications/index.html: entry ${entry.key} has no abstract toggle`);
+    }
+    if (!entryDiv.includes('class="periodical"')) {
+      fail(`publications/index.html: entry ${entry.key} does not render its venue`);
+    }
+
+    // Volume, issue and pages render in the periodical line (issue #4 seed
+    // data: "IEEE TVCG 32(1):901–911", "pp. 2225–2233").
+    const periodical = entryDiv.match(/<div class="periodical">([\s\S]*?)<\/div>/);
+    if (periodical) {
+      const periodicalText = periodical[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ");
+      const detail = [];
+      if (entry.volume) detail.push(entry.volume + (entry.number ? `(${entry.number})` : ""));
+      if (entry.pages) detail.push(entry.pages.replace(/--/g, "–"));
+      for (const d of detail) {
+        if (!periodicalText.includes(d)) {
+          fail(`publications/index.html: entry ${entry.key} does not render "${d}"`);
+        }
+      }
+    }
+  }
+
+  // Bold author names must be Team Members and all Team Members from the data
+  // file must be bold — either direction means the data files drifted apart.
+  const teamLastNames = team.map((m) => m.name.trim().split(" ").pop().toLowerCase());
+  for (const strongText of [...pubsHtml.matchAll(/<div class="author">([\s\S]*?)<\/div>/g)].flatMap((m) =>
+    [...m[1].matchAll(/<strong>([\s\S]*?)<\/strong>/g)].map((s) => s[1].replace(/\s+/g, " ").trim())
+  )) {
+    if (!teamLastNames.includes(strongText.split(" ").pop().toLowerCase())) {
+      fail(`publications/index.html: "${strongText}" is bold but has no entry in _data/team.yml`);
+    }
+  }
+
+  // Grouped by year: one heading per year present in the bib file.
+  const renderedYears = [...pubsHtml.matchAll(/<h2 class="bibliography">([^<]*)<\/h2>/g)].map((m) => m[1].trim());
+  const bibYears = [...new Set(bibEntries.map((e) => e.year).filter(Boolean))];
+  for (const year of bibYears) {
+    if (!renderedYears.includes(year)) fail(`publications/index.html: no year group for ${year}`);
+  }
+  for (const year of renderedYears) {
+    if (!bibYears.includes(year)) fail(`publications/index.html: year group ${year} has no entries in _bibliography/papers.bib`);
+  }
+
+  // All authors shown: no "N more authors" truncation hides any name.
+  if (/<span class="more-authors"/.test(pubsHtml)) {
+    fail("publications/index.html: author lists are truncated; all BibTeX authors must render");
   }
 }
 
