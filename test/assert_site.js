@@ -9,7 +9,9 @@
  * Publications-page acceptance criteria (every BibTeX entry rendered, grouped
  * by year, with Team Member names bolded from the team data file), and the
  * Research-page acceptance criteria (four Objectives render with their
- * progress in the text, canonical IDEAS expansion, no TIDES material).
+ * progress in the text, canonical IDEAS expansion, no TIDES material) and the
+ * Use-Cases-page acceptance criteria (active/upcoming split, canonical names,
+ * captioned and credited proposal figures, breeding-blanket figure absent).
  */
 const fs = require("fs");
 const path = require("path");
@@ -466,6 +468,111 @@ if (!fs.existsSync(RESEARCH_PAGE)) {
       if (!/<img[^>]*\salt="[^"]+"/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no alt text`);
       if (!/<figcaption>[\s\S]*?\S[\s\S]*?<\/figcaption>/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no caption`);
       if (!/Credit:/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no credit line`);
+    }
+  }
+}
+
+// 8. Use Cases page: active and upcoming Use Cases are clearly separated
+// (each inside its group, active before upcoming); the canonical names are
+// used ("Turbulence in Complex Geometries", never "Fusion Flow"); each Use
+// Case explains its bottleneck and the assistant's approach; the proposal's
+// HACC cluster and XPCS interface figures are captioned and credited; and
+// the fusion breeding-blanket figure is absent.
+const USE_CASES_PAGE = path.join(SITE, "use-cases", "index.html");
+const ACTIVE_USE_CASES = ["Cosmology", "Turbulence in Complex Geometries"];
+const UPCOMING_USE_CASES = ["X-Ray Science"];
+const USE_CASE_FIGURES = [
+  { name: "HACC cluster", file: "hacc.png" },
+  { name: "XPCS interface", file: "xpcs-interface.png" },
+];
+if (!fs.existsSync(USE_CASES_PAGE)) {
+  fail("use-cases/index.html: missing — the Use Cases page did not build");
+} else {
+  const ucHtml = fs.readFileSync(USE_CASES_PAGE, "utf8");
+  if (/Fusion Flow/i.test(ucHtml)) {
+    fail('use-cases/index.html: uses the retired name "Fusion Flow"');
+  }
+  if (/\bTIDES\b/.test(ucHtml)) {
+    fail("use-cases/index.html: mentions TIDES; the Use Cases page must carry no TIDES material");
+  }
+
+  const groupHtml = (groupId) => {
+    const start = ucHtml.indexOf(`<div class="use-case-group" id="${groupId}">`);
+    return start === -1 ? null : extractDiv(ucHtml, start);
+  };
+  const activeHtml = groupHtml("active");
+  const upcomingHtml = groupHtml("upcoming");
+  if (!activeHtml || !upcomingHtml) {
+    fail("use-cases/index.html: missing active/upcoming group separation");
+  } else {
+    if (ucHtml.indexOf('id="active"') > ucHtml.indexOf('id="upcoming"')) {
+      fail("use-cases/index.html: the active group does not precede the upcoming group");
+    }
+
+    for (const [groupId, titles] of [
+      ["active", ACTIVE_USE_CASES],
+      ["upcoming", UPCOMING_USE_CASES],
+    ]) {
+      const groupSegment = groupId === "active" ? activeHtml : upcomingHtml;
+      const sectionStarts = [...groupSegment.matchAll(/<section class="use-case"/g)];
+      if (sectionStarts.length !== titles.length) {
+        fail(`use-cases/index.html: expected ${titles.length} use cases in the ${groupId} group, found ${sectionStarts.length}`);
+        continue;
+      }
+      titles.forEach((title, index) => {
+        const start = sectionStarts[index].index;
+        const end = groupSegment.indexOf("</section>", start);
+        const segment = end === -1 ? "" : groupSegment.slice(start, end);
+        const heading = segment.match(/<h2[^>]*>([\s\S]*?)<\/h2>/);
+        const headingText = heading ? heading[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim() : "";
+        if (headingText !== title) {
+          fail(`use-cases/index.html: ${groupId} use case ${index + 1} is "${headingText}", expected "${title}"`);
+        }
+        // The kicker states the status, so the split is visible beyond the
+        // group heading.
+        const expectedKicker = groupId === "active" ? "Active Use Case" : "Upcoming Use Case";
+        if (!segment.includes(expectedKicker)) {
+          fail(`use-cases/index.html: "${title}" does not carry the "${expectedKicker}" kicker`);
+        }
+        // The tagline plus at least two prose paragraphs: the bottleneck and
+        // how the IDEAS assistant addresses it.
+        if ((segment.match(/<p[\s>]/g) || []).length < 3) {
+          fail(`use-cases/index.html: "${title}" does not explain its bottleneck and the assistant's approach`);
+        }
+      });
+    }
+
+    // No use-case section outside the two groups.
+    const totalSections = (ucHtml.match(/<section class="use-case"/g) || []).length;
+    if (totalSections !== ACTIVE_USE_CASES.length + UPCOMING_USE_CASES.length) {
+      fail(`use-cases/index.html: found ${totalSections - ACTIVE_USE_CASES.length - UPCOMING_USE_CASES.length} use-case sections outside the groups`);
+    }
+
+    // Proposal figures: referenced under the base path, published, inside a
+    // <figure> with alt text, caption and credit.
+    for (const figure of USE_CASE_FIGURES) {
+      const srcPattern = `src="${BASEURL}/assets/img/use-cases/${figure.file}"`;
+      if (!ucHtml.includes(srcPattern)) {
+        fail(`use-cases/index.html: ${figure.name} figure does not reference ${BASEURL}/assets/img/use-cases/${figure.file}`);
+      }
+      if (!fs.existsSync(path.join(SITE, "assets", "img", "use-cases", figure.file))) {
+        fail(`assets/img/use-cases/${figure.file}: not published in the build`);
+      }
+      const figureBlock = ucHtml.match(new RegExp(`<figure[^>]*>(?:(?!</figure>)[\\s\\S])*?${srcPattern.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&")}[\\s\\S]*?</figure>`));
+      if (!figureBlock) {
+        fail(`use-cases/index.html: ${figure.name} is not inside a <figure>`);
+      } else {
+        if (!/<img[^>]*\salt="[^"]+"/.test(figureBlock[0])) fail(`use-cases/index.html: ${figure.name} figure has no alt text`);
+        if (!/<figcaption>[\s\S]*?\S[\s\S]*?<\/figcaption>/.test(figureBlock[0])) fail(`use-cases/index.html: ${figure.name} figure has no caption`);
+        if (!/Credit:/.test(figureBlock[0])) fail(`use-cases/index.html: ${figure.name} figure has no credit line`);
+      }
+    }
+
+    // The fusion breeding-blanket figure is excluded (issue #6): the asset
+    // must not be published anywhere in the build. (The words "breeding
+    // blanket" may appear in prose as motivation; only the figure is barred.)
+    if (walk(SITE, "").some((file) => /breeding-blanket/i.test(path.basename(file)))) {
+      fail("the fusion breeding-blanket figure is published in the build; it must be absent");
     }
   }
 }

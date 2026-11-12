@@ -1,0 +1,131 @@
+---
+layout: page
+---
+{% comment %}
+  Use Cases page. The page body is split at a "use-cases" HTML comment
+  marker: the part before it is the opening story, the part after it is the
+  closing. Between them, every Use Case in the projects collection
+  (category: use-case) renders under its Active or Upcoming group heading,
+  ordered by importance. The build harness (test/assert_site.js) asserts the
+  active/upcoming split, the canonical names and the figures.
+{% endcomment %}
+{% assign story = content | split: '<!-- use-cases -->' %}
+
+<style>
+  .use-cases-lede {
+    font-size: 1.2rem;
+    line-height: 1.7;
+  }
+
+  .use-case-group {
+    margin-top: 4rem;
+  }
+
+  .use-case-group > h2 {
+    margin-top: 0;
+  }
+
+  .use-case {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--global-divider-color);
+  }
+
+  .use-case:first-of-type {
+    margin-top: 1.5rem;
+    border-top: none;
+    padding-top: 0;
+  }
+
+  .use-case-kicker {
+    margin-bottom: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--global-theme-color);
+  }
+
+  .use-case h2 {
+    margin-top: 0;
+  }
+
+  .use-case-tagline {
+    margin-bottom: 1.5rem;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--global-text-color-light);
+  }
+
+  .use-case-figure {
+    margin: 2.5rem 0;
+  }
+
+  .use-case-figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+  }
+
+  .use-case-figure figcaption {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--global-text-color-light);
+  }
+
+  .use-cases-closing {
+    margin-top: 4rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--global-divider-color);
+  }
+</style>
+
+{{ story[0] }}
+
+{% assign active_use_cases = site.projects | where: 'category', 'use-case' | where: 'status', 'active' | sort: 'importance' %}
+{% assign upcoming_use_cases = site.projects | where: 'category', 'use-case' | where: 'status', 'upcoming' | sort: 'importance' %}
+
+<div class="use-case-group" id="active">
+  <h2>Active</h2>
+  {% for use_case in active_use_cases %}
+    <section class="use-case" id="{{ use_case.slug }}">
+      <p class="use-case-kicker">Active Use Case</p>
+      <h2>{{ use_case.title }}</h2>
+      <p class="use-case-tagline">{{ use_case.tagline }}</p>
+      {{ use_case.content | markdownify }}
+      {% if use_case.figure %}
+        <figure class="use-case-figure">
+          <img src="{{ use_case.figure.src | relative_url }}" alt="{{ use_case.figure.alt }}">
+          <figcaption>{{ use_case.figure.caption }} Credit: {{ use_case.figure.credit }}</figcaption>
+        </figure>
+      {% endif %}
+    </section>
+  {% endfor %}
+</div>
+
+<div class="use-case-group" id="upcoming">
+  <h2>Upcoming</h2>
+  {% for use_case in upcoming_use_cases %}
+    <section class="use-case" id="{{ use_case.slug }}">
+      <p class="use-case-kicker">Upcoming Use Case</p>
+      <h2>{{ use_case.title }}</h2>
+      <p class="use-case-tagline">{{ use_case.tagline }}</p>
+      {{ use_case.content | markdownify }}
+      {% if use_case.figure %}
+        <figure class="use-case-figure">
+          <img src="{{ use_case.figure.src | relative_url }}" alt="{{ use_case.figure.alt }}">
+          <figcaption>{{ use_case.figure.caption }} Credit: {{ use_case.figure.credit }}</figcaption>
+        </figure>
+      {% endif %}
+    </section>
+  {% endfor %}
+</div>
+
+{% if story[1] %}
+  <div class="use-cases-closing">
+    {{ story[1] }}
+  </div>
+{% endif %}
