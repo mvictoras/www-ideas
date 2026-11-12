@@ -3,9 +3,8 @@ layout: page
 ---
 {% comment %}
   Team grid. Renders every entry in _data/team.yml as one grid — Argonne and
-  Partner members together, not grouped by institution type. Cards carry
-  data-* attributes that the build harness (test/assert_site.js) uses to
-  assert the rendered grid matches the data file 1:1.
+  Partner members together, not grouped by institution type. The build harness
+  (test/assert_site.js) asserts the visible grid matches the data file 1:1.
 {% endcomment %}
 
 <style>
@@ -99,26 +98,7 @@ layout: page
 {% assign team = site.data.team %}
 <div class="team-grid">
   {% for member in team %}
-    {% assign link_keys = '' | split: '' %}
-    {% if member.links.homepage %}
-      {% assign link_keys = link_keys | push: 'homepage' %}
-    {% endif %}
-    {% if member.links.orcid %}
-      {% assign link_keys = link_keys | push: 'orcid' %}
-    {% endif %}
-    {% if member.links.scholar %}
-      {% assign link_keys = link_keys | push: 'scholar' %}
-    {% endif %}
-    {% if member.links.github %}
-      {% assign link_keys = link_keys | push: 'github' %}
-    {% endif %}
-    <div
-      class="team-card"
-      data-team-name="{{ member.name }}"
-      data-team-role="{{ member.role }}"
-      data-team-institution="{{ member.institution }}"
-      data-team-links="{{ link_keys | join: ',' }}"
-    >
+    <div class="team-card">
       {% if member.photo %}
         <img
           class="team-photo"

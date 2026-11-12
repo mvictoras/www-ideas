@@ -44,20 +44,14 @@ for (const p of NAV_PAGES) {
   if (headings.length !== 1) fail(`${p}: expected one primary heading, found ${headings.length}`);
 }
 
-// 2. Privacy applies to all published text, including assets and search data.
+// 2. Privacy applies to all published bytes, including binary metadata,
+// assets and search data.
 // Email-like addresses. The domain must end in an alphabetic TLD (>= 2
 // letters), which skips npm package versions in CDN URLs (e.g.
 // fontawesome-free@7.2.0) while still matching real addresses.
 const EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/;
-const decoder = new TextDecoder("utf-8", { fatal: true });
 for (const file of walk(SITE, "")) {
-  let content;
-  try {
-    content = decoder.decode(fs.readFileSync(file));
-  } catch (error) {
-    if (error.code === "ERR_ENCODING_INVALID_ENCODED_DATA") continue;
-    throw error;
-  }
+  let content = fs.readFileSync(file).toString("latin1");
   const rel = path.relative(SITE, file).split(path.sep).join("/");
   // Preserve this exact upstream copyright line; no other addresses in this
   // dependency are exempt. See docs/privacy.md and issue #13.
@@ -120,8 +114,7 @@ if (fs.existsSync(sitemapPath)) {
 }
 
 // 5. The Team grid renders exactly the members in _data/team.yml, 1:1, in a
-// single grid with no institution-type group headings. Cards expose their
-// data through data-* attributes written by _layouts/team.liquid.
+// single grid with no institution-type group headings.
 const TEAM_PAGE = path.join(SITE, "team", "index.html");
 if (!fs.existsSync(TEAM_PAGE)) {
   fail("team/index.html: missing — the Team page did not build");
@@ -131,78 +124,98 @@ if (!fs.existsSync(TEAM_PAGE)) {
     fail("_data/team.yml: expected a non-empty list of team members");
   } else {
     const teamHtml = fs.readFileSync(TEAM_PAGE, "utf8");
-    const grids = teamHtml.match(/<div class="team-grid"/g) || [];
-    if (grids.length !== 1) fail(`team/index.html: expected exactly one team grid, found ${grids.length}`);
+    const gridStarts = [...teamHtml.matchAll(/<div class="team-grid">/g)];
+    if (gridStarts.length !== 1) fail(`team/index.html: expected exactly one team grid, found ${gridStarts.length}`);
 
     // No group headings: every h2 on the Team page is a member name.
     const h2s = (teamHtml.match(/<h2(?:\s|>)/g) || []).length;
     const nameHeadings = (teamHtml.match(/<h2 class="team-name"/g) || []).length;
     if (h2s !== nameHeadings) fail("team/index.html: contains headings other than team-member names");
 
-    // Cards are flat siblings of the grid, so slicing between consecutive
-    // card opening tags yields each card's rendered markup.
-    const cardStarts = [...teamHtml.matchAll(/<div class="team-card"/g)];
-    const segments = cardStarts.map((m, i) => teamHtml.slice(m.index, i + 1 < cardStarts.length ? cardStarts[i + 1].index : teamHtml.length));
-    if (cardStarts.length !== team.length) {
-      fail(`team/index.html: expected ${team.length} team cards, found ${cardStarts.length}`);
-    }
+    // Data-file values could contain characters HTML escapes in rendered text.
+    const escapeHtml = (value) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-    // Data-file values could contain characters HTML-escapes in attributes.
-    const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-
-    const initialsOf = (name) => {
-      const words = name.split(" ");
-      return (words[0][0] + (words.length > 1 ? words[words.length - 1][0] : "")).toUpperCase();
+    const extractDiv = (html, startIndex) => {
+      let depth = 0;
+      for (const match of html.slice(startIndex).matchAll(/<div\b[^>]*>|<\/div>/gi)) {
+        depth += match[0].toLowerCase() === "</div>" ? -1 : 1;
+        if (depth === 0) return html.slice(startIndex, startIndex + match.index + match[0].length);
+      }
+      return null;
     };
 
-    for (const member of team) {
-      const matches = segments.filter((s) => s.includes(`data-team-name="${esc(member.name)}"`));
-      if (matches.length !== 1) {
-        fail(`team/index.html: expected exactly one card for data-file member "${member.name}", found ${matches.length}`);
-        continue;
+    const teamGridHtml = gridStarts.length === 1 ? extractDiv(teamHtml, gridStarts[0].index) : null;
+    if (!teamGridHtml) {
+      fail("team/index.html: team grid is not a complete div");
+    } else {
+      // Cards are flat siblings of the grid, so slicing between consecutive
+      // card opening tags yields each card's rendered markup.
+      const cardStarts = [...teamGridHtml.matchAll(/<div class="team-card">/g)];
+      const cardSegments = cardStarts.map((match, index) =>
+        teamGridHtml.slice(match.index, index + 1 < cardStarts.length ? cardStarts[index + 1].index : teamGridHtml.length)
+      );
+      const pageCardCount = (teamHtml.match(/<div class="team-card">/g) || []).length;
+      if (cardStarts.length !== team.length) {
+        fail(`team/index.html: expected ${team.length} team cards in the grid, found ${cardStarts.length}`);
       }
-      const segment = matches[0];
-      const attrs = segment.slice(0, segment.indexOf(">"));
+      if (pageCardCount !== cardStarts.length) {
+        fail(`team/index.html: found ${pageCardCount - cardStarts.length} team cards outside the grid`);
+      }
 
-      if (!attrs.includes(`data-team-role="${esc(member.role)}"`)) {
-        fail(`team/index.html: "${member.name}" card does not carry role "${member.role}"`);
-      }
-      if (!attrs.includes(`data-team-institution="${esc(member.institution)}"`)) {
-        fail(`team/index.html: "${member.name}" card does not carry institution "${member.institution}"`);
-      }
+      const initialsOf = (name) => {
+        const words = name.split(" ");
+        return (words[0][0] + (words.length > 1 ? words[words.length - 1][0] : "")).toUpperCase();
+      };
 
-      // Optional links: rendered hrefs match the data file exactly, and no
-      // link is rendered for a type the member does not have.
-      const links = member.links || {};
-      const renderedLinks = segment.match(/<a\s/g) || [];
-      if (renderedLinks.length !== Object.keys(links).length) {
-        fail(`team/index.html: "${member.name}" card renders ${renderedLinks.length} links, data file has ${Object.keys(links).length}`);
-      }
-      for (const [type, url] of Object.entries(links)) {
-        if (!segment.includes(`href="${esc(url)}"`)) {
-          fail(`team/index.html: "${member.name}" card is missing its ${type} link to ${url}`);
+      for (const member of team) {
+        const renderedName = `<h2 class="team-name">${escapeHtml(member.name)}</h2>`;
+        const matches = cardSegments.filter((segment) => segment.includes(renderedName));
+        if (matches.length !== 1) {
+          fail(`team/index.html: expected exactly one card for data-file member "${member.name}", found ${matches.length}`);
+          continue;
+        }
+        const segment = matches[0];
+
+        if (!segment.includes(`<p class="team-role">${escapeHtml(member.role)}</p>`)) {
+          fail(`team/index.html: "${member.name}" card does not render role "${member.role}"`);
+        }
+        if (!segment.includes(`<p class="team-institution">${escapeHtml(member.institution)}</p>`)) {
+          fail(`team/index.html: "${member.name}" card does not render institution "${member.institution}"`);
+        }
+
+        // Optional links: rendered hrefs match the data file exactly, and no
+        // link is rendered for a type the member does not have.
+        const links = member.links || {};
+        const renderedLinks = segment.match(/<a\s/g) || [];
+        if (renderedLinks.length !== Object.keys(links).length) {
+          fail(`team/index.html: "${member.name}" card renders ${renderedLinks.length} links, data file has ${Object.keys(links).length}`);
+        }
+        for (const [type, url] of Object.entries(links)) {
+          if (!segment.includes(`href="${escapeHtml(url)}"`)) {
+            fail(`team/index.html: "${member.name}" card is missing its ${type} link to ${url}`);
+          }
+        }
+
+        // Optional photo: an <img> when present, a legible initials avatar when not.
+        if (member.photo) {
+          const expectedSrc = `src="${BASEURL}/assets/img/team/${member.photo}"`;
+          if (!segment.includes('<img class="team-photo"') || !segment.includes(expectedSrc)) {
+            fail(`team/index.html: "${member.name}" card does not render photo assets/img/team/${member.photo}`);
+          }
+        } else {
+          if (!segment.includes('class="team-avatar"')) {
+            fail(`team/index.html: "${member.name}" card has neither photo nor initials avatar`);
+          }
+          if (!segment.includes(`>${initialsOf(member.name)}</div>`)) {
+            fail(`team/index.html: "${member.name}" card avatar does not show initials "${initialsOf(member.name)}"`);
+          }
         }
       }
 
-      // Optional photo: an <img> when present, a legible initials avatar when not.
-      if (member.photo) {
-        const expectedSrc = `src="${BASEURL}/assets/img/team/${member.photo}"`;
-        if (!segment.includes('<img class="team-photo"') || !segment.includes(expectedSrc)) {
-          fail(`team/index.html: "${member.name}" card does not render photo assets/img/team/${member.photo}`);
+      for (const segment of cardSegments) {
+        if (!team.some((member) => segment.includes(`<h2 class="team-name">${escapeHtml(member.name)}</h2>`))) {
+          fail("team/index.html: contains a card with no entry in _data/team.yml");
         }
-      } else {
-        if (!segment.includes('class="team-avatar"')) {
-          fail(`team/index.html: "${member.name}" card has neither photo nor initials avatar`);
-        }
-        if (!segment.includes(`>${initialsOf(member.name)}</div>`)) {
-          fail(`team/index.html: "${member.name}" card avatar does not show initials "${initialsOf(member.name)}"`);
-        }
-      }
-    }
-
-    for (const segment of segments) {
-      if (!team.some((m) => segment.includes(`data-team-name="${esc(m.name)}"`))) {
-        fail("team/index.html: contains a card with no entry in _data/team.yml");
       }
     }
   }

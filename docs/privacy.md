@@ -1,8 +1,8 @@
 # Published email addresses
 
 IDEAS publishes no contact email addresses or `mailto:` links. The production
-assertions scan every UTF-8 text file in `_site`, including HTML, JavaScript,
-JSON, XML, SVG and CSS. Binary files are outside this text scan.
+assertions scan every file in `_site`, including HTML, JavaScript, JSON, XML,
+SVG, CSS and binary image metadata such as EXIF, IPTC and XMP.
 
 There is one upstream attribution exception, recorded in
 [issue #13](https://github.com/mvictoras/www-ideas/issues/13), which clarifies the
