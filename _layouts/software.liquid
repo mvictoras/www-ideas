@@ -46,24 +46,30 @@ layout: page
   }
 </style>
 
-{% assign software = site.data.software %}
+{% assign software_releases = site.data.software %}
 <div class="software-grid">
-  {% for release in software %}
+  {% for release in software_releases %}
     <div class="software-card">
       <h2 class="software-name">{{ release.name }}</h2>
       <p class="software-description">{{ release.description }}</p>
       <ul class="software-links">
         <li>
-          <a href="{{ release.repository }}" aria-label="{{ release.name }} repository"><i class="fa-brands fa-github" aria-hidden="true"></i> Repository</a>
+          <a href="{{ release.repository }}" aria-label="{{ release.name }} repository"
+            ><i class="fa-brands fa-github" aria-hidden="true"></i> Repository</a
+          >
         </li>
         {% if release.paper_doi %}
           <li>
-            <a href="https://doi.org/{{ release.paper_doi }}" aria-label="{{ release.name }} paper DOI"><i class="ai ai-doi" aria-hidden="true"></i> Paper</a>
+            <a href="https://doi.org/{{ release.paper_doi }}" aria-label="{{ release.name }} paper DOI"
+              ><i class="ai ai-doi" aria-hidden="true"></i> Paper</a
+            >
           </li>
         {% endif %}
         {% if release.project_page %}
           <li>
-            <a href="{{ release.project_page }}" aria-label="{{ release.name }} project page"><i class="fa-solid fa-globe" aria-hidden="true"></i> Project page</a>
+            <a href="{{ release.project_page }}" aria-label="{{ release.name }} project page"
+              ><i class="fa-solid fa-globe" aria-hidden="true"></i> Project page</a
+            >
           </li>
         {% endif %}
       </ul>

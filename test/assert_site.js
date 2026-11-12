@@ -275,9 +275,7 @@ if (!fs.existsSync(PUBLICATIONS_PAGE)) {
     });
   }
   if (bibEntries.length !== EXPECTED_PUBLICATION_KEYS.length) {
-    fail(
-      `_bibliography/papers.bib: expected ${EXPECTED_PUBLICATION_KEYS.length} entries, found ${bibEntries.length}`
-    );
+    fail(`_bibliography/papers.bib: expected ${EXPECTED_PUBLICATION_KEYS.length} entries, found ${bibEntries.length}`);
   }
   const bibEntryKeys = new Set(bibEntries.map((entry) => entry.key));
   for (const expectedPublicationKey of EXPECTED_PUBLICATION_KEYS) {
@@ -288,9 +286,7 @@ if (!fs.existsSync(PUBLICATIONS_PAGE)) {
 
   const team = yaml.load(fs.readFileSync(path.join(__dirname, "..", "_data", "team.yml"), "utf8"));
   const publicationNameKey = (value) => value.replace(/\s+/g, " ").trim().toLowerCase();
-  const teamPublicationNames = new Set(
-    team.flatMap((member) => [member.name, ...(member.publication_name_aliases || [])]).map(publicationNameKey)
-  );
+  const teamPublicationNames = new Set(team.flatMap((member) => [member.name, ...(member.publication_name_aliases || [])]).map(publicationNameKey));
   const isTeamMember = (last, first) => teamPublicationNames.has(publicationNameKey(`${first} ${last}`));
 
   const pubsHtml = fs.readFileSync(PUBLICATIONS_PAGE, "utf8");
@@ -372,9 +368,7 @@ if (!fs.existsSync(PUBLICATIONS_PAGE)) {
   // Bold author names must be Team Members and all Team Members from the data
   // file must be bold — either direction means the data files drifted apart.
   for (const strongText of [...pubsHtml.matchAll(/<div class="author">([\s\S]*?)<\/div>/g)].flatMap((authorMatch) =>
-    [...authorMatch[1].matchAll(/<strong>([\s\S]*?)<\/strong>/g)].map((strongMatch) =>
-      strongMatch[1].replace(/\s+/g, " ").trim()
-    )
+    [...authorMatch[1].matchAll(/<strong>([\s\S]*?)<\/strong>/g)].map((strongMatch) => strongMatch[1].replace(/\s+/g, " ").trim())
   )) {
     if (!teamPublicationNames.has(publicationNameKey(strongText))) {
       fail(`publications/index.html: "${strongText}" is bold but has no entry in _data/team.yml`);
@@ -425,7 +419,12 @@ if (!fs.existsSync(RESEARCH_PAGE)) {
       const end = researchHtml.indexOf("</section>", start);
       const segment = end === -1 ? "" : researchHtml.slice(start, end);
       const heading = segment.match(/<h2[^>]*>([\s\S]*?)<\/h2>/);
-      const headingText = heading ? heading[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim() : "";
+      const headingText = heading
+        ? heading[1]
+            .replace(/<[^>]+>/g, "")
+            .replace(/\s+/g, " ")
+            .trim()
+        : "";
       if (headingText !== title) {
         fail(`research/index.html: Objective ${index + 1} heading is "${headingText}", expected "${title}"`);
       }
@@ -464,7 +463,9 @@ if (!fs.existsSync(RESEARCH_PAGE)) {
     if (!fs.existsSync(path.join(SITE, "assets", "img", "research", figure.file))) {
       fail(`assets/img/research/${figure.file}: not published in the build`);
     }
-    const figureBlock = researchHtml.match(new RegExp(`<figure[^>]*>(?:(?!</figure>)[\\s\\S])*?${srcPattern.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&")}[\\s\\S]*?</figure>`));
+    const figureBlock = researchHtml.match(
+      new RegExp(`<figure[^>]*>(?:(?!</figure>)[\\s\\S])*?${srcPattern.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&")}[\\s\\S]*?</figure>`)
+    );
     if (!figureBlock) {
       fail(`research/index.html: ${figure.name} is not inside a <figure>`);
     } else {
@@ -529,7 +530,12 @@ if (!fs.existsSync(USE_CASES_PAGE)) {
         const end = group.html.indexOf("</section>", start);
         const segment = end === -1 ? "" : group.html.slice(start, end);
         const heading = segment.match(/<h2[^>]*>([\s\S]*?)<\/h2>/);
-        const headingText = heading ? heading[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim() : "";
+        const headingText = heading
+          ? heading[1]
+              .replace(/<[^>]+>/g, "")
+              .replace(/\s+/g, " ")
+              .trim()
+          : "";
         if (headingText !== title) {
           fail(`use-cases/index.html: ${group.id} use case ${index + 1} is "${headingText}", expected "${title}"`);
         }
@@ -563,7 +569,9 @@ if (!fs.existsSync(USE_CASES_PAGE)) {
       if (!fs.existsSync(path.join(SITE, "assets", "img", "use-cases", figure.file))) {
         fail(`assets/img/use-cases/${figure.file}: not published in the build`);
       }
-      const figureBlock = ucHtml.match(new RegExp(`<figure[^>]*>(?:(?!</figure>)[\\s\\S])*?${srcPattern.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&")}[\\s\\S]*?</figure>`));
+      const figureBlock = ucHtml.match(
+        new RegExp(`<figure[^>]*>(?:(?!</figure>)[\\s\\S])*?${srcPattern.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&")}[\\s\\S]*?</figure>`)
+      );
       if (!figureBlock) {
         fail(`use-cases/index.html: ${figure.name} is not inside a <figure>`);
       } else {
@@ -590,8 +598,8 @@ const SOFTWARE_PAGE = path.join(SITE, "software", "index.html");
 if (!fs.existsSync(SOFTWARE_PAGE)) {
   fail("software/index.html: missing — the Software page did not build");
 } else {
-  const software = yaml.load(fs.readFileSync(path.join(__dirname, "..", "_data", "software.yml"), "utf8"));
-  if (!Array.isArray(software) || software.length === 0) {
+  const softwareReleases = yaml.load(fs.readFileSync(path.join(__dirname, "..", "_data", "software.yml"), "utf8"));
+  if (!Array.isArray(softwareReleases) || softwareReleases.length === 0) {
     fail("_data/software.yml: expected a non-empty list of Software Releases");
   } else {
     const softwareHtml = fs.readFileSync(SOFTWARE_PAGE, "utf8");
@@ -609,14 +617,14 @@ if (!fs.existsSync(SOFTWARE_PAGE)) {
         softwareGridHtml.slice(match.index, index + 1 < softwareCardStarts.length ? softwareCardStarts[index + 1].index : softwareGridHtml.length)
       );
       const pageSoftwareCardCount = (softwareHtml.match(/<div class="software-card">/g) || []).length;
-      if (softwareCardStarts.length !== software.length) {
-        fail(`software/index.html: expected ${software.length} software cards in the grid, found ${softwareCardStarts.length}`);
+      if (softwareCardStarts.length !== softwareReleases.length) {
+        fail(`software/index.html: expected ${softwareReleases.length} software cards in the grid, found ${softwareCardStarts.length}`);
       }
       if (pageSoftwareCardCount !== softwareCardStarts.length) {
         fail(`software/index.html: found ${pageSoftwareCardCount - softwareCardStarts.length} software cards outside the grid`);
       }
 
-      for (const release of software) {
+      for (const release of softwareReleases) {
         const renderedName = `<h2 class="software-name">${escapeHtml(release.name)}</h2>`;
         const matches = softwareCardSegments.filter((segment) => segment.includes(renderedName));
         if (matches.length !== 1) {
@@ -649,7 +657,7 @@ if (!fs.existsSync(SOFTWARE_PAGE)) {
       }
 
       for (const segment of softwareCardSegments) {
-        if (!software.some((release) => segment.includes(`<h2 class="software-name">${escapeHtml(release.name)}</h2>`))) {
+        if (!softwareReleases.some((release) => segment.includes(`<h2 class="software-name">${escapeHtml(release.name)}</h2>`))) {
           fail("software/index.html: contains a card with no entry in _data/software.yml");
         }
       }

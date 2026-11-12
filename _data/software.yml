@@ -1,6 +1,7 @@
-# IDEAS Software Releases — one entry per publicly available tool produced or
-# substantially extended by IDEAS, rendered as cards on the Software page. The
-# build harness asserts the rendered cards match this file 1:1, so broken
+# IDEAS Software Releases — one structured entry for each publicly available
+# Software Release produced or substantially extended by IDEAS. Entries render
+# as cards on the Software page. The build harness asserts the rendered cards
+# match this file 1:1, so broken
 # entries fail CI. Edit via pull request.
 #
 # Fields:
