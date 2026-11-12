@@ -8,8 +8,8 @@
  * acceptance criteria (grid matches _data/team.yml 1:1) and the
  * Publications-page acceptance criteria (every BibTeX entry rendered, grouped
  * by year, with Team Member names bolded from the team data file), and the
- * Research-page acceptance criteria (four Objectives render with Year-1
- * progress, canonical IDEAS expansion, no TIDES material).
+ * Research-page acceptance criteria (four Objectives render with their
+ * progress in the text, canonical IDEAS expansion, no TIDES material).
  */
 const fs = require("fs");
 const path = require("path");
@@ -393,7 +393,8 @@ if (!fs.existsSync(PUBLICATIONS_PAGE)) {
 }
 
 // 7. Research page: the four IDEAS Objectives render in order, each with a
-// description, a Year-1 progress section and progress bullets. The page uses
+// description and progress written into its prose (no separate Year-1
+// progress heading). The page uses
 // the canonical expansion and mentions no TIDES material. (Present tense and
 // accuracy against the progress report are content conventions checked in
 // review, not by this script.)
@@ -423,11 +424,13 @@ if (!fs.existsSync(RESEARCH_PAGE)) {
       if (headingText !== title) {
         fail(`research/index.html: Objective ${index + 1} heading is "${headingText}", expected "${title}"`);
       }
-      if (!/<h3[^>]*>\s*Year-1 progress\s*<\/h3>/.test(segment)) {
-        fail(`research/index.html: Objective "${title}" has no Year-1 progress section`);
+      // Progress is written into the Objective's prose, not a separate section.
+      if (/<h3[^>]*>\s*Year-1 progress/i.test(segment)) {
+        fail(`research/index.html: Objective "${title}" has a separate Year-1 progress heading`);
       }
-      if (!/<h3[^>]*>\s*Year-1 progress\s*<\/h3>[\s\S]*<li>/.test(segment)) {
-        fail(`research/index.html: Objective "${title}" has no Year-1 progress items`);
+      // The summary plus at least one prose paragraph carrying the progress.
+      if ((segment.match(/<p[\s>]/g) || []).length < 2) {
+        fail(`research/index.html: Objective "${title}" has no progress prose`);
       }
     });
   }
