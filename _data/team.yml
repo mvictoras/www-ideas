@@ -12,6 +12,7 @@
 - name: Victor Mateevitsi
   role: IDEAS Thrust Lead
   institution: Argonne National Laboratory
+  photo: victor-mateevitsi.jpg
   links:
     homepage: https://www.vmateevitsi.com
     scholar: https://scholar.google.com/citations?user=j1DCbncAAAAJ
@@ -19,46 +20,54 @@
 - name: JD Emberson
   role: Computational Scientist
   institution: Argonne National Laboratory
+  photo: jd-emberson.jpg
   links:
     homepage: https://cpac.hep.anl.gov/people/emberson
     scholar: https://scholar.google.com/citations?user=t1ea3YgAAAAJ
 - name: David Lenz
   role: Assistant Computer Scientist
   institution: Argonne National Laboratory
+  photo: david-lenz.jpg
   links:
     homepage: https://www.anl.gov/profile/david-lenz
     scholar: https://scholar.google.com/citations?user=-1ALpckAAAAJ
 - name: Saumil Patel
   role: Assistant Computational Scientist
   institution: Argonne National Laboratory
+  photo: saumil-patel.jpg
   links:
     homepage: https://www.anl.gov/profile/saumil-sudhir-patel
     scholar: https://scholar.google.com/citations?user=lTqx0Z4AAAAJ
 - name: Tom Peterka
   role: Assistant Computer Scientist
   institution: Argonne National Laboratory
+  photo: tom-peterka.jpg
   links:
     homepage: https://www.anl.gov/profile/thomas-peterka
 - name: Silvio Rizzi
   role: Computer Scientist
   institution: Argonne National Laboratory
+  photo: silvio-rizzi.jpg
   links:
     homepage: https://www.alcf.anl.gov/about/people/silvio-rizzi
     scholar: https://scholar.google.com/citations?user=8vBYfBgAAAAJ
 - name: Christine Simpson
   role: Assistant Computational Scientist
   institution: Argonne National Laboratory
+  photo: christine-simpson.jpg
   links:
     homepage: https://www.simpsonastronomy.com
 - name: Orcun Yildiz
   role: Principal Software Development Specialist
   institution: Argonne National Laboratory
+  photo: orcun-yildiz.jpg
   links:
     homepage: https://www.anl.gov/profile/orcun-yildiz
     scholar: https://scholar.google.com/citations?user=TFK_730AAAAJ
 - name: Joseph A. Insley
   role: Team Lead, Visualization and Data Analytics
   institution: Argonne National Laboratory
+  photo: joseph-a-insley.jpg
   links:
     homepage: https://www.alcf.anl.gov/about/people/joseph-insley
     scholar: https://scholar.google.com/citations?user=1JGEFXsAAAAJ
@@ -71,19 +80,23 @@
 - name: Janet Knowles
   role: Principal Software Development Specialist
   institution: Argonne National Laboratory
+  photo: janet-knowles.jpg
   links:
     homepage: https://www.alcf.anl.gov/about/people/janet-knowles
 - name: Kwan-Liu Ma
   role: Distinguished Professor
   institution: University of California, Davis
+  photo: kwan-liu-ma.jpg
   links:
     homepage: https://www.cs.ucdavis.edu/~ma/
 - name: Kai-Chen Tung
   role: PhD Student
   institution: University of California, Davis
+  photo: kai-chen-tung.jpg
 - name: Michael R. Martin
   role: PhD Student
   institution: University of California, Davis
+  photo: michael-r-martin.jpg
   links:
     homepage: https://michaelmartintech.github.io/
     orcid: https://orcid.org/0009-0001-1528-9965
@@ -91,15 +104,18 @@
 - name: Hongfeng Yu
   role: Professor
   institution: University of Nebraska–Lincoln
+  photo: hongfeng-yu.jpg
   links:
     homepage: https://cse.unl.edu/~yu
     scholar: https://scholar.google.com/citations?user=yeWsFW4AAAAJ
 - name: Xinyan Xie
   role: Research Scientist
   institution: University of Nebraska–Lincoln
+  photo: xinyan-xie.jpg
 - name: Jianxin Sun
   role: Assistant Professor
   institution: University of Cincinnati
+  photo: jianxin-sun.jpg
   links:
     homepage: https://sunjianxin.github.io
     scholar: https://scholar.google.com/citations?user=6LsspOUAAAAJ
@@ -107,6 +123,7 @@
 - name: Luc Renambot
   role: Research Associate Professor
   institution: University of Illinois Chicago
+  photo: luc-renambot.jpg
   links:
     homepage: https://cs.uic.edu/profiles/luc-renambot
     orcid: https://orcid.org/0000-0001-7067-3962
@@ -114,15 +131,18 @@
 - name: Riccardo Bonfanti
   role: Graduate Student
   institution: University of Illinois Chicago
+  photo: riccardo-bonfanti.jpg
 - name: Cory Quammen
   role: Technical Leader, Scientific Computing
   institution: Kitware
+  photo: cory-quammen.jpg
   links:
     homepage: https://www.kitware.com/cory-quammen/
     github: https://github.com/cquammen
 - name: Qi Wu
   role: Senior Research Scientist
   institution: NVIDIA
+  photo: qi-wu.jpg
   links:
     homepage: https://wilsoncernwq.github.io
     scholar: https://scholar.google.com/citations?user=I2hvxPUAAAAJ
