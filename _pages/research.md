@@ -7,12 +7,13 @@ description: The four IDEAS research objectives
 nav: true
 ---
 
-<!-- Stub. Research objectives will be rendered from the projects collection
-     in a later ticket. -->
+IDEAS (Intelligent Data Exploration Assistant for Science) builds an AI-powered scientific assistant that helps researchers explore massive datasets. It starts from compact, computation-ready data representations, renders directly from them, puts them in front of scientists through human-centered assistants, and binds the whole stack into DOE supercomputing and experimental facilities. Its work is organized around four interconnected objectives, each matched to a priority research direction from the DOE Visualization for Scientific Discovery, Decision-Making, and Communication Workshop.
 
-<ul>
-  <li>Efficient Data Representations</li>
-  <li>AI-Driven Rendering and Visualization</li>
-  <li>Human-Centered Exploration</li>
-  <li>System Integration and Testing</li>
-</ul>
+{% assign objectives = site.projects | where: "category", "objective" | sort: "importance" %}
+{% for objective in objectives %}
+<section class="objective" id="{{ objective.slug }}">
+  <h2>{{ objective.title }}</h2>
+  <p class="objective-summary">{{ objective.description }}</p>
+  {{ objective.content | markdownify }}
+</section>
+{% endfor %}

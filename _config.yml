@@ -137,8 +137,10 @@ collections:
     defaults:
       layout: post
     output: true
+  # Projects are data entries (Research objectives, Use Cases), rendered by
+  # their parent pages rather than as standalone pages.
   projects:
-    output: true
+    output: false
   events:
     output: true
 

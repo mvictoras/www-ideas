@@ -7,7 +7,9 @@
  * email/mailto, no analytics, no removed al-folio features), the Team-page
  * acceptance criteria (grid matches _data/team.yml 1:1) and the
  * Publications-page acceptance criteria (every BibTeX entry rendered, grouped
- * by year, with Team Member names bolded from the team data file).
+ * by year, with Team Member names bolded from the team data file), and the
+ * Research-page acceptance criteria (four Objectives render with Year-1
+ * progress, canonical IDEAS expansion, no TIDES material).
  */
 const fs = require("fs");
 const path = require("path");
@@ -387,6 +389,56 @@ if (!fs.existsSync(PUBLICATIONS_PAGE)) {
   // All authors shown: no "N more authors" truncation hides any name.
   if (/<span class="more-authors"/.test(pubsHtml)) {
     fail("publications/index.html: author lists are truncated; all BibTeX authors must render");
+  }
+}
+
+// 7. Research page: the four IDEAS Objectives render in order, each with a
+// description, a Year-1 progress section and progress bullets. The page uses
+// the canonical expansion and mentions no TIDES material. (Present tense and
+// accuracy against the progress report are content conventions checked in
+// review, not by this script.)
+const RESEARCH_PAGE = path.join(SITE, "research", "index.html");
+const OBJECTIVE_TITLES = [
+  "Efficient Data Representations",
+  "AI-Driven Rendering and Visualization",
+  "Human-Centered Exploration of Scientific Data",
+  "System Integration and Testing",
+];
+if (!fs.existsSync(RESEARCH_PAGE)) {
+  fail("research/index.html: missing — the Research page did not build");
+} else {
+  const researchHtml = fs.readFileSync(RESEARCH_PAGE, "utf8");
+  const objectiveStarts = [...researchHtml.matchAll(/<section class="objective"/g)];
+  if (objectiveStarts.length !== OBJECTIVE_TITLES.length) {
+    fail(`research/index.html: expected ${OBJECTIVE_TITLES.length} Objective sections, found ${objectiveStarts.length}`);
+  } else {
+    // Each segment ends at its own closing tag, so text outside the Objective
+    // (footer, nav) cannot satisfy its checks.
+    OBJECTIVE_TITLES.forEach((title, index) => {
+      const start = objectiveStarts[index].index;
+      const end = researchHtml.indexOf("</section>", start);
+      const segment = end === -1 ? "" : researchHtml.slice(start, end);
+      const heading = segment.match(/<h2[^>]*>([\s\S]*?)<\/h2>/);
+      const headingText = heading ? heading[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim() : "";
+      if (headingText !== title) {
+        fail(`research/index.html: Objective ${index + 1} heading is "${headingText}", expected "${title}"`);
+      }
+      if (!/<h3[^>]*>\s*Year-1 progress\s*<\/h3>/.test(segment)) {
+        fail(`research/index.html: Objective "${title}" has no Year-1 progress section`);
+      }
+      if (!/<h3[^>]*>\s*Year-1 progress\s*<\/h3>[\s\S]*<li>/.test(segment)) {
+        fail(`research/index.html: Objective "${title}" has no Year-1 progress items`);
+      }
+    });
+  }
+  if (!researchHtml.includes("Intelligent Data Exploration Assistant for Science")) {
+    fail("research/index.html: canonical IDEAS expansion missing");
+  }
+  if (/Exploration and Analysis/.test(researchHtml)) {
+    fail("research/index.html: uses the non-canonical IDEAS expansion");
+  }
+  if (/\bTIDES\b/.test(researchHtml)) {
+    fail("research/index.html: mentions TIDES; the Research page must carry no TIDES material");
   }
 }
 
