@@ -146,7 +146,7 @@ if (!fs.existsSync(TEAM_PAGE)) {
     // No group headings: every h2 on the Team page is a member name.
     const h2s = (teamHtml.match(/<h2(?:\s|>)/g) || []).length;
     const nameHeadings = (teamHtml.match(/<h2 class="team-name"/g) || []).length;
-    if (h2s !== nameHeadings) fail("team/index.html: contains headings other than team-member names");
+    if (h2s !== nameHeadings) fail("team/index.html: contains headings other than Team Member names");
 
     const teamGridHtml = gridStarts.length === 1 ? extractDiv(teamHtml, gridStarts[0].index) : null;
     if (!teamGridHtml) {
@@ -226,10 +226,19 @@ if (!fs.existsSync(TEAM_PAGE)) {
 }
 
 // 6. Publications: every entry in _bibliography/papers.bib is rendered on the
-// Publications page, grouped by year, with a DOI link, BibTeX export and
-// abstract toggle — and Team Member names in author lists are bold from the
-// team data file, while non-members are plain.
+// Publications page, grouped by year, with DOI links where supplied, BibTeX
+// export and abstract toggle — and Team Member names in author lists are bold
+// from the team data file, while non-members are plain.
 const PUBLICATIONS_PAGE = path.join(SITE, "publications", "index.html");
+const EXPECTED_PUBLICATION_KEYS = [
+  "mathai2026nl2scivis",
+  "yildiz2025llmworkflows",
+  "bauer2026gscache",
+  "sun2026importancemask",
+  "martin2026fixedbudget",
+  "martin20263dfielddatareduction",
+];
+const PREPRINT_PUBLICATION_KEYS = new Set(["martin2026fixedbudget", "martin20263dfielddatareduction"]);
 if (!fs.existsSync(PUBLICATIONS_PAGE)) {
   fail("publications/index.html: missing — the Publications page did not build");
 } else {
@@ -252,28 +261,30 @@ if (!fs.existsSync(PUBLICATIONS_PAGE)) {
       }),
       year: field("year"),
       doi: field("doi"),
+      note: field("note"),
       volume: field("volume"),
       number: field("number"),
       pages: field("pages"),
     });
   }
-  if (bibEntries.length === 0) fail("_bibliography/papers.bib: no BibTeX entries found");
+  if (bibEntries.length !== EXPECTED_PUBLICATION_KEYS.length) {
+    fail(
+      `_bibliography/papers.bib: expected ${EXPECTED_PUBLICATION_KEYS.length} entries, found ${bibEntries.length}`
+    );
+  }
+  const bibEntryKeys = new Set(bibEntries.map((entry) => entry.key));
+  for (const expectedPublicationKey of EXPECTED_PUBLICATION_KEYS) {
+    if (!bibEntryKeys.has(expectedPublicationKey)) {
+      fail(`_bibliography/papers.bib: missing required publication ${expectedPublicationKey}`);
+    }
+  }
 
   const team = yaml.load(fs.readFileSync(path.join(__dirname, "..", "_data", "team.yml"), "utf8"));
-
-  // Mirrors the layout's matching rule: case-insensitive last name plus first
-  // name, allowing published middle initials ("Victor A." matches "Victor").
-  const isTeamMember = (last, first) =>
-    team.some((member) => {
-      const nameParts = member.name.trim().split(" ");
-      const memberLast = nameParts[nameParts.length - 1].toLowerCase();
-      if (memberLast !== last.toLowerCase()) return false;
-      const memberFirst = nameParts.slice(0, -1).join(" ").toLowerCase();
-      const authorFirst = first.toLowerCase();
-      if (memberFirst === authorFirst) return true;
-      const [shorter, longer] = memberFirst.length <= authorFirst.length ? [memberFirst, authorFirst] : [authorFirst, memberFirst];
-      return longer.startsWith(shorter) && longer[shorter.length] === " ";
-    });
+  const publicationNameKey = (value) => value.replace(/\s+/g, " ").trim().toLowerCase();
+  const teamPublicationNames = new Set(
+    team.flatMap((member) => [member.name, ...(member.publication_name_aliases || [])]).map(publicationNameKey)
+  );
+  const isTeamMember = (last, first) => teamPublicationNames.has(publicationNameKey(`${first} ${last}`));
 
   const pubsHtml = fs.readFileSync(PUBLICATIONS_PAGE, "utf8");
 
@@ -326,6 +337,14 @@ if (!fs.existsSync(PUBLICATIONS_PAGE)) {
     if (!entryDiv.includes('class="periodical"')) {
       fail(`publications/index.html: entry ${entry.key} does not render its venue`);
     }
+    if (PREPRINT_PUBLICATION_KEYS.has(entry.key)) {
+      if (entry.note !== "Pre-print") {
+        fail(`_bibliography/papers.bib: pre-print ${entry.key} must have note = {Pre-print}`);
+      }
+      if (!/<div class="periodical">\s*Pre-print\s*<\/div>/.test(entryDiv)) {
+        fail(`publications/index.html: pre-print ${entry.key} is not marked as Pre-print`);
+      }
+    }
 
     // Volume, issue and pages render in the periodical line (issue #4 seed
     // data: "IEEE TVCG 32(1):901–911", "pp. 2225–2233").
@@ -335,9 +354,9 @@ if (!fs.existsSync(PUBLICATIONS_PAGE)) {
       const detail = [];
       if (entry.volume) detail.push(entry.volume + (entry.number ? `(${entry.number})` : ""));
       if (entry.pages) detail.push(entry.pages.replace(/--/g, "–"));
-      for (const d of detail) {
-        if (!periodicalText.includes(d)) {
-          fail(`publications/index.html: entry ${entry.key} does not render "${d}"`);
+      for (const publicationDetail of detail) {
+        if (!periodicalText.includes(publicationDetail)) {
+          fail(`publications/index.html: entry ${entry.key} does not render "${publicationDetail}"`);
         }
       }
     }
@@ -345,11 +364,12 @@ if (!fs.existsSync(PUBLICATIONS_PAGE)) {
 
   // Bold author names must be Team Members and all Team Members from the data
   // file must be bold — either direction means the data files drifted apart.
-  const teamLastNames = team.map((m) => m.name.trim().split(" ").pop().toLowerCase());
-  for (const strongText of [...pubsHtml.matchAll(/<div class="author">([\s\S]*?)<\/div>/g)].flatMap((m) =>
-    [...m[1].matchAll(/<strong>([\s\S]*?)<\/strong>/g)].map((s) => s[1].replace(/\s+/g, " ").trim())
+  for (const strongText of [...pubsHtml.matchAll(/<div class="author">([\s\S]*?)<\/div>/g)].flatMap((authorMatch) =>
+    [...authorMatch[1].matchAll(/<strong>([\s\S]*?)<\/strong>/g)].map((strongMatch) =>
+      strongMatch[1].replace(/\s+/g, " ").trim()
+    )
   )) {
-    if (!teamLastNames.includes(strongText.split(" ").pop().toLowerCase())) {
+    if (!teamPublicationNames.has(publicationNameKey(strongText))) {
       fail(`publications/index.html: "${strongText}" is bold but has no entry in _data/team.yml`);
     }
   }

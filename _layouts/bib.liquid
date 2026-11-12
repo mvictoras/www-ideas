@@ -79,41 +79,28 @@
           Every IDEAS Team Member is bolded in author lists, not just a single
           site owner. Membership comes from the team data file (the same data
           that drives the Team page), so adding a Team Member bolds them here
-          without touching publication config. Names are compared
-          case-insensitively on last name plus first name, allowing published
-          middle initials ("Victor A." matches Team Member "Victor").
+          without touching publication config. The card name is matched
+          case-insensitively, with exact published-name aliases declared on
+          the Team Member when their publication name differs.
         {% endcomment %}
         {% assign author_is_team_member = false %}
         {%- assign author_last_name = author.last | regex_replace: '[*∗†‡§¶‖&^]', '' -%}
         {%- assign author_last_html = author.last | regex_replace: '([*∗†‡§¶‖&^]+)', '<sup>\1</sup>' -%}
-        {%- assign author_last_clean = author_last_name | downcase | strip -%}
-        {%- assign author_first_clean = author.first | downcase | strip -%}
+        {%- assign author_full_name = author.first | append: ' ' | append: author_last_name | downcase | strip -%}
         {%- for member in site.data.team -%}
-          {%- assign member_last = member.name | split: ' ' | last | downcase -%}
-          {% if member_last == author_last_clean %}
-            {% comment %} First name(s): everything before the last token. {% endcomment %}
-            {%- assign member_first_len = member.name.size | minus: member_last.size | minus: 1 -%}
-            {%- assign member_first = member.name | slice: 0, member_first_len | downcase | strip -%}
-            {% if author_first_clean == member_first %}
-              {% assign author_is_team_member = true %}
-            {% else %}
-              {% comment %} Allow a middle-initial suffix on either side. {% endcomment %}
-              {% if author_first_clean.size > member_first.size %}
-                {%- assign first_head = author_first_clean | slice: 0, member_first.size -%}
-                {%- assign first_next = author_first_clean | slice: member_first.size, 1 -%}
-                {% if first_head == member_first and first_next == ' ' %}
-                  {% assign author_is_team_member = true %}
-                {% endif %}
-              {% elsif member_first.size > author_first_clean.size %}
-                {%- assign first_head = member_first | slice: 0, author_first_clean.size -%}
-                {%- assign first_next = member_first | slice: author_first_clean.size, 1 -%}
-                {% if first_head == author_first_clean and first_next == ' ' %}
-                  {% assign author_is_team_member = true %}
-                {% endif %}
+          {%- assign member_name = member.name | downcase | strip -%}
+          {% if member_name == author_full_name %}
+            {% assign author_is_team_member = true %}
+          {% elsif member.publication_name_aliases %}
+            {%- for publication_name_alias in member.publication_name_aliases -%}
+              {%- assign publication_name_alias_clean = publication_name_alias | downcase | strip -%}
+              {% if publication_name_alias_clean == author_full_name %}
+                {% assign author_is_team_member = true %}
+                {% break %}
               {% endif %}
-            {% endif %}
-            {% if author_is_team_member %}{% break %}{% endif %}
+            {%- endfor -%}
           {% endif %}
+          {% if author_is_team_member %}{% break %}{% endif %}
         {%- endfor -%}
         {% assign coauthor_url = null %}
         {%- assign clean_last_name = author_last_name | downcase | remove_accents -%}
@@ -186,11 +173,11 @@
       {% endif %}
       {% if entry.annotation %}
         <i
-          class="fa-solid fa-circle-info ml-1"
-          data-toggle="popover"
-          data-placement="top"
-          data-html="true"
-          data-content="{{ entry.annotation | escape }}"
+          class="fa-solid fa-circle-info ms-1"
+          data-bs-toggle="popover"
+          data-bs-placement="top"
+          data-bs-html="true"
+          data-bs-content="{{ entry.annotation | escape }}"
         >
         </i>
       {% endif %}

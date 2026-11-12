@@ -7,9 +7,14 @@
 #   role:        Role on the IDEAS project. Required.
 #   institution: Institution the member is based at. Required.
 #   photo:       Optional. Filename of a photo under assets/img/team/.
+#   publication_name_aliases:
+#                Optional. Exact published names that differ from name. The
+#                card name is always matched automatically.
 #   links:       Optional. Any of homepage, orcid, scholar, github (full URLs).
 #                Only the link types present are rendered.
 - name: Victor Mateevitsi
+  publication_name_aliases:
+    - Victor A. Mateevitsi
   role: IDEAS Thrust Lead
   institution: Argonne National Laboratory
   photo: victor-mateevitsi.jpg
@@ -65,6 +70,8 @@
     homepage: https://www.anl.gov/profile/orcun-yildiz
     scholar: https://scholar.google.com/citations?user=TFK_730AAAAJ
 - name: Joseph A. Insley
+  publication_name_aliases:
+    - Joseph Insley
   role: Team Lead, Visualization and Data Analytics
   institution: Argonne National Laboratory
   photo: joseph-a-insley.jpg
