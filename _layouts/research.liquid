@@ -1,0 +1,93 @@
+---
+layout: page
+---
+{% comment %}
+  Research page. The page body is split at an "objectives" HTML comment
+  marker: the part before it is the opening story, the part after it is the
+  closing. Between them, every Objective in the projects collection (category:
+  objective, ordered by importance) renders as a numbered essay. The build
+  harness (test/assert_site.js) asserts the four Objectives and the figures.
+{% endcomment %}
+{% assign story = content | split: '<!-- objectives -->' %}
+
+<style>
+  .research-lede {
+    font-size: 1.2rem;
+    line-height: 1.7;
+  }
+
+  .research-figure {
+    margin: 2.5rem 0;
+  }
+
+  .research-figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+  }
+
+  .research-figure figcaption {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--global-text-color-light);
+  }
+
+  .objective {
+    margin-top: 4rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--global-divider-color);
+  }
+
+  .objective-kicker {
+    margin-bottom: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--global-theme-color);
+  }
+
+  .objective h2 {
+    margin-top: 0;
+  }
+
+  .objective-tagline {
+    margin-bottom: 1.5rem;
+    font-size: 1.35rem;
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--global-text-color-light);
+  }
+
+  .research-closing {
+    margin-top: 4rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--global-divider-color);
+  }
+</style>
+
+{{ story[0] }}
+
+{% assign objectives = site.projects | where: 'category', 'objective' | sort: 'importance' %}
+{% for objective in objectives %}
+  <section class="objective" id="{{ objective.slug }}">
+    <p class="objective-kicker">Objective {{ forloop.index }}</p>
+    <h2>{{ objective.title }}</h2>
+    <p class="objective-tagline">{{ objective.tagline }}</p>
+    {{ objective.content | markdownify }}
+    {% if objective.figure %}
+      <figure class="research-figure">
+        <img src="{{ objective.figure.src | relative_url }}" alt="{{ objective.figure.alt }}">
+        <figcaption>{{ objective.figure.caption }} Credit: {{ objective.figure.credit }}</figcaption>
+      </figure>
+    {% endif %}
+  </section>
+{% endfor %}
+
+{% if story[1] %}
+  <div class="research-closing">
+    {{ story[1] }}
+  </div>
+{% endif %}

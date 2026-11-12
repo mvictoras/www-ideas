@@ -3,13 +3,13 @@ title: Human-Centered Exploration of Scientific Data
 slug: human-centered-exploration-of-scientific-data
 category: objective
 importance: 3
-description: Natural interaction with scientific data, in which LLM-based assistants understand scientific intent, interpret visualizations, adapt to each user's expertise and keep a provenance record of every interaction.
+tagline: Ask the data a question, in your own words.
 ---
 
-### Research questions
+The most powerful visualization tools in science are also among the hardest to use. A simple question, such as where the gas is hottest or what a slice through a vortex would reveal, can mean writing and debugging scripts before the first image appears. IDEAS is building an AI assistant that works alongside the scientist. It understands what they are trying to find, drives the visualization tools for them, adapts to their level of expertise, and keeps a transparent record of every step, so that a discovery can be explained and reproduced.
 
-- How can contextual cues from scientific visualizations be encoded and injected into LLM prompts to enhance relevance and utility?
-- How can task decomposition among specialized agents improve the accuracy and reliability of responses?
-- How can transparent, provenance-aware interaction logging enable explainable and reproducible scientific discovery?
+That raises hard questions. How do you tell a language model what a scientist is looking at, right now, on the screen? When should a single generalist give way to a team of specialist agents? And how can every answer stay traceable?
 
-We are prototyping a visualization-focused AI assistant for one scientific domain. The planned design has a visualization context engine that captures data state, user focus and exploration history, a modular multiagent architecture for data querying, visualization control and anomaly detection, and a provenance system that logs assistant and user interactions. We developed and publicly released NL2SciVis, a benchmark that evaluates LLM agents on generating ParaView code from natural-language requests across 15 atomic visualization operations, with deterministic two-gate validation. ChatVis now handles HACC cosmology simulation data, using domain-specific skill files to generate spatial slices and galaxy-distribution visualizations. SASAV, a self-directed agent that profiles scientific data, retrieves domain context, suggests transfer functions and plans views through parallel multimodal LLM inference, has been applied to scientific data exploration tasks.
+Before building the assistant, we measured whether today's language models can do the job at all. NL2SciVis, our publicly released benchmark, asks models to write ParaView code for 15 core visualization operations and checks every result deterministically. Across more than 14,000 trials with four leading models, pass rates ranged from 48 to 96 percent. The most telling finding: 92 percent of failures came not from misunderstanding the request, but from code that broke when it ran.
+
+That finding now shapes the assistant. Its planned design pairs an agent that writes visualization code with one that runs and checks it, together with a context engine that tracks what the scientist is seeing and a provenance system that records each interaction. Meanwhile, ChatVis turns plain-language requests into slices and galaxy-distribution views of HACC cosmology data. SASAV, a self-directed agent that profiles data, suggests transfer functions and plans its own views, has been applied to scientific exploration tasks.
