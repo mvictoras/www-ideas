@@ -129,3 +129,65 @@
     neural networks without elongated retraining.
   }
 }
+
+@misc{martin2026fixedbudget,
+  title = {Fixed-Budget Gaussian Volume Encoding with Structure-Aware Allocation},
+  author = {Martin, Michael R. and Insley, Joseph and Mateevitsi, Victor A. and Rizzi, Silvio and Ma, Kwan-Liu},
+  year  = {2026},
+  arxiv = {2608.14112},
+  bibtex_show = {true},
+  abstract  = {
+    Scientific simulations often produce scalar volumes faster than they can
+    be stored, transferred, and loaded, while in situ reduction must use only
+    a limited share of simulation resources. This work encodes scalar fields
+    as anisotropic Gaussian primitives under a fixed budget. The complete
+    primitive set is allocated analytically from local field structure,
+    including position, orientation, and shape, then refined directly against
+    the scalar field without densification, pruning, or count changes. The
+    selected budget determines encoded storage before refinement and,
+    together with the iteration schedule, provides a controllable
+    refinement-time budget. In a controlled benchmark, truncation-aware field
+    evaluation reduces encoding time by up to 51x; 1.4 million Gaussians
+    encode a billion-voxel volume in at most four minutes on one desktop GPU,
+    with reduced-iteration refinement completing in under one minute. Across
+    five datasets spanning 2.1 million to 1.1 billion evaluated voxels,
+    compression-useful configurations achieve 15.0-38.7 dB PSNR at
+    compression ratios from 2.2x to over 40,000x. Pre-encoding structure
+    statistics characterize fields for which one-shot allocation yields
+    limited gains from additional capacity. Because primitives retain scalar
+    attributes rather than baked appearance, a single compact model serves
+    every subsequent visualization state - supporting post-hoc
+    transfer-function, colormap, lighting, and viewpoint changes without
+    re-encoding.
+  }
+}
+
+@misc{martin20263dfielddatareduction,
+  title = {3D Field Data Reduction with Adaptive Sample-Based Gaussian-Encoded Reconstruction},
+  author = {Martin, Michael R. and Insley, Joseph and Mateevitsi, Victor A. and Rizzi, Silvio and Ma, Kwan-Liu},
+  year  = {2026},
+  arxiv = {2609.16024},
+  bibtex_show = {true},
+  abstract  = {
+    In scientific simulation, regular grids, unstructured meshes, and
+    particle-based formats are chosen to represent field data for
+    computational efficiency, geometry/adaptive flexibility, and following
+    motion/deformation, respectively. Each of these field data formats is
+    often handled through separate data-specific processing pipelines. We
+    present a unified sample-based Gaussian encoding method that represents
+    these data forms under a single fixed-budget formulation. The method
+    initializes and refines Gaussian primitives directly from the input
+    samples while preserving a prescribed primitive count and encoded size to
+    achieve a desired level of data reduction. Across structured,
+    unstructured, and particle data, the sample-based formulation improves
+    reconstruction accuracy with measurably fewer primitives in comparison to
+    prior formulations, achieving up to 4.8 dB higher PSNR with an approximate
+    44x reduction in primitive count. For time-varying data, warm-starting
+    from the previous timestep reduces the optimization required to reach
+    independently trained reconstruction quality. Together, these results
+    demonstrate a unified fixed-budget Gaussian encoding framework for
+    structured, particle, unstructured, and time-varying scientific data with
+    predictable storage, higher reconstruction accuracy, and improved
+    temporal encoding efficiency.
+  }
+}

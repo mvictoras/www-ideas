@@ -20,5 +20,5 @@ overrides:
     gem_version: 1.0.15
     upstream_path: _layouts/bib.liquid
     upstream_sha256: f3c547969ef76219ca1eb21df09dce5a3daf32a1f491b1586f68e3213fa35f53
-    local_sha256: e5847aa19f0eb5e91a86f23d316c5191460dd730cafa1d67438646449a047a08
+    local_sha256: 552ef6cbd1ffc243fbfec3e552f312d65bcfddabd20fcd09425a55318380681c
     acknowledged_at: '2026-11-12'
