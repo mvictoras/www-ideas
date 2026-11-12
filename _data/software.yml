@@ -1,0 +1,31 @@
+# IDEAS Software Releases — one entry per publicly available tool produced or
+# substantially extended by IDEAS, rendered as cards on the Software page. The
+# build harness asserts the rendered cards match this file 1:1, so broken
+# entries fail CI. Edit via pull request.
+#
+# Fields:
+#   name:         Name as it appears on the card. Required.
+#   description:  One-line description. Required.
+#   repository:   Repository or release URL. Required.
+#   paper_doi:    Optional. DOI of the related paper, linked as
+#                 https://doi.org/<paper_doi>.
+#   project_page: Optional. Project page URL.
+- name: MFA
+  description: Multivariate Functional Approximation library for scalable analysis and visualization of scientific data
+  repository: https://github.com/tpeterka/mfa
+- name: SASAV
+  description: Self-Directed Agent for Scientific Analysis and Visualization
+  repository: https://github.com/selfdirectedscivisagent/SASAV
+- name: NL2SciVis
+  description: Benchmark suite, harness and trial records for natural language to scientific visualization
+  repository: https://github.com/goodbadwolf/nl2scivis
+  paper_doi: 10.2312/evs.20261017
+- name: GSCache
+  description: Real-time radiance caching for volume path tracing using 3D Gaussian splatting
+  repository: https://github.com/DBauer15/gscache
+  paper_doi: 10.1109/TVCG.2025.3634634
+  project_page: https://davidbauer.me/papers/gscache
+- name: Vitral
+  description: Framework for reproducible design studies in visual analytics
+  repository: https://github.com/urban-toolkit/vitral
+  project_page: https://urbantk.org/vitral

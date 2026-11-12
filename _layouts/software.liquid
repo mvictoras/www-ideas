@@ -1,0 +1,72 @@
+---
+layout: page
+---
+{% comment %}
+  Software Releases. Renders every entry in _data/software.yml as one card
+  with its description, repository link and — when present — the related
+  paper DOI and project page. The build harness (test/assert_site.js)
+  asserts the rendered cards match the data file 1:1.
+{% endcomment %}
+
+<style>
+  .software-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+    gap: 1.25rem;
+  }
+
+  .software-card {
+    background-color: var(--global-card-bg-color);
+    border: 1px solid var(--global-divider-color);
+    border-radius: 0.5rem;
+    padding: 1.5rem 1.25rem;
+  }
+
+  .software-name {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .software-description {
+    color: var(--global-text-color);
+    margin-bottom: 0.75rem;
+  }
+
+  .software-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    margin-bottom: 0;
+    padding-left: 0;
+    list-style: none;
+  }
+
+  .software-links a {
+    color: var(--global-theme-color);
+  }
+</style>
+
+{% assign software = site.data.software %}
+<div class="software-grid">
+  {% for release in software %}
+    <div class="software-card">
+      <h2 class="software-name">{{ release.name }}</h2>
+      <p class="software-description">{{ release.description }}</p>
+      <ul class="software-links">
+        <li>
+          <a href="{{ release.repository }}" aria-label="{{ release.name }} repository"><i class="fa-brands fa-github" aria-hidden="true"></i> Repository</a>
+        </li>
+        {% if release.paper_doi %}
+          <li>
+            <a href="https://doi.org/{{ release.paper_doi }}" aria-label="{{ release.name }} paper DOI"><i class="ai ai-doi" aria-hidden="true"></i> Paper</a>
+          </li>
+        {% endif %}
+        {% if release.project_page %}
+          <li>
+            <a href="{{ release.project_page }}" aria-label="{{ release.name }} project page"><i class="fa-solid fa-globe" aria-hidden="true"></i> Project page</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  {% endfor %}
+</div>

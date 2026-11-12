@@ -9,9 +9,12 @@
  * Publications-page acceptance criteria (every BibTeX entry rendered, grouped
  * by year, with Team Member names bolded from the team data file), and the
  * Research-page acceptance criteria (four Objectives render with their
- * progress in the text, canonical IDEAS expansion, no TIDES material) and the
+ * progress in the text, canonical IDEAS expansion, no TIDES material), the
  * Use-Cases-page acceptance criteria (active/upcoming split, canonical names,
- * captioned and credited proposal figures, breeding-blanket figure absent).
+ * captioned and credited proposal figures, breeding-blanket figure absent) and
+ * the Software-page acceptance criteria (one card per Software Release,
+ * matching _data/software.yml 1:1, with repository, paper DOI and project
+ * page links where present).
  */
 const fs = require("fs");
 const path = require("path");
@@ -575,6 +578,81 @@ if (!fs.existsSync(USE_CASES_PAGE)) {
     // blanket" may appear in prose as motivation; only the figure is barred.)
     if (walk(SITE, "").some((file) => /breeding-blanket/i.test(path.basename(file)))) {
       fail("the fusion breeding-blanket figure is published in the build; it must be absent");
+    }
+  }
+}
+
+// 9. Software: every entry in _data/software.yml renders exactly one card on
+// the Software page — with its description and repository link, plus the
+// paper DOI and project page when present — and no card exists without a
+// data-file entry (adding a release is a data-file edit only).
+const SOFTWARE_PAGE = path.join(SITE, "software", "index.html");
+if (!fs.existsSync(SOFTWARE_PAGE)) {
+  fail("software/index.html: missing — the Software page did not build");
+} else {
+  const software = yaml.load(fs.readFileSync(path.join(__dirname, "..", "_data", "software.yml"), "utf8"));
+  if (!Array.isArray(software) || software.length === 0) {
+    fail("_data/software.yml: expected a non-empty list of Software Releases");
+  } else {
+    const softwareHtml = fs.readFileSync(SOFTWARE_PAGE, "utf8");
+    const softwareGridStarts = [...softwareHtml.matchAll(/<div class="software-grid">/g)];
+    if (softwareGridStarts.length !== 1) fail(`software/index.html: expected exactly one software grid, found ${softwareGridStarts.length}`);
+
+    const softwareGridHtml = softwareGridStarts.length === 1 ? extractDiv(softwareHtml, softwareGridStarts[0].index) : null;
+    if (!softwareGridHtml) {
+      fail("software/index.html: software grid is not a complete div");
+    } else {
+      // Cards are flat siblings of the grid, so slicing between consecutive
+      // card opening tags yields each card's rendered markup.
+      const softwareCardStarts = [...softwareGridHtml.matchAll(/<div class="software-card">/g)];
+      const softwareCardSegments = softwareCardStarts.map((match, index) =>
+        softwareGridHtml.slice(match.index, index + 1 < softwareCardStarts.length ? softwareCardStarts[index + 1].index : softwareGridHtml.length)
+      );
+      const pageSoftwareCardCount = (softwareHtml.match(/<div class="software-card">/g) || []).length;
+      if (softwareCardStarts.length !== software.length) {
+        fail(`software/index.html: expected ${software.length} software cards in the grid, found ${softwareCardStarts.length}`);
+      }
+      if (pageSoftwareCardCount !== softwareCardStarts.length) {
+        fail(`software/index.html: found ${pageSoftwareCardCount - softwareCardStarts.length} software cards outside the grid`);
+      }
+
+      for (const release of software) {
+        const renderedName = `<h2 class="software-name">${escapeHtml(release.name)}</h2>`;
+        const matches = softwareCardSegments.filter((segment) => segment.includes(renderedName));
+        if (matches.length !== 1) {
+          fail(`software/index.html: expected exactly one card for data-file release "${release.name}", found ${matches.length}`);
+          continue;
+        }
+        const segment = matches[0];
+
+        if (!segment.includes(`<p class="software-description">${escapeHtml(release.description)}</p>`)) {
+          fail(`software/index.html: "${release.name}" card does not render its description`);
+        }
+        if (!segment.includes(`href="${escapeHtml(release.repository)}"`)) {
+          fail(`software/index.html: "${release.name}" card does not link its repository ${release.repository}`);
+        }
+
+        // Optional fields render when present and are not hard-coded on the
+        // card when absent.
+        if (release.paper_doi) {
+          if (!segment.includes(`href="https://doi.org/${escapeHtml(release.paper_doi)}"`)) {
+            fail(`software/index.html: "${release.name}" card does not link its paper DOI ${release.paper_doi}`);
+          }
+        } else if (/doi\.org/.test(segment)) {
+          fail(`software/index.html: "${release.name}" card links to doi.org but has no paper_doi in the data file`);
+        }
+        if (release.project_page) {
+          if (!segment.includes(`href="${escapeHtml(release.project_page)}"`)) {
+            fail(`software/index.html: "${release.name}" card does not link its project page ${release.project_page}`);
+          }
+        }
+      }
+
+      for (const segment of softwareCardSegments) {
+        if (!software.some((release) => segment.includes(`<h2 class="software-name">${escapeHtml(release.name)}</h2>`))) {
+          fail("software/index.html: contains a card with no entry in _data/software.yml");
+        }
+      }
     }
   }
 }
