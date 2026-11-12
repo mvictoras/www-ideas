@@ -1,0 +1,171 @@
+---
+layout: page
+---
+{% comment %}
+  Event page. Renders one Event document from the _events collection from its
+  structured fields: dates with per-day notes, venue, format, audience, and
+  the RSVP block. Unset fields render as a visible TBA marker (never blank),
+  and an empty rsvp_url renders a disabled "RSVP link coming soon" button
+  that becomes a real link once the URL is set. The build harness
+  (test/assert_site.js) asserts the dates, the placeholder state and the
+  Events index grouping.
+{% endcomment %}
+
+<style>
+  .event-kicker {
+    margin-bottom: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--global-theme-color);
+  }
+
+  .event-days {
+    margin: 1.5rem 0 0;
+    padding-left: 0;
+    list-style: none;
+  }
+
+  .event-days li {
+    margin-bottom: 0.25rem;
+  }
+
+  .event-day {
+    font-weight: 600;
+  }
+
+  .event-day-note {
+    color: var(--global-text-color-light);
+  }
+
+  .event-details {
+    margin: 2rem 0;
+  }
+
+  .event-detail {
+    display: flex;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--global-divider-color);
+  }
+
+  .event-detail dt {
+    flex: 0 0 9rem;
+    font-weight: 600;
+  }
+
+  .event-detail dd {
+    margin: 0;
+  }
+
+  .event-tba {
+    display: inline-block;
+    padding: 0.05rem 0.5rem;
+    border: 1px dashed var(--global-divider-color);
+    border-radius: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--global-text-color-light);
+  }
+
+  .event-rsvp-button {
+    display: inline-block;
+    padding: 0.25rem 1rem;
+    border-radius: 0.25rem;
+    background-color: var(--global-theme-color);
+    border: 1px solid var(--global-theme-color);
+    color: var(--global-btn-text-color, #fff);
+    font-weight: 600;
+  }
+
+  a.event-rsvp-button:hover {
+    text-decoration: none;
+    filter: brightness(1.1);
+  }
+
+  span.event-rsvp-button {
+    background-color: transparent;
+    color: var(--global-text-color-light);
+    border-style: dashed;
+  }
+</style>
+
+<p class="event-kicker">{{ page.event_type }}</p>
+
+<ul class="event-days">
+  {% for day in page.days %}
+    <li>
+      <span class="event-day">{{ day.date | date: '%A, %B %-d, %Y' }}</span>
+      {% if day.note -%}
+        <span class="event-day-note">— {{ day.note }}</span>
+      {%- endif %}
+    </li>
+  {% endfor %}
+</ul>
+
+<dl class="event-details">
+  <div class="event-detail">
+    <dt>Venue</dt>
+    <dd>
+      {% if page.venue and page.venue.name %}
+        {{ page.venue.name -}}
+        {%- if page.venue.room == blank -%}
+          , room <span class="event-tba">TBA</span>
+        {%- else -%}
+          , {{ page.venue.room -}}
+        {%- endif %}
+      {% else %}
+        <span class="event-tba">TBA</span>
+      {% endif %}
+    </dd>
+  </div>
+  <div class="event-detail">
+    <dt>Format</dt>
+    <dd>{{ page.format }}</dd>
+  </div>
+  <div class="event-detail">
+    <dt>Audience</dt>
+    <dd>{{ page.audience }}</dd>
+  </div>
+  <div class="event-detail">
+    <dt>RSVP</dt>
+    <dd>
+      {% if page.rsvp_required %}RSVP required.{% endif %}
+      {% if page.rsvp_url == blank %}
+        <span class="event-rsvp-button" aria-disabled="true">RSVP link coming soon</span>
+      {% else %}
+        <a class="event-rsvp-button" href="{{ page.rsvp_url }}">RSVP</a>
+      {% endif %}
+      {% if page.rsvp_deadline == blank %}
+        Deadline: <span class="event-tba">TBA</span>.
+      {% else %}
+        Deadline: {{ page.rsvp_deadline | date: '%B %-d, %Y' }}.
+      {% endif %}
+    </dd>
+  </div>
+  <div class="event-detail">
+    <dt>Agenda</dt>
+    <dd>
+      {% if page.agenda == blank %}
+        <span class="event-tba">TBA</span>
+      {% else %}
+        {{ page.agenda | markdownify }}
+      {% endif %}
+    </dd>
+  </div>
+  <div class="event-detail">
+    <dt>Travel notes</dt>
+    <dd>
+      {% if page.travel_notes == blank %}
+        <span class="event-tba">TBA</span>
+      {% else %}
+        {{ page.travel_notes | markdownify }}
+      {% endif %}
+    </dd>
+  </div>
+</dl>
+
+{{ content }}

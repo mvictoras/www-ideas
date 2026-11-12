@@ -1,0 +1,130 @@
+---
+layout: page
+---
+{% comment %}
+  Events index. Groups the _events collection into Upcoming and Past relative
+  to the build date (site.time), so an event moves from Upcoming to Past
+  automatically on the first build after its end date has passed. The build
+  harness (test/assert_site.js) asserts that the All-Hands Meeting is listed
+  under Upcoming.
+{% endcomment %}
+
+<style>
+  .event-group {
+    margin-top: 3rem;
+  }
+
+  .event-group > h2 {
+    margin-top: 0;
+  }
+
+  .event-card {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--global-divider-color);
+  }
+
+  .event-card:first-of-type {
+    margin-top: 1.5rem;
+    border-top: none;
+    padding-top: 0;
+  }
+
+  .event-card-kicker {
+    margin-bottom: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--global-theme-color);
+  }
+
+  .event-card h3 {
+    margin-bottom: 0.5rem;
+  }
+
+  .event-card-dates {
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+  }
+
+  .event-card-meta {
+    margin-bottom: 0;
+    color: var(--global-text-color-light);
+  }
+</style>
+
+{{ content }}
+
+{% comment %}
+  Compare Unix timestamps (end of the event's last day, i.e. end_date + 1
+  day) rather than raw Date objects: this works whether the front matter
+  dates are parsed as Dates or left as strings, and keeps a whole-day event
+  in Upcoming through its end date.
+{% endcomment %}
+{% assign build_now = site.time | date: '%s' | plus: 0 %}
+{% assign upcoming_events = '' | split: '' %}
+{% assign past_events = '' | split: '' %}
+{% for event in site.events %}
+  {% assign event_ends = event.end_date | date: '%s' | plus: 86400 %}
+  {% if event_ends < build_now %}
+    {% assign past_events = past_events | push: event %}
+  {% else %}
+    {% assign upcoming_events = upcoming_events | push: event %}
+  {% endif %}
+{% endfor %}
+{% assign upcoming_events = upcoming_events | sort: 'start_date' %}
+{% assign past_events = past_events | sort: 'start_date' | reverse %}
+
+<div class="event-group" id="upcoming">
+  <h2>Upcoming</h2>
+  {% if upcoming_events.size == 0 %}
+    <p>No upcoming events yet.</p>
+  {% endif %}
+  {% for event in upcoming_events %}
+    <article class="event-card">
+      <p class="event-card-kicker">{{ event.event_type }}</p>
+      <h3>
+        <a href="{{ event.url | relative_url }}">{{ event.title }}</a>
+      </h3>
+      <p class="event-card-dates">
+        {% if event.start_date == event.end_date %}
+          {{ event.start_date | date: '%B %-d, %Y' }}
+        {% else %}
+          {{ event.start_date | date: '%B %-d' }} – {{ event.end_date | date: '%B %-d, %Y' }}
+        {% endif %}
+      </p>
+      <p class="event-card-meta">
+        {% if event.venue and event.venue.name %}{{ event.venue.name }}{% else %}Venue TBA{% endif %}
+        · {{ event.format -}}
+        {%- if event.rsvp_required %} · RSVP required{% endif %}
+      </p>
+    </article>
+  {% endfor %}
+</div>
+
+<div class="event-group" id="past">
+  <h2>Past</h2>
+  {% if past_events.size == 0 %}
+    <p>No past events yet.</p>
+  {% endif %}
+  {% for event in past_events %}
+    <article class="event-card">
+      <p class="event-card-kicker">{{ event.event_type }}</p>
+      <h3>
+        <a href="{{ event.url | relative_url }}">{{ event.title }}</a>
+      </h3>
+      <p class="event-card-dates">
+        {% if event.start_date == event.end_date %}
+          {{ event.start_date | date: '%B %-d, %Y' }}
+        {% else %}
+          {{ event.start_date | date: '%B %-d' }} – {{ event.end_date | date: '%B %-d, %Y' }}
+        {% endif %}
+      </p>
+      <p class="event-card-meta">
+        {% if event.venue and event.venue.name %}{{ event.venue.name }}{% else %}Venue TBA{% endif %}
+        · {{ event.format }}
+      </p>
+    </article>
+  {% endfor %}
+</div>

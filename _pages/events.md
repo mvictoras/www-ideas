@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: events
 title: Events
 permalink: /events/
 nav_order: 8
@@ -7,7 +7,7 @@ description: Upcoming and past IDEAS Events
 nav: true
 ---
 
-<!-- Stub. The events collection with its own layout (upcoming vs past) is a
-     later ticket. -->
+Where the IDEAS team gathers — All-Hands Meetings, workshops and tutorials. Events move from Upcoming to Past automatically on the first build after their end date. Follow the RSVP link on an event's own page to register.
 
-<p>No Events yet.</p>
+<!-- The upcoming/past index is rendered from the _events collection by
+     _layouts/events.liquid. -->

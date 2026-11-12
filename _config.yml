@@ -141,6 +141,10 @@ collections:
   # their parent pages rather than as standalone pages.
   projects:
     output: false
+  # Each Event document gets its own page under /events/<slug>/ (layout and
+  # permalink come from the events scope in the site defaults); the index
+  # (_pages/events.md, _layouts/events.liquid) groups them into upcoming and
+  # past relative to the build date.
   events:
     output: true
 
@@ -228,6 +232,16 @@ defaults:
       path: "assets"
     values:
       sitemap: false
+  # Event documents: each gets its own page under /events/<slug>/ rendered
+  # with the _layouts/event.liquid entry layout. (Jekyll only honors defaults
+  # in this global list — a `defaults` key nested inside a collection entry is
+  # silently ignored.)
+  - scope:
+      path: ""
+      type: events
+    values:
+      layout: event
+      permalink: /events/:name/
 
 sass:
   style: compressed

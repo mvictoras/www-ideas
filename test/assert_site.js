@@ -14,7 +14,10 @@
  * captioned and credited proposal figures, breeding-blanket figure absent) and
  * the Software-page acceptance criteria (one card per Software Release,
  * matching _data/software.yml 1:1, with repository, paper DOI and project
- * page links where present).
+ * page links where present) and the Events-page acceptance criteria (every
+ * _events/ entry built from its structured fields with visible TBA markers,
+ * the RSVP placeholder or link, and the upcoming/past index split relative
+ * to the build date).
  */
 const fs = require("fs");
 const path = require("path");
@@ -659,6 +662,163 @@ if (!fs.existsSync(SOFTWARE_PAGE)) {
       for (const segment of softwareCardSegments) {
         if (!softwareReleases.some((release) => segment.includes(`<h2 class="software-name">${escapeHtml(release.name)}</h2>`))) {
           fail("software/index.html: contains a card with no entry in _data/software.yml");
+        }
+      }
+    }
+  }
+}
+
+// 10. Events: every entry in _events/ builds a page at /events/<slug>/ from
+// its structured fields (dates with per-day notes, venue, format, audience,
+// RSVP, agenda, travel notes); unset fields render as visible TBA markers
+// (never blank) and an empty rsvp_url renders the "RSVP link coming soon"
+// placeholder instead of a link; and the Events index places each event
+// under Upcoming or Past relative to the build date, so an event moves
+// groups automatically on the first build after its end date.
+const ALL_HANDS_SLUG = "all-hands-2027";
+const EVENTS_DIR = path.join(__dirname, "..", "_events");
+const eventSlugs = fs
+  .readdirSync(EVENTS_DIR)
+  .filter((name) => name.endsWith(".md"))
+  .map((name) => name.replace(/\.md$/, ""));
+const parseFrontMatter = (file) => {
+  const match = fs.readFileSync(file, "utf8").match(/^---\n([\s\S]*?)\n---\n/);
+  return match ? yaml.load(match[1]) : null;
+};
+// Matches the layout's date format ("Tuesday, February 2, 2027").
+const formatEventDay = (yamlDate) => {
+  const [year, month, day] = String(yamlDate).slice(0, 10).split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day)).toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+};
+
+if (eventSlugs.length === 0) {
+  fail("_events/: no Event entries found");
+} else {
+  for (const slug of eventSlugs) {
+    const event = parseFrontMatter(path.join(EVENTS_DIR, `${slug}.md`));
+    if (!event) {
+      fail(`_events/${slug}.md: no YAML front matter`);
+      continue;
+    }
+    const eventPage = path.join(SITE, "events", slug, "index.html");
+    if (!fs.existsSync(eventPage)) {
+      fail(`events/${slug}/index.html: missing — the Event page did not build`);
+      continue;
+    }
+    const html = fs.readFileSync(eventPage, "utf8");
+
+    // The details block runs from the kicker to the closing of the details
+    // list, so text outside the event (nav, footer) cannot satisfy checks.
+    const start = html.indexOf('<p class="event-kicker">');
+    const end = html.indexOf("</dl>", start);
+    if (start === -1 || end === -1) {
+      fail(`events/${slug}/index.html: no event details block rendered`);
+      continue;
+    }
+    const segment = html.slice(start, end);
+
+    if (!html.includes(`<h1 class="post-title">${escapeHtml(event.title)}</h1>`)) {
+      fail(`events/${slug}/index.html: <h1> is not its title "${event.title}"`);
+    }
+    if (!segment.includes(`<p class="event-kicker">${escapeHtml(event.event_type)}</p>`)) {
+      fail(`events/${slug}/index.html: does not render its event type "${event.event_type}"`);
+    }
+
+    // Both dates with their per-day notes (e.g. the half-day note).
+    for (const day of event.days || []) {
+      if (!segment.includes(`<span class="event-day">${formatEventDay(day.date)}</span>`)) {
+        fail(`events/${slug}/index.html: does not show the date ${day.date} in words`);
+      }
+      if (day.note && !segment.includes(escapeHtml(day.note))) {
+        fail(`events/${slug}/index.html: does not show the day note "${day.note}"`);
+      }
+    }
+
+    if (event.venue && event.venue.name) {
+      if (!segment.includes(escapeHtml(event.venue.name))) {
+        fail(`events/${slug}/index.html: does not show the venue "${event.venue.name}"`);
+      }
+    }
+    if (event.format && !segment.includes(escapeHtml(event.format))) {
+      fail(`events/${slug}/index.html: does not show the format "${event.format}"`);
+    }
+    if (event.audience && !segment.includes(escapeHtml(event.audience))) {
+      fail(`events/${slug}/index.html: does not show the audience "${event.audience}"`);
+    }
+    if (event.rsvp_required && !segment.includes("RSVP required")) {
+      fail(`events/${slug}/index.html: does not state that RSVP is required`);
+    }
+
+    // RSVP: a real link once the URL is set, the placeholder otherwise — and
+    // never a link with an empty href.
+    if (event.rsvp_url) {
+      if (!segment.includes(`<a class="event-rsvp-button" href="${escapeHtml(event.rsvp_url)}">RSVP</a>`)) {
+        fail(`events/${slug}/index.html: RSVP button does not link ${event.rsvp_url}`);
+      }
+    } else if (!segment.includes('<span class="event-rsvp-button" aria-disabled="true">RSVP link coming soon</span>')) {
+      fail(`events/${slug}/index.html: RSVP placeholder "RSVP link coming soon" missing`);
+    }
+
+    // Unset fields must be visibly marked TBA — counted, not blank. The venue
+    // is TBA when its name is unset, the room when the venue has no room.
+    const hasVenueName = Boolean(event.venue && event.venue.name);
+    const hasRoom = Boolean(event.venue && event.venue.room);
+    const expectedTbas =
+      (hasVenueName ? (hasRoom ? 0 : 1) : 1) + (event.rsvp_deadline ? 0 : 1) + (event.agenda ? 0 : 1) + (event.travel_notes ? 0 : 1);
+    const renderedTbas = (segment.match(/<span class="event-tba">TBA<\/span>/g) || []).length;
+    if (renderedTbas !== expectedTbas) {
+      fail(`events/${slug}/index.html: expected ${expectedTbas} TBA markers, found ${renderedTbas}`);
+    }
+  }
+
+  // The index groups events into Upcoming and Past relative to the build
+  // date; an event is past only once its end date has fully passed.
+  const EVENTS_INDEX = path.join(SITE, "events", "index.html");
+  if (!fs.existsSync(EVENTS_INDEX)) {
+    fail("events/index.html: missing — the Events index did not build");
+  } else {
+    const indexHtml = fs.readFileSync(EVENTS_INDEX, "utf8");
+    const upcomingStart = indexHtml.indexOf('<div class="event-group" id="upcoming">');
+    const pastStart = indexHtml.indexOf('<div class="event-group" id="past">');
+    if (upcomingStart === -1 || pastStart === -1) {
+      fail("events/index.html: missing the Upcoming/Past group separation");
+    } else {
+      if (upcomingStart > pastStart) fail("events/index.html: the upcoming group does not precede the past group");
+      const groupHtmls = {
+        upcoming: extractDiv(indexHtml, upcomingStart),
+        past: extractDiv(indexHtml, pastStart),
+      };
+      if (groupHtmls.upcoming === null || groupHtmls.past === null) {
+        fail("events/index.html: an event group is not a complete div");
+      } else {
+        for (const slug of eventSlugs) {
+          const event = parseFrontMatter(path.join(EVENTS_DIR, `${slug}.md`));
+          if (!event) continue;
+          const [year, month, day] = String(event.end_date).slice(0, 10).split("-").map(Number);
+          const isPast = new Date(year, month - 1, day, 23, 59, 59) < new Date();
+          const expectedGroup = isPast ? "past" : "upcoming";
+          const cardLink = `href="${BASEURL}/events/${slug}/"`;
+          if (!groupHtmls[expectedGroup].includes(cardLink)) {
+            fail(`events/index.html: "${event.title}" is not listed under ${expectedGroup}`);
+          }
+          const otherGroup = isPast ? "upcoming" : "past";
+          if (groupHtmls[otherGroup].includes(cardLink)) {
+            fail(`events/index.html: "${event.title}" is also listed under ${otherGroup}`);
+          }
+        }
+
+        // The All-Hands Meeting is the first seeded Event: assert its card
+        // explicitly (dates, venue, format and RSVP state are visible on the
+        // index, not only on the event page).
+        const upcomingHtml = groupHtmls.upcoming;
+        if (!upcomingHtml.includes(`href="${BASEURL}/events/${ALL_HANDS_SLUG}/"`)) {
+          fail(`events/index.html: the All-Hands Meeting (${ALL_HANDS_SLUG}) is not listed under Upcoming`);
         }
       }
     }
