@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * HTML assertions over the production build output (_site).
+ * Page and privacy assertions over the production build output (_site).
  *
  * Covers the site-shell acceptance criteria: nav pages exist and resolve
  * under the base path, IDEAS title/wordmark, search + dark-mode toggles,
@@ -31,16 +31,43 @@ if (htmlFiles.length === 0) {
   process.exit(1);
 }
 
-// 1. Every nav page exists.
+// 1. Every nav page exists and has one primary heading.
 for (const p of NAV_PAGES) {
-  if (!fs.existsSync(path.join(SITE, p))) fail(`missing page: ${p}`);
+  const file = path.join(SITE, p);
+  if (!fs.existsSync(file)) {
+    fail(`missing page: ${p}`);
+    continue;
+  }
+  const html = fs.readFileSync(file, "utf8");
+  const headings = html.match(/<h1(?:\s|>)/gi) || [];
+  if (headings.length !== 1) fail(`${p}: expected one primary heading, found ${headings.length}`);
 }
 
-// 2. Per-page checks: navbar, wordmark, toggles, footer, no email/analytics.
+// 2. Privacy applies to all published text, including assets and search data.
 // Email-like addresses. The domain must end in an alphabetic TLD (>= 2
 // letters), which skips npm package versions in CDN URLs (e.g.
 // fontawesome-free@7.2.0) while still matching real addresses.
 const EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/;
+const decoder = new TextDecoder("utf-8", { fatal: true });
+for (const file of walk(SITE, "")) {
+  let content;
+  try {
+    content = decoder.decode(fs.readFileSync(file));
+  } catch (error) {
+    if (error.code === "ERR_ENCODING_INVALID_ENCODED_DATA") continue;
+    throw error;
+  }
+  const rel = path.relative(SITE, file).split(path.sep).join("/");
+  // Preserve this exact upstream copyright line; no other addresses in this
+  // dependency are exempt. See docs/privacy.md and issue #13.
+  if (rel === "assets/al_search/js/search/hotkeys-js/hotkeys.esm.min.js") {
+    content = content.replace(/^ \* Copyright \(c\) 2024 kenny wong <wowohoo@qq\.com>\r?$/m, "");
+  }
+  if (/mailto:/i.test(content)) fail(`${rel}: contains a mailto: link`);
+  if (EMAIL_RE.test(content)) fail(`${rel}: contains an email address`);
+}
+
+// 3. Per-page checks: navbar, wordmark, toggles, footer and no analytics.
 const ANALYTICS_SNIPPETS = [
   "google-analytics.com",
   "googletagmanager.com",
@@ -71,9 +98,6 @@ for (const file of htmlFiles) {
   if (!html.includes("assets/img/logos/doe-office-of-science.svg")) {
     fail(`${rel}: DOE Office of Science logo missing`);
   }
-  if (/mailto:/i.test(html)) fail(`${rel}: contains a mailto: link`);
-  if (EMAIL_RE.test(html)) fail(`${rel}: contains an email address`);
-
   for (const snippet of ANALYTICS_SNIPPETS) {
     if (html.includes(snippet)) fail(`${rel}: contains analytics reference "${snippet}"`);
   }
@@ -82,7 +106,7 @@ for (const file of htmlFiles) {
   }
 }
 
-// 3. Sitemap uses the configured site URL and base path.
+// 4. Sitemap uses the configured site URL and base path.
 const SITE_URL = /^url:\s*(\S*)/m.exec(fs.readFileSync(path.join(__dirname, "..", "_config.yml"), "utf8"))[1];
 const sitemapPath = path.join(SITE, "sitemap.xml");
 if (fs.existsSync(sitemapPath)) {
