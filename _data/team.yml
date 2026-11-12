@@ -1,0 +1,95 @@
+# IDEAS Team Members — one entry per person, presented as a single grid on
+# the Team page. The build harness asserts the rendered grid matches this
+# file 1:1, so broken entries fail CI. Edit via pull request.
+#
+# Fields:
+#   name:        Full name as it appears on the card. Required.
+#   role:        Role on the IDEAS project. Required.
+#   institution: Institution the member is based at. Required.
+#   photo:       Optional. Filename of a photo under assets/img/team/.
+#   links:       Optional. Any of homepage, orcid, scholar, github (full URLs).
+#                Only the link types present are rendered.
+- name: Victor Mateevitsi
+  role: IDEAS Thrust Lead
+  institution: Argonne National Laboratory
+  links:
+    homepage: https://www.vmateevitsi.com
+    scholar: https://scholar.google.com/citations?user=j1DCbncAAAAJ
+    github: https://github.com/mvictoras
+- name: JD Emberson
+  role: Computational Scientist
+  institution: Argonne National Laboratory
+  links:
+    homepage: https://cpac.hep.anl.gov/people/emberson
+    scholar: https://scholar.google.com/citations?user=t1ea3YgAAAAJ
+- name: David Lenz
+  role: Assistant Computer Scientist
+  institution: Argonne National Laboratory
+  links:
+    homepage: https://www.anl.gov/profile/david-lenz
+    scholar: https://scholar.google.com/citations?user=-1ALpckAAAAJ
+- name: Saumil Patel
+  role: Assistant Computational Scientist
+  institution: Argonne National Laboratory
+  links:
+    homepage: https://www.anl.gov/profile/saumil-sudhir-patel
+    scholar: https://scholar.google.com/citations?user=lTqx0Z4AAAAJ
+- name: Tom Peterka
+  role: Assistant Computer Scientist
+  institution: Argonne National Laboratory
+  links:
+    homepage: https://www.anl.gov/profile/thomas-peterka
+- name: Silvio Rizzi
+  role: Computer Scientist
+  institution: Argonne National Laboratory
+  links:
+    homepage: https://www.alcf.anl.gov/about/people/silvio-rizzi
+    scholar: https://scholar.google.com/citations?user=8vBYfBgAAAAJ
+- name: Christine Simpson
+  role: Assistant Computational Scientist
+  institution: Argonne National Laboratory
+  links:
+    homepage: https://www.simpsonastronomy.com
+- name: Orcun Yildiz
+  role: Principal Software Development Specialist
+  institution: Argonne National Laboratory
+  links:
+    homepage: https://www.anl.gov/profile/orcun-yildiz
+    scholar: https://scholar.google.com/citations?user=TFK_730AAAAJ
+- name: Kwan-Liu Ma
+  role: Distinguished Professor
+  institution: University of California, Davis
+  links:
+    homepage: https://www.cs.ucdavis.edu/~ma/
+- name: Hongfeng Yu
+  role: Professor
+  institution: University of Nebraska–Lincoln
+  links:
+    homepage: https://cse.unl.edu/~yu
+    scholar: https://scholar.google.com/citations?user=yeWsFW4AAAAJ
+- name: Jianxin Sun
+  role: Assistant Professor
+  institution: University of Nebraska–Lincoln
+  links:
+    homepage: https://sunjianxin.github.io
+    scholar: https://scholar.google.com/citations?user=6LsspOUAAAAJ
+    github: https://github.com/sunjianxin
+- name: Luc Renambot
+  role: Research Associate Professor
+  institution: University of Illinois Chicago
+  links:
+    homepage: https://cs.uic.edu/profiles/luc-renambot
+    orcid: https://orcid.org/0000-0001-7067-3962
+    github: https://github.com/renambot-uic
+- name: Cory Quammen
+  role: Technical Leader, Scientific Computing
+  institution: Kitware
+  links:
+    homepage: https://www.kitware.com/cory-quammen/
+    github: https://github.com/cquammen
+- name: Qi Wu
+  role: Senior Research Scientist
+  institution: NVIDIA
+  links:
+    homepage: https://wilsoncernwq.github.io
+    scholar: https://scholar.google.com/citations?user=I2hvxPUAAAAJ

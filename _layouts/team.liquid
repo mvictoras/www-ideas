@@ -1,0 +1,171 @@
+---
+layout: page
+---
+{% comment %}
+  Team grid. Renders every entry in _data/team.yml as one grid — Argonne and
+  Partner members together, not grouped by institution type. Cards carry
+  data-* attributes that the build harness (test/assert_site.js) uses to
+  assert the rendered grid matches the data file 1:1.
+{% endcomment %}
+
+<style>
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 1.25rem;
+  }
+
+  .team-card {
+    background-color: var(--global-card-bg-color);
+    border: 1px solid var(--global-divider-color);
+    border-radius: 0.5rem;
+    padding: 1.5rem 1rem;
+    text-align: center;
+  }
+
+  .team-photo,
+  .team-avatar {
+    width: 6rem;
+    height: 6rem;
+    border-radius: 9999px;
+    margin-inline: auto;
+    margin-bottom: 0.75rem;
+  }
+
+  .team-photo {
+    object-fit: cover;
+  }
+
+  .team-avatar {
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  /* Fixed mid-tone palette with white text, legible in light and dark mode.
+     Cycled deterministically by card position. */
+  .team-grid > .team-card:nth-child(6n + 1) .team-avatar {
+    background-color: #1d4ed8;
+  }
+  .team-grid > .team-card:nth-child(6n + 2) .team-avatar {
+    background-color: #7c3aed;
+  }
+  .team-grid > .team-card:nth-child(6n + 3) .team-avatar {
+    background-color: #0f766e;
+  }
+  .team-grid > .team-card:nth-child(6n + 4) .team-avatar {
+    background-color: #b45309;
+  }
+  .team-grid > .team-card:nth-child(6n + 5) .team-avatar {
+    background-color: #be185d;
+  }
+  .team-grid > .team-card:nth-child(6n + 6) .team-avatar {
+    background-color: #4d7c0f;
+  }
+
+  .team-name {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .team-role {
+    color: var(--global-text-color);
+    margin-bottom: 0.25rem;
+  }
+
+  .team-institution {
+    color: var(--global-text-color-light);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .team-links {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 0;
+    padding-left: 0;
+    list-style: none;
+  }
+
+  .team-links a {
+    font-size: 1.1rem;
+  }
+</style>
+
+{% assign team = site.data.team %}
+<div class="team-grid">
+  {% for member in team %}
+    {% assign link_keys = '' | split: '' %}
+    {% if member.links.homepage %}
+      {% assign link_keys = link_keys | push: 'homepage' %}
+    {% endif %}
+    {% if member.links.orcid %}
+      {% assign link_keys = link_keys | push: 'orcid' %}
+    {% endif %}
+    {% if member.links.scholar %}
+      {% assign link_keys = link_keys | push: 'scholar' %}
+    {% endif %}
+    {% if member.links.github %}
+      {% assign link_keys = link_keys | push: 'github' %}
+    {% endif %}
+    <div
+      class="team-card"
+      data-team-name="{{ member.name }}"
+      data-team-role="{{ member.role }}"
+      data-team-institution="{{ member.institution }}"
+      data-team-links="{{ link_keys | join: ',' }}"
+    >
+      {% if member.photo %}
+        <img
+          class="team-photo"
+          src="{{ 'assets/img/team/' | append: member.photo | relative_url }}"
+          alt="Photo of {{ member.name }}"
+          width="96"
+          height="96"
+          loading="lazy"
+        >
+      {% else %}
+        {% assign words = member.name | split: ' ' %}
+        {% assign initials = words.first | slice: 0, 1 | upcase %}
+        {% if words.size > 1 %}
+          {% assign last_initial = words.last | slice: 0, 1 | upcase %}
+          {% assign initials = initials | append: last_initial %}
+        {% endif %}
+        <div class="team-avatar" aria-hidden="true">{{ initials }}</div>
+      {% endif %}
+      <h2 class="team-name">{{ member.name }}</h2>
+      <p class="team-role">{{ member.role }}</p>
+      <p class="team-institution">{{ member.institution }}</p>
+      {% if member.links %}
+        <ul class="team-links">
+          {% if member.links.homepage %}
+            <li>
+              <a href="{{ member.links.homepage }}" aria-label="{{ member.name }} — homepage"><i class="fa-solid fa-globe" aria-hidden="true"></i></a>
+            </li>
+          {% endif %}
+          {% if member.links.orcid %}
+            <li>
+              <a href="{{ member.links.orcid }}" aria-label="{{ member.name }} — ORCID"><i class="fa-brands fa-orcid" aria-hidden="true"></i></a>
+            </li>
+          {% endif %}
+          {% if member.links.scholar %}
+            <li>
+              <a href="{{ member.links.scholar }}" aria-label="{{ member.name }} — Google Scholar"
+                ><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i
+              ></a>
+            </li>
+          {% endif %}
+          {% if member.links.github %}
+            <li>
+              <a href="{{ member.links.github }}" aria-label="{{ member.name }} — GitHub"><i class="fa-brands fa-github" aria-hidden="true"></i></a>
+            </li>
+          {% endif %}
+        </ul>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
