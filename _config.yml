@@ -95,7 +95,7 @@ navbar_fixed: true
 footer_fixed: false
 search_enabled: true
 socials_in_search: false # no social profiles on the IDEAS site
-posts_in_search: false # no blog posts; news items are indexed via their pages
+posts_in_search: false # no blog posts; news items are indexed in search by their inline content
 bib_search: true
 
 # Dimensions
@@ -133,10 +133,12 @@ bing_site_verification: # out your bing-site-verification ID (Bing Webmaster)
 # -----------------------------------------------------------------------------
 
 collections:
+  # News Items are short inline announcements (issue #8): they render only in
+  # the News page's dated table (theme _includes/news.liquid), so the
+  # collection builds no standalone pages and needs no layout. Keep every
+  # _news/ entry `inline: true` — the search index uses the inline content.
   news:
-    defaults:
-      layout: post
-    output: true
+    output: false
   # Projects are data entries (Research objectives, Use Cases), rendered by
   # their parent pages rather than as standalone pages.
   projects:

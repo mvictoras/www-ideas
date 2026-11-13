@@ -17,7 +17,9 @@
  * page links where present) and the Events-page acceptance criteria (every
  * _events/ entry built from its structured fields with visible TBA markers,
  * the RSVP placeholder or link, and the upcoming/past index split relative
- * to the build date).
+ * to the build date) and the News-page acceptance criteria (every _news/
+ * entry rendered as an inline dated row, newest first, with no Event
+ * appearing in the News page or the RSS feed).
  */
 const fs = require("fs");
 const path = require("path");
@@ -819,6 +821,124 @@ if (eventSlugs.length === 0) {
         const upcomingHtml = groupHtmls.upcoming;
         if (!upcomingHtml.includes(`href="${BASEURL}/events/${ALL_HANDS_SLUG}/"`)) {
           fail(`events/index.html: the All-Hands Meeting (${ALL_HANDS_SLUG}) is not listed under Upcoming`);
+        }
+      }
+    }
+  }
+}
+
+// 11. News: every _news/ News Item renders inline on the News page as a
+// dated row, newest first — and no Event appears in the News page or the
+// RSS feed (Events live only in the Events collection, issue #8).
+const NEWS_PAGE = path.join(SITE, "news", "index.html");
+const newsSlugs = fs
+  .readdirSync(path.join(__dirname, "..", "_news"))
+  .filter((name) => name.endsWith(".md"))
+  .map((name) => name.replace(/\.md$/, ""));
+// Matches the theme's news.liquid date format ('%b %d, %Y', zero-padded day).
+const NEWS_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const formatNewsDate = (yamlDate) => {
+  const [year, month, day] = String(yamlDate).slice(0, 10).split("-").map(Number);
+  return `${NEWS_MONTHS[month - 1]} ${String(day).padStart(2, "0")}, ${year}`;
+};
+// Comparable plain text: strips rendered tags / markdown link syntax, folds
+// kramdown's smart quotes back to straight ones, collapses whitespace.
+const normalizeText = (value) =>
+  value
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\[([^\]]*)\]\(([^)]*)\)/g, "$1")
+    .replace(/['’]/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+
+if (newsSlugs.length === 0) {
+  fail("_news/: no News Items found");
+} else {
+  const newsItems = newsSlugs.map((slug) => {
+    const item = parseFrontMatter(path.join(__dirname, "..", "_news", `${slug}.md`));
+    if (!item) {
+      fail(`_news/${slug}.md: no YAML front matter`);
+      return null;
+    }
+    // News Items are short inline announcements rendered in the News page's
+    // table; a non-inline item would need a standalone page, which the
+    // collection does not build.
+    if (!item.date) {
+      fail(`_news/${slug}.md: News Item has no date`);
+    }
+    if (item.inline !== true) {
+      fail(`_news/${slug}.md: News Item must be inline: true`);
+    }
+    return { slug, ...item };
+  });
+
+  const newsHtml = fs.existsSync(NEWS_PAGE) ? fs.readFileSync(NEWS_PAGE, "utf8") : null;
+  if (!newsHtml) {
+    fail("news/index.html: missing — the News page did not build");
+  } else {
+    const newsStart = newsHtml.indexOf('<div class="news">');
+    const newsDiv = newsStart === -1 ? null : extractDiv(newsHtml, newsStart);
+    if (!newsDiv) {
+      fail("news/index.html: no rendered news block");
+    } else {
+      const newsText = normalizeText(newsDiv);
+      const renderedDates = [...newsDiv.matchAll(/<th scope="row" style="width: 20%">([^<]+)<\/th>/g)].map((m) => m[1].trim());
+
+      // Newest first: the rendered date sequence is the News Items sorted by
+      // date descending.
+      const expectedDates = newsItems
+        .filter(Boolean)
+        .sort((a, b) => String(b.date).slice(0, 10).localeCompare(String(a.date).slice(0, 10)))
+        .map((item) => formatNewsDate(item.date));
+      const sequenceMatches =
+        renderedDates.length === expectedDates.length && renderedDates.every((date, index) => date === expectedDates[index]);
+      if (!sequenceMatches) {
+        fail(`news/index.html: News Items are not listed newest first with dates (found ${renderedDates.join("; ")}, expected ${expectedDates.join("; ")})`);
+      }
+
+      for (const item of newsItems) {
+        if (!item) continue;
+        if (!renderedDates.includes(formatNewsDate(item.date))) {
+          fail(`news/index.html: News Item _news/${item.slug}.md is not listed with its date ${formatNewsDate(item.date)}`);
+        }
+        const body = normalizeText(String(fs.readFileSync(path.join(__dirname, "..", "_news", `${item.slug}.md`), "utf8"))
+          .replace(/^---\n[\s\S]*?\n---\n/, ""));
+        if (!newsText.includes(body)) {
+          fail(`news/index.html: News Item _news/${item.slug}.md is not rendered on the News page`);
+        }
+      }
+
+      // Events never appear in News: no link to an Event page and no Event
+      // title inside the rendered news block (scoping to the block keeps the
+      // navbar's Events link out of the check).
+      if (newsDiv.includes(`href="${BASEURL}/events/`)) {
+        fail("news/index.html: the News page links to an Event");
+      }
+      for (const slug of eventSlugs) {
+        const event = parseFrontMatter(path.join(EVENTS_DIR, `${slug}.md`));
+        if (event && event.title && newsText.includes(normalizeText(escapeHtml(event.title)))) {
+          fail(`news/index.html: the News page mentions the Event "${event.title}"`);
+        }
+      }
+
+      // The RSS feed must not announce Events either.
+      const FEED = path.join(SITE, "feed.xml");
+      if (!fs.existsSync(FEED)) {
+        fail("feed.xml: missing");
+      } else {
+        const feed = fs.readFileSync(FEED, "utf8");
+        for (const slug of eventSlugs) {
+          const event = parseFrontMatter(path.join(EVENTS_DIR, `${slug}.md`));
+          if (!event) continue;
+          if (feed.includes(`events/${slug}`)) {
+            fail(`feed.xml: references the Event ${slug}`);
+          }
+          if (event.title && feed.includes(escapeHtml(event.title))) {
+            fail(`feed.xml: announces the Event "${event.title}"`);
+          }
+        }
+        if (feed.includes(`href="${BASEURL}/events/`)) {
+          fail("feed.xml: links to an Event page");
         }
       }
     }
