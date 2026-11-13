@@ -19,7 +19,11 @@
  * the RSVP placeholder or link, and the upcoming/past index split relative
  * to the build date) and the News-page acceptance criteria (every _news/
  * entry rendered as an inline dated row, newest first, with no Event
- * appearing in the News page or the RSS feed).
+ * appearing in the News page or the RSS feed), and the Home-page acceptance
+ * criteria (hypothesis hero, Objective and Use Case cards linking into
+ * Research/Use Cases, the newest News Items and the next upcoming Event
+ * rendering automatically from their collections, the sibling-Thrust note —
+ * and TIDES mentioned only there, site-wide).
  */
 const fs = require("fs");
 const path = require("path");
@@ -942,6 +946,234 @@ if (newsSlugs.length === 0) {
         }
       }
     }
+  }
+}
+
+// 12. Home landing page (issue #10): the hypothesis hero, Objective cards and
+// Use Case cards linking into the Research/Use Cases pages, the newest News
+// Items and the next upcoming Event rendered automatically from their
+// collections, and the sibling-Thrust note — with TIDES mentioned only in
+// that note, site-wide.
+const HOME_PAGE = path.join(SITE, "index.html");
+const HOME_BLOCKS_MARKER = "<!-- home-blocks -->";
+const HOME_TITLE = "Intelligent Data Exploration Assistant for Science";
+const LONG_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+// Matches the layout's date formats ("February 2", "February 3, 2027").
+const formatHomeDay = (yamlDate) => {
+  const [year, month, day] = String(yamlDate).slice(0, 10).split("-").map(Number);
+  return `${LONG_MONTHS[month - 1]} ${day}`;
+};
+const formatHomeFullDate = (yamlDate) => {
+  const [year, month, day] = String(yamlDate).slice(0, 10).split("-").map(Number);
+  return `${LONG_MONTHS[month - 1]} ${day}, ${year}`;
+};
+// Visitor-visible markup only: script blocks (e.g. al_search's inlined
+// ninja.data index) mirror other pages' content and are not page prose.
+const stripScriptBlocks = (html) => html.replace(/<script[\s\S]*?<\/script>/gi, " ");
+
+if (!fs.existsSync(HOME_PAGE)) {
+  fail("index.html: missing — the Home page did not build");
+} else {
+  const homeHtml = fs.readFileSync(HOME_PAGE, "utf8");
+
+  // Hero copy and sibling-Thrust note come from _pages/about.md, split at the
+  // same marker the home layout uses.
+  const aboutBody = fs.readFileSync(path.join(__dirname, "..", "_pages", "about.md"), "utf8").replace(/^---\n[\s\S]*?\n---\n/, "");
+  if (!aboutBody.includes(HOME_BLOCKS_MARKER)) {
+    fail("_pages/about.md: no home-blocks marker to split the hero copy from the sibling-Thrust note");
+  }
+  const [heroCopy, siblingCopy] = aboutBody.split(HOME_BLOCKS_MARKER).map(normalizeText);
+
+  const homeText = normalizeText(stripScriptBlocks(homeHtml));
+
+  const heroH1 = homeHtml.match(/<h1[^>]*>([\s\S]*?)<\/h1>/);
+  if (!heroH1 || heroH1[1].trim() !== HOME_TITLE) {
+    fail(`index.html: hero <h1> is not "${HOME_TITLE}"`);
+  }
+  if (!homeText.includes(heroCopy)) {
+    fail("index.html: hypothesis hero copy missing");
+  }
+  if (!homeText.includes(siblingCopy)) {
+    fail("index.html: sibling-Thrust note missing");
+  }
+
+  // Objective cards: one per objective project, in importance order, linking
+  // to its anchor on the Research page with title and tagline visible.
+  const projectsDir = path.join(__dirname, "..", "_projects");
+  const homeProjects = fs
+    .readdirSync(projectsDir)
+    .filter((name) => name.endsWith(".md"))
+    .map((name) => {
+      const data = parseFrontMatter(path.join(projectsDir, name));
+      return data ? { slug: name.replace(/\.md$/, ""), ...data } : null;
+    })
+    .filter(Boolean);
+  const homeObjectives = homeProjects.filter((project) => project.category === "objective").sort((a, b) => a.importance - b.importance);
+  const homeUseCases = homeProjects.filter((project) => project.category === "use-case").sort((a, b) => a.importance - b.importance);
+
+  const homeObjectivesDiv = extractDiv(homeHtml, homeHtml.indexOf('<div class="home-objectives"'));
+  if (!homeObjectivesDiv) {
+    fail("index.html: no Objectives block");
+  } else {
+    const objectiveCards = [...homeObjectivesDiv.matchAll(/<a class="home-card"/g)].map((match, index, all) =>
+      homeObjectivesDiv.slice(match.index, index + 1 < all.length ? all[index + 1].index : homeObjectivesDiv.length)
+    );
+    if (objectiveCards.length !== homeObjectives.length) {
+      fail(`index.html: expected ${homeObjectives.length} Objective cards, found ${objectiveCards.length}`);
+    }
+    homeObjectives.forEach((objective, index) => {
+      const card = objectiveCards[index];
+      if (!card) return;
+      if (!card.includes(`href="${BASEURL}/research/#${objective.slug}"`)) {
+        fail(`index.html: Objective card "${objective.title}" does not link to research/#${objective.slug}`);
+      }
+      if (!normalizeText(card).includes(normalizeText(escapeHtml(objective.title)))) {
+        fail(`index.html: Objective card for ${objective.slug} does not show its title`);
+      }
+      if (!normalizeText(card).includes(normalizeText(escapeHtml(objective.tagline)))) {
+        fail(`index.html: Objective card for ${objective.slug} does not show its tagline`);
+      }
+    });
+  }
+
+  // Use Case cards: one per use-case project, Active before Upcoming (the
+  // layout renders the statuses in that order), linking to the Use Cases
+  // page with the status visible on the card.
+  const homeUseCasesDiv = extractDiv(homeHtml, homeHtml.indexOf('<div class="home-use-cases"'));
+  if (!homeUseCasesDiv) {
+    fail("index.html: no Use Cases block");
+  } else {
+    const useCaseCards = [...homeUseCasesDiv.matchAll(/<a class="home-card"/g)].map((match, index, all) =>
+      homeUseCasesDiv.slice(match.index, index + 1 < all.length ? all[index + 1].index : homeUseCasesDiv.length)
+    );
+    if (useCaseCards.length !== homeUseCases.length) {
+      fail(`index.html: expected ${homeUseCases.length} Use Case cards, found ${useCaseCards.length}`);
+    }
+    const statusOf = (project) => (project.status === "active" ? "Active" : "Upcoming");
+    const sortedUseCases = [...homeUseCases].sort((a, b) => (a.status === b.status ? a.importance - b.importance : a.status === "active" ? -1 : 1));
+    useCaseCards.forEach((card, index) => {
+      const useCase = sortedUseCases[index];
+      if (!card) return;
+      if (!useCase) {
+        fail("index.html: contains a Use Case card with no _projects/ entry");
+        return;
+      }
+      if (!card.includes(`href="${BASEURL}/use-cases/#${useCase.slug}"`)) {
+        fail(`index.html: Use Case card "${useCase.title}" does not link to use-cases/#${useCase.slug}`);
+      }
+      if (!normalizeText(card).includes(`${statusOf(useCase)} Use Case`)) {
+        fail(`index.html: Use Case card for ${useCase.slug} does not show its "${statusOf(useCase)}" status`);
+      }
+      if (!normalizeText(card).includes(normalizeText(escapeHtml(useCase.title)))) {
+        fail(`index.html: Use Case card for ${useCase.slug} does not show its title`);
+      }
+    });
+  }
+
+  // Latest news: the newest page.announcements.limit News Items from the
+  // _news collection, newest first, with dates and inline bodies.
+  const homeNewsStart = homeHtml.indexOf('<div class="news">');
+  const homeNewsDiv = homeNewsStart === -1 ? null : extractDiv(homeHtml, homeNewsStart);
+  if (!homeNewsDiv) {
+    fail("index.html: no Latest news block");
+  } else {
+    const homeNewsText = normalizeText(homeNewsDiv);
+    const latestNews = newsSlugs
+      .map((slug) => {
+        const item = parseFrontMatter(path.join(__dirname, "..", "_news", `${slug}.md`));
+        return item && item.date ? { slug, ...item } : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => String(b.date).slice(0, 10).localeCompare(String(a.date).slice(0, 10)));
+    const newsLimit = 3;
+    const expectedLatest = latestNews.slice(0, newsLimit);
+
+    const homeRenderedDates = [...homeNewsDiv.matchAll(/<th scope="row" style="width: 20%">([^<]+)<\/th>/g)].map((m) => m[1].trim());
+    const expectedDates = expectedLatest.map((item) => formatNewsDate(item.date));
+    if (homeRenderedDates.length !== expectedDates.length || !homeRenderedDates.every((date, index) => date === expectedDates[index])) {
+      fail(
+        `index.html: the Latest news block does not show the ${expectedDates.length} newest News Items newest first (found ${homeRenderedDates.join("; ")}, expected ${expectedDates.join("; ")})`
+      );
+    }
+    for (const item of expectedLatest) {
+      const body = normalizeText(
+        String(fs.readFileSync(path.join(__dirname, "..", "_news", `${item.slug}.md`), "utf8")).replace(/^---\n[\s\S]*?\n---\n/, "")
+      );
+      if (!homeNewsText.includes(body)) {
+        fail(`index.html: the Latest news block does not render News Item _news/${item.slug}.md`);
+      }
+    }
+    // Nothing older than the limit leaks into the block.
+    for (const item of latestNews.slice(newsLimit)) {
+      if (homeRenderedDates.includes(formatNewsDate(item.date))) {
+        fail(`index.html: the Latest news block shows more than the newest ${newsLimit} News Items`);
+      }
+    }
+  }
+
+  // Upcoming events: the next Event relative to the build date (same rule as
+  // the Events index — past only once the end date has fully passed), linked
+  // with its type, dates, venue and RSVP state visible.
+  const homeEventsStart = homeHtml.indexOf('<div class="home-events"');
+  const homeEventsDiv = homeEventsStart === -1 ? null : extractDiv(homeHtml, homeEventsStart);
+  if (!homeEventsDiv) {
+    fail("index.html: no Upcoming events block");
+  } else {
+    const homeEventsText = normalizeText(homeEventsDiv);
+    const isEventPast = (event) => {
+      const [year, month, day] = String(event.end_date).slice(0, 10).split("-").map(Number);
+      return new Date(year, month - 1, day, 23, 59, 59) < new Date();
+    };
+    const nextEvent = eventSlugs
+      .map((slug) => {
+        const event = parseFrontMatter(path.join(EVENTS_DIR, `${slug}.md`));
+        return event ? { slug, ...event } : null;
+      })
+      .filter((event) => event && !isEventPast(event))
+      .sort((a, b) => String(a.start_date).slice(0, 10).localeCompare(String(b.start_date).slice(0, 10)))[0];
+
+    if (!nextEvent) {
+      fail("index.html: no upcoming Event in _events/ to assert against");
+    } else {
+      if (!homeEventsDiv.includes(`href="${BASEURL}/events/${nextEvent.slug}/"`)) {
+        fail(`index.html: the Upcoming events block does not link the next Event ${nextEvent.slug}`);
+      }
+      if (!homeEventsText.includes(normalizeText(escapeHtml(nextEvent.event_type)))) {
+        fail(`index.html: the Upcoming events block does not show the next Event's type "${nextEvent.event_type}"`);
+      }
+      if (!homeEventsText.includes(normalizeText(escapeHtml(nextEvent.title)))) {
+        fail(`index.html: the Upcoming events block does not show the next Event's title "${nextEvent.title}"`);
+      }
+      if (String(nextEvent.start_date).slice(0, 10) === String(nextEvent.end_date).slice(0, 10)) {
+        if (!homeEventsText.includes(formatHomeFullDate(nextEvent.start_date))) {
+          fail(`index.html: the Upcoming events block does not show the next Event's date ${formatHomeFullDate(nextEvent.start_date)}`);
+        }
+      } else {
+        if (!homeEventsText.includes(formatHomeDay(nextEvent.start_date)) || !homeEventsText.includes(formatHomeFullDate(nextEvent.end_date))) {
+          fail(
+            `index.html: the Upcoming events block does not show the next Event's dates ${formatHomeDay(nextEvent.start_date)} – ${formatHomeFullDate(nextEvent.end_date)}`
+          );
+        }
+      }
+      if (nextEvent.venue && nextEvent.venue.name && !homeEventsText.includes(normalizeText(escapeHtml(nextEvent.venue.name)))) {
+        fail(`index.html: the Upcoming events block does not show the next Event's venue "${nextEvent.venue.name}"`);
+      }
+    }
+  }
+
+  // TIDES, site-wide: rendered pages mention TIDES only on the Home page, and
+  // there exactly once — in the sibling-Thrust note (asserted above to be
+  // present and to contain the note's copy).
+  for (const file of htmlFiles) {
+    const rel = path.relative(SITE, file).split(path.sep).join("/");
+    if (rel === "index.html") continue;
+    if (/\bTIDES\b/.test(stripScriptBlocks(fs.readFileSync(file, "utf8")))) {
+      fail(`${rel}: mentions TIDES; TIDES is mentioned only in the Home page's sibling-Thrust note`);
+    }
+  }
+  const tidesMentions = (homeText.match(/\bTIDES\b/g) || []).length;
+  if (tidesMentions !== 1) {
+    fail(`index.html: expected exactly one TIDES mention (the sibling-Thrust note), found ${tidesMentions}`);
   }
 }
 
