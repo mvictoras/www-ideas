@@ -1,0 +1,19 @@
+/* IDEAS brand colours. Generated from src/brand.json by `npm run build`; do not edit. */
+:root {
+  --ideas-ink: #0b1f3a;
+  --ideas-background: #f7f8fb;
+  --ideas-white: #ffffff;
+  --ideas-ramp-1: #1e3a8a;
+  --ideas-ramp-2: #1d4ed8;
+  --ideas-ramp-3: #0284c7;
+  --ideas-ramp-4: #0ea5e9;
+  --ideas-ramp-5: #14b8a6;
+  --ideas-ramp-6: #84cc16;
+  --ideas-ramp-7: #f59e0b;
+  --ideas-accent-1: #1d4ed8;
+  --ideas-accent-2: #14b8a6;
+  --ideas-accent-3: #f59e0b;
+  --ideas-accent-4: #0ea5e9;
+  --ideas-accent-5: #1e3a8a;
+  --ideas-accent-6: #84cc16;
+}

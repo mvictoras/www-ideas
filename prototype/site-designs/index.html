@@ -1,0 +1,440 @@
+<!doctype html>
+<!-- PROTOTYPE, throwaway (issue #16). Lives only on prototype/site-designs and is
+     never merged to main. Compares three candidate looks for the IDEAS site on the
+     real Home and Research content. Switch with ?design=p1|p2|p3, the bottom bar,
+     or the left/right arrow keys. ?view=research (or #research) opens Research.
+
+     The content is written once, as plain semantic markup. Each design is a
+     stylesheet scoped to html[data-design="pN"]: p1.css restyles al-folio.
+     P2 and P3 show a placeholder until their own tickets add p2.css / p3.css. -->
+<html lang="en" data-design="p1">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IDEAS Site Designs</title>
+<link rel="icon" href="brand/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="brand/ideas-colours.css">
+<link rel="stylesheet" href="shell.css">
+<link rel="stylesheet" href="p1.css">
+<script>
+  // Set the design and theme before first paint, so the page doesn't flash.
+  (function () {
+    var root = document.documentElement;
+    var params = new URLSearchParams(location.search);
+    var stored = {};
+    try { stored.design = localStorage.getItem('ideas-proto-design'); stored.theme = localStorage.getItem('ideas-proto-theme'); } catch (e) {}
+    var design = (params.get('design') || stored.design || 'p1').toLowerCase();
+    root.dataset.design = /^p[123]$/.test(design) ? design : 'p1';
+    var theme = params.get('theme') || stored.theme;
+    if (theme === 'light' || theme === 'dark') root.dataset.theme = theme;
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="site">
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-brand" href="#home" data-view-link="home" aria-label="IDEAS home">
+      <img class="lockup lockup-light" src="brand/ideas-horizontal-lockup-color-on-light.svg" alt="IDEAS: intelligent data exploration assistant for science" width="436" height="70">
+      <img class="lockup lockup-dark" src="brand/ideas-horizontal-lockup-color-on-ink.svg" alt="IDEAS: intelligent data exploration assistant for science" width="436" height="70">
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+      <span class="nav-toggle-bars" aria-hidden="true"></span>
+      <span class="nav-toggle-label">Menu</span>
+    </button>
+    <nav class="site-nav" id="site-nav" aria-label="Main">
+      <a href="#home" data-view-link="home">Home</a>
+      <a href="#research" data-view-link="research">Research</a>
+      <a href="#" aria-disabled="true" title="Not in this prototype">Use Cases</a>
+      <a href="#" aria-disabled="true" title="Not in this prototype">Team</a>
+      <a href="#" aria-disabled="true" title="Not in this prototype">Publications</a>
+      <a href="#" aria-disabled="true" title="Not in this prototype">Software</a>
+      <a href="#" aria-disabled="true" title="Not in this prototype">News</a>
+      <a href="#" aria-disabled="true" title="Not in this prototype">Events</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+
+  <!-- ===================================================== HOME -->
+  <div class="view" data-view="home">
+
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-text">
+          <p class="kicker hero-kicker">DOE ASCR · Argonne Base · Thrust 2</p>
+          <h1 class="hero-title">Intelligent Data Exploration Assistant for Science</h1>
+          <p class="hero-copy">IDEAS couples AI-powered visualization and context-aware exploration with compact, computation-ready data representations — accelerating discovery through real-time, human-in-the-loop analysis.</p>
+          <p class="hero-actions">
+            <a class="button" href="#research" data-view-link="research">Explore the research</a>
+          </p>
+        </div>
+        <figure class="hero-figure">
+          <img src="img/chameleon-hero.jpg" alt="Volume rendering of a chameleon CT scan: the skull, spine, ribs and limbs glow orange, yellow and green against black." width="1270" height="960">
+          <figcaption>Volume rendering of a chameleon CT scan.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <div class="container">
+
+      <section class="block" id="objectives" aria-labelledby="objectives-title">
+        <div class="block-head">
+          <h2 class="block-title" id="objectives-title">Objectives</h2>
+          <a class="block-more" href="#research" data-view-link="research">The research</a>
+        </div>
+        <div class="cards cards-objectives">
+          <a class="card" href="#efficient-data-representations" data-view-link="research">
+            <div class="card-media"><img src="img/representative-pixels.jpg" alt="" width="900" height="552" loading="lazy"></div>
+            <div class="card-body">
+              <p class="kicker">Objective 1</p>
+              <h3 class="card-title">Efficient Data Representations</h3>
+              <p class="card-tagline">Make the data small enough to think with.</p>
+            </div>
+          </a>
+          <a class="card" href="#ai-driven-rendering-and-visualization" data-view-link="research">
+            <div class="card-media card-media-diagram"><img src="img/overview-rendering.png" alt="" width="480" height="334" loading="lazy"></div>
+            <div class="card-body">
+              <p class="kicker">Objective 2</p>
+              <h3 class="card-title">AI-Driven Rendering and Visualization</h3>
+              <p class="card-tagline">Draw the picture from the model, not from the mountain of data.</p>
+            </div>
+          </a>
+          <a class="card" href="#human-centered-exploration-of-scientific-data" data-view-link="research">
+            <div class="card-media card-media-diagram"><img src="img/overview-assistant.png" alt="" width="460" height="334" loading="lazy"></div>
+            <div class="card-body">
+              <p class="kicker">Objective 3</p>
+              <h3 class="card-title">Human-Centered Exploration of Scientific Data</h3>
+              <p class="card-tagline">Ask the data a question, in your own words.</p>
+            </div>
+          </a>
+          <a class="card" href="#system-integration-and-testing" data-view-link="research">
+            <div class="card-media card-media-diagram"><img src="img/overview-sources.png" alt="" width="330" height="334" loading="lazy"></div>
+            <div class="card-body">
+              <p class="kicker">Objective 4</p>
+              <h3 class="card-title">System Integration and Testing</h3>
+              <p class="card-tagline">Put the assistant where the science happens.</p>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <section class="block" id="use-cases" aria-labelledby="use-cases-title">
+        <div class="block-head">
+          <h2 class="block-title" id="use-cases-title">Use Cases</h2>
+          <a class="block-more" href="#" aria-disabled="true" title="Not in this prototype">All Use Cases</a>
+        </div>
+        <div class="cards cards-use-cases">
+          <a class="card" href="#" aria-disabled="true">
+            <div class="card-media"><img src="img/hacc.jpg" alt="" width="729" height="512" loading="lazy"></div>
+            <div class="card-body">
+              <p class="kicker">Active Use Case</p>
+              <h3 class="card-title">Cosmology</h3>
+              <p class="card-tagline">Finding the one-in-a-billion in a petabyte of universe.</p>
+            </div>
+          </a>
+          <a class="card" href="#" aria-disabled="true">
+            <!-- No figure yet for this Use Case: a Volume Grid panel stands in. -->
+            <div class="card-media card-media-grid" aria-hidden="true"><span class="grid-label">NekRS · Taylor-Green Vortex</span></div>
+            <div class="card-body">
+              <p class="kicker">Active Use Case</p>
+              <h3 class="card-title">Turbulence in Complex Geometries</h3>
+              <p class="card-tagline">The hardest flows hide inside the most complex machines.</p>
+            </div>
+          </a>
+          <a class="card" href="#" aria-disabled="true">
+            <div class="card-media card-media-diagram"><img src="img/xpcs-interface.jpg" alt="" width="1000" height="476" loading="lazy"></div>
+            <div class="card-body">
+              <p class="kicker">Upcoming Use Case</p>
+              <h3 class="card-title">X-Ray Science</h3>
+              <p class="card-tagline">From beamtime bottleneck to real-time dialogue.</p>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <div class="home-split">
+        <section class="block" id="news" aria-labelledby="news-title">
+          <div class="block-head">
+            <h2 class="block-title" id="news-title">Latest news</h2>
+            <a class="block-more" href="#" aria-disabled="true" title="Not in this prototype">All news</a>
+          </div>
+          <ul class="news-list">
+            <li class="news-item">
+              <time class="date" datetime="2026-09-15">Sep 15, 2026</time>
+              <p>The IDEAS Software Releases are now publicly available open source — MFA, SASAV, NL2SciVis, GSCache and Vitral — with descriptions and repositories listed on the Software page.</p>
+            </li>
+            <li class="news-item">
+              <time class="date" datetime="2026-06-08">Jun 8, 2026</time>
+              <p><a href="https://doi.org/10.2312/evs.20261017">NL2SciVis: A Benchmark for Natural Language to Scientific Visualization</a> by Manish Mathai, Mengjiao Han, Janet Knowles, Victor A. Mateevitsi, Silvio Rizzi and Hank Childs was presented at EuroVis 2026 in Nottingham, UK.</p>
+            </li>
+            <li class="news-item">
+              <time class="date" datetime="2026-02-01">Feb 1, 2026</time>
+              <p><a href="https://doi.org/10.1109/TVCG.2025.3621079">Make the Fastest Faster: Importance Mask Synthesis for Interactive Volume Visualization Using Reconstruction Neural Networks</a> by Jianxin Sun, David Lenz, Hongfeng Yu and Tom Peterka appeared in IEEE Transactions on Visualization and Computer Graphics, vol. 32, no. 2.</p>
+            </li>
+          </ul>
+        </section>
+
+        <section class="block" id="events" aria-labelledby="events-title">
+          <div class="block-head">
+            <h2 class="block-title" id="events-title">Upcoming events</h2>
+            <a class="block-more" href="#" aria-disabled="true" title="Not in this prototype">All events</a>
+          </div>
+          <article class="event-card">
+            <p class="kicker">All-Hands Meeting</p>
+            <h3 class="event-title"><a href="#" aria-disabled="true">IDEAS All-Hands Meeting</a></h3>
+            <p class="event-dates date"><time datetime="2027-02-02">Feb 2</time> – <time datetime="2027-02-03">Feb 3, 2027</time></p>
+            <p class="event-meta">Argonne National Laboratory · In person · RSVP required</p>
+          </article>
+        </section>
+      </div>
+
+      <section class="sibling-note">
+        <p>IDEAS is one of two Thrusts of the DOE ASCR Argonne Base program at Argonne National Laboratory. Our sibling Thrust, TIDES, advances the program's data-management research.</p>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ===================================================== RESEARCH -->
+  <div class="view" data-view="research" hidden>
+    <div class="container container-narrow">
+
+      <header class="page-head">
+        <p class="kicker">Research</p>
+        <h1 class="page-title">Research</h1>
+        <p class="page-description">Turning petabytes of scientific data into something a scientist can explore, question and steer.</p>
+      </header>
+
+      <p class="research-lede">The universe does not fit on a laptop. Frontier-E, one of the cosmology simulations IDEAS works with, follows gravity, gas and the formation of galaxies across a volume of space the size of a sky survey, and it fills multiple petabytes across hundreds of snapshots. A single timestep of a modern simulation can run to terabytes. The structures that matter are in there somewhere. But scientists can explore only a sliver of that data interactively, because the tools they use to look were built for a smaller world.</p>
+
+      <p>IDEAS, the Intelligent Data Exploration Assistant for Science, sets out to change that. The idea is simple to state and hard to achieve. If scientific data can be turned into compact models that keep what matters, those models can be rendered directly, questioned in plain language, and connected to the supercomputers and instruments where science happens. The goal is an assistant that helps a scientist explore a petabyte the way they explore a photograph: by looking, asking, and following their curiosity.</p>
+
+      <figure class="figure figure-wide">
+        <div class="figure-frame"><img src="img/ideas-overview.png" alt="Diagram of IDEAS: data from facilities and simulation codes becomes compact representations (INR, MFA, KAN), which feed AI-driven rendering on many displays and a human-centered assistant built on LLMs, voice, agents and workflows." width="1846" height="334"></div>
+        <figcaption>Overview of IDEAS. Scientific data from simulations and experiments become homomorphic representations, which make possible advanced rendering, real-time exploration, and workflow orchestration through intelligent assistants. <span class="credit">Credit: IDEAS team, Argonne Base proposal (2025).</span></figcaption>
+      </figure>
+
+      <p>The work unfolds across four connected Objectives, each building on the one before. Every Objective answers a priority research direction identified by the DOE Visualization for Scientific Discovery, Decision-Making, and Communication Workshop.</p>
+
+      <section class="objective" id="efficient-data-representations">
+        <p class="kicker">Objective 1</p>
+        <h2 class="objective-title">Efficient Data Representations</h2>
+        <p class="objective-tagline">Make the data small enough to think with.</p>
+        <p>Raw simulation output is a poor format for curiosity. It is enormous, rigid and slow to move. IDEAS replaces it with homomorphic representations: compact mathematical models of the data, built from implicit neural representations, multivariate functional approximations and spline-based networks. They preserve the data's analytical and visual fidelity, so rendering and analysis can run on the model directly instead of on the raw output.</p>
+        <p>The open questions are fundamental. How should such a model organize itself across scales, so that a scientist can move from the shape of a whole simulation down to its finest features without waiting? And what is gained when neural networks and classical splines work together, instead of competing?</p>
+        <p>The first answers are arriving. We are rebuilding our multivariate functional approximation library around a hierarchy of overlapping patches, in the spirit of adaptive mesh refinement, in place of the tessellated tensors it used before. The new design already reproduces every test case from our 2023 LDAV paper with comparable accuracy, fewer tensors and comparable or slightly faster run times. A proof-of-concept network that uses splines as its activation functions matches state-of-the-art methods on scientific data, and its next lessons are to report its own uncertainty and to adapt its resolution to the features it finds. We have also begun building hierarchical neural representations that adjust their own capacity to the error a scientist is willing to tolerate.</p>
+        <p>One result is already published. Our importance-mask work, in IEEE Transactions on Visualization and Computer Graphics, learns which pixels of a rendering matter most by weighing the data, how people explore it, and what a neural network needs to rebuild the rest. An image can then be reconstructed from a small fraction of its pixels.</p>
+        <figure class="figure">
+          <div class="figure-frame"><img src="img/representative-pixels.jpg" alt="Grid comparing three datasets, Chameleon, BeechNut and Rayleigh–Taylor, using 5%, 10% and 30% of total pixels respectively. Columns show the representative pixels, the partially rendered image, and the reconstruction with zoomed details and speed-ups of 4.3×, 3.2× and 2.1×." width="900" height="552" loading="lazy"></div>
+          <figcaption>Representative pixels for accelerating a reconstruction neural network. From 5, 10 and 30 percent of the total pixels, the full image is reconstructed, with the speed-up shown for each. <span class="credit">Credit: IDEAS team, Argonne Base proposal (2025).</span></figcaption>
+        </figure>
+      </section>
+
+      <section class="objective" id="ai-driven-rendering-and-visualization">
+        <p class="kicker">Objective 2</p>
+        <h2 class="objective-title">AI-Driven Rendering and Visualization</h2>
+        <p class="objective-tagline">Draw the picture from the model, not from the mountain of data.</p>
+        <p>Once data lives as a model, the picture no longer has to be made the old way. Traditional volume rendering marches rays through the data and samples light again and again along each one. At exascale, that brute force runs out of road. IDEAS renders straight from homomorphic representations, and asks AI to do what it does well: fill in what was never computed.</p>
+        <p>Two questions drive the work. Can sparse sampling, followed by a neural network that restores the missing detail, make volume rendering fast enough to feel immediate? And can AI learn in advance how a rendering will touch the data, so that models can be divided across a supercomputer before the work begins?</p>
+        <p>GSCache, published in IEEE Transactions on Visualization and Computer Graphics, uses 3D Gaussians to cache how light moves through a volume. Physically based rendering of scientific data can then reuse what it has already learned, instead of recomputing every bounce. DiffusionShadow goes further and hands shadows to a diffusion model, the same family of AI behind modern image generators. Trained on the weights of neural representations and conditioned on the lighting, it cuts the cost of rendering shadows from quadratic to linear in the number of samples along each ray. We measure its output against ground truth with standard image-quality metrics, not by eye.</p>
+        <p>To carry these methods beyond a single GPU, we are distributing F-Hash, a fast-converging encoding for time-varying volumes, across many GPUs. The first experiments in splitting the data across space and time are complete.</p>
+        <figure class="figure figure-diagram">
+          <div class="figure-frame"><img src="img/overview-rendering.png" alt="Detail of the IDEAS overview diagram: AI-driven advanced rendering and visualization, for VR headsets, laptops, tablets and display walls." width="480" height="334" loading="lazy"></div>
+          <figcaption>AI-driven rendering serves every display, from a headset to a display wall. Detail of the IDEAS overview. <span class="credit">Credit: IDEAS team, Argonne Base proposal (2025).</span></figcaption>
+        </figure>
+      </section>
+
+      <section class="objective" id="human-centered-exploration-of-scientific-data">
+        <p class="kicker">Objective 3</p>
+        <h2 class="objective-title">Human-Centered Exploration of Scientific Data</h2>
+        <p class="objective-tagline">Ask the data a question, in your own words.</p>
+        <p>The most powerful visualization tools in science are also among the hardest to use. A simple question, such as where the gas is hottest or what a slice through a vortex would reveal, can mean writing and debugging scripts before the first image appears. IDEAS is building an AI assistant that works alongside the scientist. It understands what they are trying to find, drives the visualization tools for them, adapts to their level of expertise, and keeps a transparent record of every step, so that a discovery can be explained and reproduced.</p>
+        <p>That raises hard questions. How do you tell a language model what a scientist is looking at, right now, on the screen? When should a single generalist give way to a team of specialist agents? And how can every answer stay traceable?</p>
+        <p>Before building the assistant, we measured whether today's language models can do the job at all. NL2SciVis, our publicly released benchmark, asks models to write ParaView code for 15 core visualization operations and checks every result deterministically. Across more than 14,000 trials with four leading models, pass rates ranged from 48 to 96 percent. The most telling finding: 92 percent of failures came not from misunderstanding the request, but from code that broke when it ran.</p>
+        <p>That finding now shapes the assistant. Its planned design pairs an agent that writes visualization code with one that runs and checks it, together with a context engine that tracks what the scientist is seeing and a provenance system that records each interaction. Meanwhile, ChatVis turns plain-language requests into slices and galaxy-distribution views of HACC cosmology data. SASAV, a self-directed agent that profiles data, suggests transfer functions and plans its own views, has been applied to scientific exploration tasks.</p>
+        <figure class="figure figure-diagram">
+          <div class="figure-frame"><img src="img/overview-assistant.png" alt="Detail of the IDEAS overview diagram: a scientist plus an AI assistant, reaching out through LLMs, voice, agents and workflows." width="460" height="334" loading="lazy"></div>
+          <figcaption>A scientist and an AI assistant, working through language models, voice, agents and workflows. Detail of the IDEAS overview. <span class="credit">Credit: IDEAS team, Argonne Base proposal (2025).</span></figcaption>
+        </figure>
+      </section>
+
+      <section class="objective" id="system-integration-and-testing">
+        <p class="kicker">Objective 4</p>
+        <h2 class="objective-title">System Integration and Testing</h2>
+        <p class="objective-tagline">Put the assistant where the science happens.</p>
+        <p>An assistant that only runs on a laptop is a demonstration. IDEAS is meant to work where discovery happens: beside live simulations on DOE supercomputers, and in the stream of data from DOE light sources. There, scientists can watch an experiment unfold, question it and steer it while it is still running.</p>
+        <p>The central question is one of timing. How can data streaming and execution control keep pace with workloads that mix simulation, experiment and AI, all at once?</p>
+        <p>The first link in that chain works. Globus Compute is configured and validated at the Argonne Leadership Computing Facility. AI agents running on a scientist's workstation, using Argonne's Argo language-model service, have reached out to a computing cluster to explore its file system, install software and generate images from cosmology simulation data. The assistant is acting, not only answering.</p>
+        <p>We are now building the orchestration layer that will coordinate data movement, computation and visualization, using Globus Flows, Globus Compute and the in situ visualization libraries Wilkins and Ascent. We are also setting the principles it will follow: urgent work first, workflows composed on the fly, and steering shared between AI agents and the people they serve. Connections to live simulations and to light-source data streams are under way.</p>
+        <figure class="figure figure-diagram">
+          <div class="figure-frame"><img src="img/overview-sources.png" alt="Detail of the IDEAS overview diagram: scientific sources, namely Argonne, the Advanced Photon Source, HACC, NekRS and other science codes and facilities." width="330" height="334" loading="lazy"></div>
+          <figcaption>Where the science happens: Argonne facilities, the Advanced Photon Source, and simulation codes such as HACC and NekRS. Detail of the IDEAS overview. <span class="credit">Credit: IDEAS team, Argonne Base proposal (2025).</span></figcaption>
+        </figure>
+      </section>
+
+      <section class="research-closing">
+        <p>Represent, render, converse, deploy: each Objective makes the next one possible. Together they are a bet that the hardest bottleneck in data-intensive science now sits between the data and the human mind, and that it can be narrowed. The <a href="#" aria-disabled="true">Use Cases</a> show where this work meets real science, in cosmology, turbulence and X-ray science. The <a href="#" aria-disabled="true">Publications</a> and <a href="#" aria-disabled="true">Software</a> pages share the resulting research and publicly available Software Releases.</p>
+      </section>
+
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <!-- The Partner Strip: Argonne (which leads IDEAS), then the six Partners in
+         brand order. Narrow screens get the same logos, byte for byte, in a grid,
+         because the one-line strip is too small to read at phone width. -->
+    <div class="partner-strip" role="img" aria-label="Argonne National Laboratory, which leads IDEAS, and the Partners: UC Davis, University of Cincinnati, University of Illinois Chicago, University of Nebraska–Lincoln, Kitware and Veeda AI.">
+      <img class="partner-strip-line" src="brand/ideas-partner-strip-large-on-light.svg" alt="" width="907" height="64" loading="lazy">
+      <ul class="partner-strip-grid" aria-hidden="true">
+        <li><img src="brand/partners/argonne.svg" alt="" loading="lazy"></li>
+        <li><img src="brand/partners/ucdavis.svg" alt="" loading="lazy"></li>
+        <li><img src="brand/partners/cincinnati.svg" alt="" loading="lazy"></li>
+        <li><img src="brand/partners/uic.svg" alt="" loading="lazy"></li>
+        <li><img src="brand/partners/unl.svg" alt="" loading="lazy"></li>
+        <li><img src="brand/partners/kitware.svg" alt="" loading="lazy"></li>
+        <li><img src="brand/partners/veeda.svg" alt="" loading="lazy"></li>
+      </ul>
+    </div>
+    <p class="acknowledgment">This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Advanced Scientific Computing Research (ASCR) under Contract DE-AC02-06CH11357.</p>
+  </div>
+</footer>
+
+</div>
+
+<!-- Shown instead of the site for designs that aren't built yet. -->
+<div class="design-placeholder" data-placeholder="p2" hidden>
+  <div class="placeholder-inner">
+    <p class="kicker">Design P2</p>
+    <h1>Coming next</h1>
+    <p>This design is a placeholder. Its own ticket replaces this panel with a full design on the same Home and Research content.</p>
+  </div>
+</div>
+<div class="design-placeholder" data-placeholder="p3" hidden>
+  <div class="placeholder-inner">
+    <p class="kicker">Design P3</p>
+    <h1>Coming next</h1>
+    <p>This design is a placeholder. Its own ticket replaces this panel with a full design on the same Home and Research content.</p>
+  </div>
+</div>
+
+<!-- Prototype switcher (not part of any design). -->
+<div class="proto-bar" role="toolbar" aria-label="Prototype controls">
+  <span class="proto-bar-label">Design</span>
+  <div class="proto-designs" role="radiogroup" aria-label="Design">
+    <button type="button" role="radio" data-design-choice="p1" aria-checked="true" title="P1: al-folio restyled">P1</button>
+    <button type="button" role="radio" data-design-choice="p2" aria-checked="false" title="P2: placeholder">P2</button>
+    <button type="button" role="radio" data-design-choice="p3" aria-checked="false" title="P3: placeholder">P3</button>
+  </div>
+  <span class="proto-bar-sep" aria-hidden="true"></span>
+  <button type="button" class="proto-theme" data-theme-toggle title="Cycle theme: system, light, dark">Theme: system</button>
+</div>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var DESIGNS = ['p1', 'p2', 'p3'];
+  var THEMES = ['system', 'light', 'dark'];
+
+  function store(key, value) {
+    try { if (value == null) localStorage.removeItem(key); else localStorage.setItem(key, value); } catch (e) {}
+  }
+
+  function updateUrl(changes) {
+    var url = new URL(location.href);
+    Object.keys(changes).forEach(function (k) {
+      if (changes[k] == null) url.searchParams.delete(k); else url.searchParams.set(k, changes[k]);
+    });
+    history.replaceState(null, '', url);
+  }
+
+  // ---- Design switcher
+  function setDesign(design) {
+    root.dataset.design = design;
+    store('ideas-proto-design', design);
+    updateUrl({ design: design });
+    document.querySelectorAll('[data-design-choice]').forEach(function (b) {
+      b.setAttribute('aria-checked', String(b.dataset.designChoice === design));
+    });
+    document.querySelectorAll('[data-placeholder]').forEach(function (p) {
+      p.hidden = p.dataset.placeholder !== design;
+    });
+    document.querySelector('.site').hidden = design !== 'p1';
+  }
+  document.querySelectorAll('[data-design-choice]').forEach(function (b) {
+    b.addEventListener('click', function () { setDesign(b.dataset.designChoice); });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.altKey || e.ctrlKey || e.metaKey || /input|textarea|select/i.test(e.target.tagName)) return;
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    var i = DESIGNS.indexOf(root.dataset.design);
+    setDesign(DESIGNS[(i + (e.key === 'ArrowRight' ? 1 : DESIGNS.length - 1)) % DESIGNS.length]);
+  });
+
+  // ---- Theme: follows the system unless overridden
+  var themeButton = document.querySelector('[data-theme-toggle]');
+  function setTheme(theme) {
+    if (theme === 'system') delete root.dataset.theme; else root.dataset.theme = theme;
+    store('ideas-proto-theme', theme === 'system' ? null : theme);
+    updateUrl({ theme: theme === 'system' ? null : theme });
+    themeButton.textContent = 'Theme: ' + theme;
+  }
+  themeButton.addEventListener('click', function () {
+    var current = root.dataset.theme || 'system';
+    setTheme(THEMES[(THEMES.indexOf(current) + 1) % THEMES.length]);
+  });
+
+  // ---- Views: Home and Research on one page
+  var params = new URLSearchParams(location.search);
+  var researchAnchors = Array.prototype.map.call(
+    document.querySelectorAll('[data-view="research"] [id]'), function (el) { return el.id; });
+
+  function viewFor(hash) {
+    var id = (hash || '').replace(/^#/, '');
+    if (id === 'research' || researchAnchors.indexOf(id) !== -1) return 'research';
+    if (!id && params.get('view') === 'research') return 'research';
+    return 'home';
+  }
+  function showView(hash) {
+    var view = viewFor(hash);
+    document.querySelectorAll('[data-view]').forEach(function (v) { v.hidden = v.dataset.view !== view; });
+    document.querySelectorAll('.site-nav [data-view-link]').forEach(function (a) {
+      if (a.dataset.viewLink === view) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+    var id = (hash || '').replace(/^#/, '');
+    var target = id && id !== 'home' && id !== 'research' && document.getElementById(id);
+    if (target) target.scrollIntoView(); else window.scrollTo(0, 0);
+  }
+  window.addEventListener('hashchange', function () { showView(location.hash); closeNav(); });
+
+  // Placeholder links don't navigate.
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[aria-disabled="true"]');
+    if (a) e.preventDefault();
+  });
+
+  // ---- Mobile nav
+  var navToggle = document.querySelector('.nav-toggle');
+  function closeNav() { navToggle.setAttribute('aria-expanded', 'false'); }
+  navToggle.addEventListener('click', function () {
+    navToggle.setAttribute('aria-expanded', String(navToggle.getAttribute('aria-expanded') !== 'true'));
+  });
+
+  setDesign(root.dataset.design);
+  themeButton.textContent = 'Theme: ' + (root.dataset.theme || 'system');
+  showView(location.hash);
+})();
+</script>
+</body>
+</html>

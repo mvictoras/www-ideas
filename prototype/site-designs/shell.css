@@ -1,0 +1,161 @@
+/* Shared shell for the site design prototypes (issue #16): semantic colour
+   tokens built only from the brand tokens in brand/ideas-colours.css, the
+   type families, base resets, the design placeholder and the prototype bar.
+   Each design's own look lives in pN.css, scoped to html[data-design="pN"]. */
+
+:root {
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --bg: var(--ideas-background);
+  --surface: var(--ideas-white);
+  --text: var(--ideas-ink);
+  --muted: color-mix(in srgb, var(--ideas-ink) 72%, var(--ideas-background));
+  --line: color-mix(in srgb, var(--ideas-ink) 13%, var(--ideas-background));
+  --link: var(--ideas-ramp-2);
+  --accent: var(--ideas-ramp-7);
+  --hero-bg: var(--ideas-ink);
+  --hero-text: var(--ideas-white);
+  --hero-muted: color-mix(in srgb, var(--ideas-white) 76%, var(--ideas-ink));
+  --figure-bg: var(--ideas-white);
+  --shadow: 0 1px 2px color-mix(in srgb, var(--ideas-ink) 8%, transparent),
+            0 8px 24px color-mix(in srgb, var(--ideas-ink) 6%, transparent);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: color-mix(in srgb, var(--ideas-ink) 78%, black);
+    --surface: var(--ideas-ink);
+    --text: color-mix(in srgb, var(--ideas-white) 93%, var(--ideas-ink));
+    --muted: color-mix(in srgb, var(--ideas-white) 70%, var(--ideas-ink));
+    --line: color-mix(in srgb, var(--ideas-white) 14%, var(--ideas-ink));
+    --link: var(--ideas-ramp-4);
+    --hero-bg: color-mix(in srgb, var(--ideas-ink) 60%, black);
+    --shadow: none;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: color-mix(in srgb, var(--ideas-ink) 78%, black);
+  --surface: var(--ideas-ink);
+  --text: color-mix(in srgb, var(--ideas-white) 93%, var(--ideas-ink));
+  --muted: color-mix(in srgb, var(--ideas-white) 70%, var(--ideas-ink));
+  --line: color-mix(in srgb, var(--ideas-white) 14%, var(--ideas-ink));
+  --link: var(--ideas-ramp-4);
+  --hero-bg: color-mix(in srgb, var(--ideas-ink) 60%, black);
+  --shadow: none;
+  color-scheme: dark;
+}
+
+/* Lockup and other light/dark asset swaps. */
+.lockup-dark { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .lockup-light { display: none; }
+  :root:not([data-theme="light"]) .lockup-dark { display: block; }
+}
+:root[data-theme="dark"] .lockup-light { display: none; }
+:root[data-theme="dark"] .lockup-dark { display: block; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-wrap: break-word;
+  padding-bottom: 88px; /* room for the prototype bar */
+}
+
+img { max-width: 100%; height: auto; }
+
+[hidden] { display: none !important; }
+
+a { color: var(--link); }
+
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -48px;
+  z-index: 100;
+  padding: 8px 12px;
+  background: var(--ideas-ink);
+  color: var(--ideas-white);
+  border-radius: 4px;
+}
+.skip-link:focus { top: 8px; }
+
+:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- Placeholder for designs not built yet */
+.design-placeholder {
+  min-height: calc(100vh - 88px);
+  display: grid;
+  place-items: center;
+  padding: 48px 16px;
+}
+.placeholder-inner {
+  max-width: 34rem;
+  padding: 40px 32px;
+  border: 2px dashed var(--line);
+  border-radius: 12px;
+  text-align: center;
+  background: var(--surface);
+}
+.placeholder-inner .kicker {
+  margin: 0 0 8px;
+  font: 600 0.8rem/1.4 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.placeholder-inner h1 { margin: 0 0 12px; font-size: 2rem; letter-spacing: -0.02em; }
+.placeholder-inner p:last-child { margin: 0; color: var(--muted); }
+
+/* ---- Prototype bar (fixed, outside every design) */
+.proto-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - 32px);
+  padding: 6px 8px 6px 14px;
+  background: #111;
+  color: #fff;
+  border-radius: 999px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  font: 500 13px/1 var(--font-mono);
+}
+.proto-bar-label { color: #aaa; }
+.proto-designs { display: flex; gap: 4px; }
+.proto-bar button {
+  height: 32px;
+  min-width: 40px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: #2a2a2a;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.proto-bar button[aria-checked="true"] { background: var(--ideas-ramp-7); color: #111; font-weight: 600; }
+.proto-bar button:hover { background: #3a3a3a; }
+.proto-bar button[aria-checked="true"]:hover { background: var(--ideas-ramp-7); }
+.proto-bar-sep { width: 1px; height: 20px; background: #444; }
+
+@media (max-width: 420px) {
+  .proto-bar-label { display: none; }
+  .proto-bar { padding-left: 8px; }
+}
