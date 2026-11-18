@@ -14,6 +14,8 @@
 {%- endcomment -%}
 <style>
   :root {
+    --global-bg-color: #f7f8fb; /* the brand Background (ideas-colours.css) */
+    --global-card-bg-color: #ffffff;
     --global-text-color: #0b1f3a; /* Ink */
     --global-text-color-light: #4a5a70;
     --global-theme-color: #1d4ed8; /* ramp blue */
@@ -34,18 +36,42 @@
     --global-hover-text-color: #0b1f3a;
     --global-divider-color: rgba(213, 222, 234, 0.15);
   }
+
+  /* The Horizontal Lockup: 34 px tall next to the nav, slightly smaller on
+     phones. Width follows the SVG's own proportions. */
+  .ideas-nav-logo {
+    height: 34px;
+    width: auto;
+  }
+  @media (max-width: 575.98px) {
+    .ideas-nav-logo {
+      height: 28px;
+    }
+  }
 </style>
 <header>
   <!-- Nav Bar -->
   <nav id="navbar" class="navbar navbar-light navbar-expand-sm {% if site.navbar_fixed %}fixed-top{% else %}sticky-top{% endif %}" role="navigation">
     <div class="container">
       {%- comment -%}
-        Local override (IDEAS): the site title is the text wordmark, so the
-        brand is shown on every page — including home, where al-folio hides it
-        for a personal profile layout. Navbar social icons are dropped.
+        Local override (IDEAS): the brand is the Horizontal Lockup (Wordmark
+        plus the three-line Tagline), shown on every page — including home,
+        where al-folio hides the brand for a personal profile layout. The
+        light and dark colour versions swap via the theme's only-light /
+        only-dark classes; the dark variant is the on-Ink lockup with the
+        ramp's start lightened (issue #12). Navbar social icons are dropped.
       {%- endcomment -%}
-      <a class="navbar-brand title font-weight-lighter" href="{{ site.baseurl }}/">
-        {{- site.title -}}
+      <a class="navbar-brand" href="{{ site.baseurl }}/">
+        <img
+          class="only-light ideas-nav-logo"
+          src="{{ '/assets/img/logo/ideas-horizontal-lockup-color-on-light.svg' | relative_url | bust_file_cache }}"
+          alt="IDEAS — intelligent data exploration assistant for science"
+        >
+        <img
+          class="only-dark ideas-nav-logo"
+          src="{{ '/assets/img/logo/ideas-horizontal-lockup-color-on-ink-lightened.svg' | relative_url | bust_file_cache }}"
+          alt="IDEAS — intelligent data exploration assistant for science"
+        >
       </a>
       <!-- Navbar Toggle -->
       <button
