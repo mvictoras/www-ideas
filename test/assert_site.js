@@ -959,13 +959,17 @@ const HOME_BLOCKS_MARKER = "<!-- home-blocks -->";
 const HOME_TITLE = "Intelligent Data Exploration Assistant for Science";
 const LONG_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 // Matches the layout's date formats ("February 2", "February 3, 2027").
-const formatHomeDay = (yamlDate) => {
+const parseHomeDate = (yamlDate) => {
   const [year, month, day] = String(yamlDate).slice(0, 10).split("-").map(Number);
-  return `${LONG_MONTHS[month - 1]} ${day}`;
+  return { year, month: LONG_MONTHS[month - 1], day };
+};
+const formatHomeDay = (yamlDate) => {
+  const { month, day } = parseHomeDate(yamlDate);
+  return `${month} ${day}`;
 };
 const formatHomeFullDate = (yamlDate) => {
-  const [year, month, day] = String(yamlDate).slice(0, 10).split("-").map(Number);
-  return `${LONG_MONTHS[month - 1]} ${day}, ${year}`;
+  const { year, month, day } = parseHomeDate(yamlDate);
+  return `${month} ${day}, ${year}`;
 };
 // Visitor-visible markup only: script blocks (e.g. al_search's inlined
 // ninja.data index) mirror other pages' content and are not page prose.
