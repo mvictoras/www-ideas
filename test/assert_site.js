@@ -23,7 +23,9 @@
  * criteria (hypothesis hero, Objective and Use Case cards linking into
  * Research/Use Cases, the newest News Items and the next upcoming Event
  * rendering automatically from their collections, the sibling-Thrust note —
- * and TIDES mentioned only there, site-wide).
+ * and TIDES mentioned only there, site-wide), and the brand-palette
+ * acceptance criteria (the Ink/ramp token overrides present on every page,
+ * both accents meeting WCAG AA against their backgrounds).
  */
 const fs = require("fs");
 const path = require("path");
@@ -894,10 +896,11 @@ if (newsSlugs.length === 0) {
         .filter(Boolean)
         .sort((a, b) => String(b.date).slice(0, 10).localeCompare(String(a.date).slice(0, 10)))
         .map((item) => formatNewsDate(item.date));
-      const sequenceMatches =
-        renderedDates.length === expectedDates.length && renderedDates.every((date, index) => date === expectedDates[index]);
+      const sequenceMatches = renderedDates.length === expectedDates.length && renderedDates.every((date, index) => date === expectedDates[index]);
       if (!sequenceMatches) {
-        fail(`news/index.html: News Items are not listed newest first with dates (found ${renderedDates.join("; ")}, expected ${expectedDates.join("; ")})`);
+        fail(
+          `news/index.html: News Items are not listed newest first with dates (found ${renderedDates.join("; ")}, expected ${expectedDates.join("; ")})`
+        );
       }
 
       for (const item of newsItems) {
@@ -905,8 +908,9 @@ if (newsSlugs.length === 0) {
         if (!renderedDates.includes(formatNewsDate(item.date))) {
           fail(`news/index.html: News Item _news/${item.slug}.md is not listed with its date ${formatNewsDate(item.date)}`);
         }
-        const body = normalizeText(String(fs.readFileSync(path.join(__dirname, "..", "_news", `${item.slug}.md`), "utf8"))
-          .replace(/^---\n[\s\S]*?\n---\n/, ""));
+        const body = normalizeText(
+          String(fs.readFileSync(path.join(__dirname, "..", "_news", `${item.slug}.md`), "utf8")).replace(/^---\n[\s\S]*?\n---\n/, "")
+        );
         if (!newsText.includes(body)) {
           fail(`news/index.html: News Item _news/${item.slug}.md is not rendered on the News page`);
         }
@@ -1178,6 +1182,51 @@ if (!fs.existsSync(HOME_PAGE)) {
   const tidesMentions = (homeText.match(/\bTIDES\b/g) || []).length;
   if (tidesMentions !== 1) {
     fail(`index.html: expected exactly one TIDES mention (the sibling-Thrust note), found ${tidesMentions}`);
+  }
+}
+
+// 13. IDEAS brand palette (issue #12): the header override defines the brand
+// tokens on every page — Ink text and the ramp-blue accent in light mode,
+// re-pointed for dark mode (light text on Ink, sky accent, since the ramp's
+// starting navy is unreadable on Ink) — and every accent/text colour meets
+// WCAG AA (>= 4.5:1) against its background.
+const BRAND_DECLARATIONS = [
+  ["--global-text-color", "#0b1f3a", "light-mode Ink text"],
+  ["--global-theme-color", "#1d4ed8", "light-mode ramp-blue accent"],
+  ["--global-bg-color", "#0b1f3a", "dark-mode Ink background"],
+  ["--global-theme-color", "#0ea5e9", "dark-mode sky accent"],
+];
+for (const file of htmlFiles) {
+  const html = fs.readFileSync(file, "utf8");
+  const rel = path.relative(SITE, file).split(path.sep).join("/");
+  for (const [prop, value, label] of BRAND_DECLARATIONS) {
+    if (!new RegExp(`${prop}:\\s*${value}`).test(html)) {
+      fail(`${rel}: missing the ${label} token (${prop}: ${value}) — the IDEAS palette is not applied`);
+    }
+  }
+}
+
+// The palette itself, checked against WCAG AA rather than trusted by eye:
+// sRGB relative luminance and the contrast ratio, per WCAG 2.x.
+const srgbLuminance = (hex) => {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+  const linear = (c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b);
+};
+const wcagContrast = (fg, bg) => {
+  const [hi, lo] = [srgbLuminance(fg), srgbLuminance(bg)].sort((a, b) => b - a);
+  return (hi + 0.05) / (lo + 0.05);
+};
+const BRAND_CONTRAST_PAIRS = [
+  ["#0b1f3a", "#ffffff", "light-mode Ink text on white"],
+  ["#1d4ed8", "#ffffff", "light-mode ramp-blue accent on white"],
+  ["#d5deea", "#0b1f3a", "dark-mode text on Ink"],
+  ["#0ea5e9", "#0b1f3a", "dark-mode sky accent on Ink"],
+];
+for (const [fg, bg, label] of BRAND_CONTRAST_PAIRS) {
+  const ratio = wcagContrast(fg, bg);
+  if (ratio < 4.5) {
+    fail(`brand palette (issue #12): ${label} is ${ratio.toFixed(2)}:1, below WCAG AA's 4.5:1 for text`);
   }
 }
 

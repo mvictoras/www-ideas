@@ -1,3 +1,40 @@
+{%- comment -%}
+  IDEAS brand palette (issue #12), concept A from the logo prototype: Ink
+  (#0b1f3a) with the Transfer-Function Ramp's blue for light mode and sky for
+  dark mode. These variable overrides re-brand every token-driven surface
+  (navbar, links, buttons, dropdowns, cards, code backgrounds) in both modes;
+  the al-folio defaults (purple light / cyan dark) no longer render anywhere.
+
+  Both accents and both text colours meet WCAG AA (>= 4.5:1) against their
+  background — asserted over the build output by test/assert_site.js.
+
+  The header include is a local override (ADR-0001) rendered on every page,
+  so the tokens need no extra stylesheet request; the footer override follows
+  the same embedded-style pattern.
+{%- endcomment -%}
+<style>
+  :root {
+    --global-text-color: #0b1f3a; /* Ink */
+    --global-text-color-light: #4a5a70;
+    --global-theme-color: #1d4ed8; /* ramp blue */
+    --global-hover-color: #1d4ed8;
+    --global-divider-color: rgba(11, 31, 58, 0.1);
+    --global-code-bg-color: rgba(29, 78, 216, 0.05);
+  }
+  html[data-theme='dark'] {
+    --global-bg-color: #0b1f3a; /* Ink */
+    --global-card-bg-color: #12294d;
+    --global-code-bg-color: #132c50;
+    --global-text-color: #d5deea;
+    --global-text-color-light: #93a7c0;
+    /* Sky instead of the ramp's starting navy: the first ramp steps nearly
+       vanish on Ink (issue #12), and #1d4ed8 on Ink is only ~2:1. */
+    --global-theme-color: #0ea5e9;
+    --global-hover-color: #0ea5e9;
+    --global-hover-text-color: #0b1f3a;
+    --global-divider-color: rgba(213, 222, 234, 0.15);
+  }
+</style>
 <header>
   <!-- Nav Bar -->
   <nav id="navbar" class="navbar navbar-light navbar-expand-sm {% if site.navbar_fixed %}fixed-top{% else %}sticky-top{% endif %}" role="navigation">
