@@ -6,9 +6,9 @@
 
      The content is written once, as plain semantic markup. Each design is a
      stylesheet scoped to html[data-design="pN"]: p1.css restyles al-folio,
-     p2.css is the national-lab editorial design. A design with a
-     data-placeholder panel (P3, until its ticket adds p3.css) shows that panel
-     instead of the site. The few elements only one design uses carry
+     p2.css is the national-lab editorial design, p3.css the instrument /
+     data-native design. A design with a data-placeholder panel shows that
+     panel instead of the site (none left now). The few elements only one design uses carry
      data-only="pN" and are hidden for every other design (shell.css). -->
 <html lang="en" data-design="p1">
 <head>
@@ -23,6 +23,7 @@
 <link rel="stylesheet" href="shell.css">
 <link rel="stylesheet" href="p1.css">
 <link rel="stylesheet" href="p2.css">
+<link rel="stylesheet" href="p3.css">
 <script>
   // Set the design and theme before first paint, so the page doesn't flash.
   (function () {
@@ -88,6 +89,12 @@
           <p class="hero-actions">
             <a class="button" href="#research" data-view-link="research">Explore the research</a>
           </p>
+          <dl class="hero-readout" data-only="p3">
+            <div><dt>Objectives</dt><dd>04</dd></div>
+            <div><dt>Use Cases</dt><dd>03</dd></div>
+            <div><dt>Partners</dt><dd>06</dd></div>
+            <div><dt>Software Releases</dt><dd>05</dd></div>
+          </dl>
         </div>
         <figure class="hero-figure">
           <img src="img/chameleon-hero.jpg" alt="Volume rendering of a chameleon CT scan: the skull, spine, ribs and limbs glow orange, yellow and green against black." width="1270" height="960">
@@ -334,22 +341,13 @@
 
 </div>
 
-<!-- Shown instead of the site for designs that aren't built yet. -->
-<div class="design-placeholder" data-placeholder="p3" hidden>
-  <div class="placeholder-inner">
-    <p class="kicker">Design P3</p>
-    <h1>Coming next</h1>
-    <p>This design is a placeholder. Its own ticket replaces this panel with a full design on the same Home and Research content.</p>
-  </div>
-</div>
-
 <!-- Prototype switcher (not part of any design). -->
 <div class="proto-bar" role="toolbar" aria-label="Prototype controls">
   <span class="proto-bar-label">Design</span>
   <div class="proto-designs" role="radiogroup" aria-label="Design">
     <button type="button" role="radio" data-design-choice="p1" aria-checked="true" title="P1: al-folio restyled">P1</button>
     <button type="button" role="radio" data-design-choice="p2" aria-checked="false" title="P2: national-lab editorial">P2</button>
-    <button type="button" role="radio" data-design-choice="p3" aria-checked="false" title="P3: placeholder">P3</button>
+    <button type="button" role="radio" data-design-choice="p3" aria-checked="false" title="P3: instrument / data-native">P3</button>
   </div>
   <span class="proto-bar-sep" aria-hidden="true"></span>
   <button type="button" class="proto-theme" data-theme-toggle title="Cycle theme: system, light, dark">Theme: system</button>
