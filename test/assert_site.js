@@ -894,10 +894,11 @@ if (newsSlugs.length === 0) {
         .filter(Boolean)
         .sort((a, b) => String(b.date).slice(0, 10).localeCompare(String(a.date).slice(0, 10)))
         .map((item) => formatNewsDate(item.date));
-      const sequenceMatches =
-        renderedDates.length === expectedDates.length && renderedDates.every((date, index) => date === expectedDates[index]);
+      const sequenceMatches = renderedDates.length === expectedDates.length && renderedDates.every((date, index) => date === expectedDates[index]);
       if (!sequenceMatches) {
-        fail(`news/index.html: News Items are not listed newest first with dates (found ${renderedDates.join("; ")}, expected ${expectedDates.join("; ")})`);
+        fail(
+          `news/index.html: News Items are not listed newest first with dates (found ${renderedDates.join("; ")}, expected ${expectedDates.join("; ")})`
+        );
       }
 
       for (const item of newsItems) {
@@ -905,8 +906,9 @@ if (newsSlugs.length === 0) {
         if (!renderedDates.includes(formatNewsDate(item.date))) {
           fail(`news/index.html: News Item _news/${item.slug}.md is not listed with its date ${formatNewsDate(item.date)}`);
         }
-        const body = normalizeText(String(fs.readFileSync(path.join(__dirname, "..", "_news", `${item.slug}.md`), "utf8"))
-          .replace(/^---\n[\s\S]*?\n---\n/, ""));
+        const body = normalizeText(
+          String(fs.readFileSync(path.join(__dirname, "..", "_news", `${item.slug}.md`), "utf8")).replace(/^---\n[\s\S]*?\n---\n/, "")
+        );
         if (!newsText.includes(body)) {
           fail(`news/index.html: News Item _news/${item.slug}.md is not rendered on the News page`);
         }
