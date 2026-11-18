@@ -407,17 +407,18 @@
 @media (max-width: 640px) {
   [data-design="p1"] .partner-strip-line { display: none; }
   [data-design="p1"] .partner-strip-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     align-items: center;
-    gap: 8px 16px;
     margin: 0;
     padding: 0;
     list-style: none;
   }
-  /* Argonne leads IDEAS: it gets the first row to itself. */
-  [data-design="p1"] .partner-strip-grid li:first-child { grid-column: 1 / -1; }
-  [data-design="p1"] .partner-strip-grid img { display: block; height: 44px; width: auto; max-width: 100%; margin: 0 auto; }
+  /* Each logo file is 108 units tall with 72 units of ink, and carries its own
+     clear space, so no gap is added. At 72px the ink is 48px (0.5 in), which
+     meets UNL's minimum height, the largest minimum among the partners. */
+  [data-design="p1"] .partner-strip-grid img { display: block; height: 72px; width: auto; }
 }
 [data-design="p1"] .acknowledgment {
   max-width: 46rem;
