@@ -5,8 +5,11 @@
      or the left/right arrow keys. ?view=research (or #research) opens Research.
 
      The content is written once, as plain semantic markup. Each design is a
-     stylesheet scoped to html[data-design="pN"]: p1.css restyles al-folio.
-     P2 and P3 show a placeholder until their own tickets add p2.css / p3.css. -->
+     stylesheet scoped to html[data-design="pN"]: p1.css restyles al-folio,
+     p2.css is the national-lab editorial design. A design with a
+     data-placeholder panel (P3, until its ticket adds p3.css) shows that panel
+     instead of the site. The few elements only one design uses carry
+     data-only="pN" and are hidden for every other design (shell.css). -->
 <html lang="en" data-design="p1">
 <head>
 <meta charset="utf-8">
@@ -19,6 +22,7 @@
 <link rel="stylesheet" href="brand/ideas-colours.css">
 <link rel="stylesheet" href="shell.css">
 <link rel="stylesheet" href="p1.css">
+<link rel="stylesheet" href="p2.css">
 <script>
   // Set the design and theme before first paint, so the page doesn't flash.
   (function () {
@@ -40,6 +44,13 @@
 <div class="site">
 
 <header class="site-header">
+  <div class="site-utility" data-only="p2">
+    <div class="site-utility-inner">
+      <span>U.S. Department of Energy</span>
+      <span>Office of Science · ASCR</span>
+      <span>Argonne National Laboratory</span>
+    </div>
+  </div>
   <div class="site-header-inner">
     <a class="site-brand" href="#home" data-view-link="home" aria-label="IDEAS home">
       <img class="lockup lockup-light" src="brand/ideas-horizontal-lockup-color-on-light.svg" alt="IDEAS: intelligent data exploration assistant for science" width="436" height="70">
@@ -71,6 +82,7 @@
       <div class="hero-inner">
         <div class="hero-text">
           <p class="kicker hero-kicker">DOE ASCR · Argonne Base · Thrust 2</p>
+          <img class="hero-wordmark" data-only="p2" src="brand/ideas-wordmark-hero-color-on-ink.svg" alt="" width="280" height="110">
           <h1 class="hero-title">Intelligent Data Exploration Assistant for Science</h1>
           <p class="hero-copy">IDEAS couples AI-powered visualization and context-aware exploration with compact, computation-ready data representations — accelerating discovery through real-time, human-in-the-loop analysis.</p>
           <p class="hero-actions">
@@ -126,6 +138,15 @@
           </a>
         </div>
       </section>
+
+    </div>
+
+    <figure class="figure figure-band" data-only="p2">
+      <div class="figure-frame"><img src="img/ideas-overview.png" alt="Diagram of IDEAS: data from facilities and simulation codes becomes compact representations (INR, MFA, KAN), which feed AI-driven rendering on many displays and a human-centered assistant built on LLMs, voice, agents and workflows." width="1846" height="334" loading="lazy"></div>
+      <figcaption>Overview of IDEAS. Scientific data from simulations and experiments become homomorphic representations, which make possible advanced rendering, real-time exploration, and workflow orchestration through intelligent assistants. <span class="credit">Credit: IDEAS team, Argonne Base proposal (2025).</span></figcaption>
+    </figure>
+
+    <div class="container">
 
       <section class="block" id="use-cases" aria-labelledby="use-cases-title">
         <div class="block-head">
@@ -314,13 +335,6 @@
 </div>
 
 <!-- Shown instead of the site for designs that aren't built yet. -->
-<div class="design-placeholder" data-placeholder="p2" hidden>
-  <div class="placeholder-inner">
-    <p class="kicker">Design P2</p>
-    <h1>Coming next</h1>
-    <p>This design is a placeholder. Its own ticket replaces this panel with a full design on the same Home and Research content.</p>
-  </div>
-</div>
 <div class="design-placeholder" data-placeholder="p3" hidden>
   <div class="placeholder-inner">
     <p class="kicker">Design P3</p>
@@ -334,7 +348,7 @@
   <span class="proto-bar-label">Design</span>
   <div class="proto-designs" role="radiogroup" aria-label="Design">
     <button type="button" role="radio" data-design-choice="p1" aria-checked="true" title="P1: al-folio restyled">P1</button>
-    <button type="button" role="radio" data-design-choice="p2" aria-checked="false" title="P2: placeholder">P2</button>
+    <button type="button" role="radio" data-design-choice="p2" aria-checked="false" title="P2: national-lab editorial">P2</button>
     <button type="button" role="radio" data-design-choice="p3" aria-checked="false" title="P3: placeholder">P3</button>
   </div>
   <span class="proto-bar-sep" aria-hidden="true"></span>
@@ -370,7 +384,7 @@
     document.querySelectorAll('[data-placeholder]').forEach(function (p) {
       p.hidden = p.dataset.placeholder !== design;
     });
-    document.querySelector('.site').hidden = design !== 'p1';
+    document.querySelector('.site').hidden = !!document.querySelector('[data-placeholder="' + design + '"]');
   }
   document.querySelectorAll('[data-design-choice]').forEach(function (b) {
     b.addEventListener('click', function () { setDesign(b.dataset.designChoice); });

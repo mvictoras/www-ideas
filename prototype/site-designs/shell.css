@@ -77,6 +77,11 @@ img { max-width: 100%; height: auto; }
 
 [hidden] { display: none !important; }
 
+/* Elements only one design uses (data-only="pN") are hidden for the others. */
+html[data-design="p1"] [data-only]:not([data-only~="p1"]),
+html[data-design="p2"] [data-only]:not([data-only~="p2"]),
+html[data-design="p3"] [data-only]:not([data-only~="p3"]) { display: none !important; }
+
 a { color: var(--link); }
 
 .skip-link {
