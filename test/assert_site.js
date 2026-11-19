@@ -865,11 +865,11 @@ const newsSlugs = fs
   .readdirSync(path.join(__dirname, "..", "_news"))
   .filter((name) => name.endsWith(".md"))
   .map((name) => name.replace(/\.md$/, ""));
-// Matches the theme's news.liquid date format ('%b %d, %Y', zero-padded day).
+// Matches the local news override's date format ('%b %-d, %Y').
 const NEWS_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const formatNewsDate = (yamlDate) => {
   const [year, month, day] = String(yamlDate).slice(0, 10).split("-").map(Number);
-  return `${NEWS_MONTHS[month - 1]} ${String(day).padStart(2, "0")}, ${year}`;
+  return `${NEWS_MONTHS[month - 1]} ${day}, ${year}`;
 };
 // Comparable plain text: strips rendered tags / markdown link syntax, folds
 // kramdown's smart quotes back to straight ones, collapses whitespace.
@@ -906,13 +906,14 @@ if (newsSlugs.length === 0) {
   if (!newsHtml) {
     fail("news/index.html: missing — the News page did not build");
   } else {
-    const newsStart = newsHtml.indexOf('<div class="news">');
-    const newsDiv = newsStart === -1 ? null : extractDiv(newsHtml, newsStart);
+    const newsStart = newsHtml.indexOf('<ul class="ideas-news-list"');
+    const newsEnd = newsStart === -1 ? -1 : newsHtml.indexOf("</ul>", newsStart);
+    const newsDiv = newsStart === -1 ? null : newsHtml.slice(newsStart, newsEnd);
     if (!newsDiv) {
       fail("news/index.html: no rendered news block");
     } else {
       const newsText = normalizeText(newsDiv);
-      const renderedDates = [...newsDiv.matchAll(/<th scope="row" style="width: 20%">([^<]+)<\/th>/g)].map((m) => m[1].trim());
+      const renderedDates = [...newsDiv.matchAll(/<time class="ideas-date"[^>]*>([^<]+)<\/time>/g)].map((m) => m[1].trim());
 
       // Newest first: the rendered date sequence is the News Items sorted by
       // date descending.
@@ -1174,9 +1175,11 @@ if (!fs.existsSync(HOME_PAGE)) {
   }
 
   // Latest news: the newest page.announcements.limit News Items from the
-  // _news collection, newest first, with dates and inline bodies.
-  const homeNewsStart = homeHtml.indexOf('<div class="news">');
-  const homeNewsDiv = homeNewsStart === -1 ? null : extractDiv(homeHtml, homeNewsStart);
+  // _news collection, newest first, with dates and inline bodies — P1's dated
+  // stream (issue #20).
+  const homeNewsStart = homeHtml.indexOf('<section class="ideas-block home-news"');
+  const homeNewsEnd = homeNewsStart === -1 ? -1 : homeHtml.indexOf("</section>", homeNewsStart);
+  const homeNewsDiv = homeNewsStart === -1 ? null : homeHtml.slice(homeNewsStart, homeNewsEnd);
   if (!homeNewsDiv) {
     fail("index.html: no Latest news block");
   } else {
@@ -1191,7 +1194,7 @@ if (!fs.existsSync(HOME_PAGE)) {
     const newsLimit = 3;
     const expectedLatest = latestNews.slice(0, newsLimit);
 
-    const homeRenderedDates = [...homeNewsDiv.matchAll(/<th scope="row" style="width: 20%">([^<]+)<\/th>/g)].map((m) => m[1].trim());
+    const homeRenderedDates = [...homeNewsDiv.matchAll(/<time class="ideas-date"[^>]*>([^<]+)<\/time>/g)].map((m) => m[1].trim());
     const expectedDates = expectedLatest.map((item) => formatNewsDate(item.date));
     if (homeRenderedDates.length !== expectedDates.length || !homeRenderedDates.every((date, index) => date === expectedDates[index])) {
       fail(
@@ -1217,8 +1220,9 @@ if (!fs.existsSync(HOME_PAGE)) {
   // Upcoming events: the next Event relative to the build date (same rule as
   // the Events index — past only once the end date has fully passed), linked
   // with its type, dates, venue and RSVP state visible.
-  const homeEventsStart = homeHtml.indexOf('<div class="home-events"');
-  const homeEventsDiv = homeEventsStart === -1 ? null : extractDiv(homeHtml, homeEventsStart);
+  const homeEventsStart = homeHtml.indexOf('<section class="ideas-block home-events"');
+  const homeEventsEnd = homeEventsStart === -1 ? -1 : homeHtml.indexOf("</section>", homeEventsStart);
+  const homeEventsDiv = homeEventsStart === -1 ? null : homeHtml.slice(homeEventsStart, homeEventsEnd);
   if (!homeEventsDiv) {
     fail("index.html: no Upcoming events block");
   } else {

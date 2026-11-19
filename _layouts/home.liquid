@@ -153,99 +153,29 @@ layout: default
     }
   }
 
-  .home-grid {
-    align-items: start;
+  /* News and the next Event, side by side (stacking on phones). */
+  .home-split {
     display: grid;
-    gap: 2.5rem 3rem;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr));
+    gap: 0 48px;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
   }
 
-  .home-block-title {
-    font-size: 1.5rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .home-block-title a {
-    color: inherit;
-  }
-
-  .home-cards {
-    display: grid;
-    gap: 1rem;
-  }
-
-  .home-card {
-    background-color: var(--global-card-bg-color);
-    border: 1px solid var(--global-divider-color);
-    border-radius: 0.5rem;
-    color: inherit;
-    display: block;
-    padding: 1.25rem 1.1rem;
-  }
-
-  .home-card:hover {
-    border-color: var(--global-theme-color);
-    text-decoration: none;
-  }
-
-  .home-card-kicker {
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    margin-bottom: 0.25rem;
-    text-transform: uppercase;
-  }
-
-  .home-card-name {
-    font-size: 1.15rem;
-    margin-bottom: 0.25rem;
-  }
-
-  .home-card-tagline {
-    color: var(--global-text-color-light);
-    margin-bottom: 0;
-  }
-
-  .home-news {
-    margin-bottom: 0;
-  }
-
-  .home-event-card {
-    background-color: var(--global-card-bg-color);
-    border: 1px solid var(--global-divider-color);
-    border-radius: 0.5rem;
-    padding: 1.25rem 1.1rem;
-  }
-
-  .home-event-card h3 {
-    font-size: 1.15rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .home-event-dates {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-  }
-
-  .home-event-meta {
-    color: var(--global-text-color-light);
-    margin-bottom: 0;
-  }
-
-  .home-more {
-    margin-bottom: 0;
-    margin-top: 1.25rem;
+  @media (max-width: 860px) {
+    .home-split {
+      grid-template-columns: 1fr;
+    }
   }
 
   .home-sibling {
     border-top: 1px solid var(--global-divider-color);
     color: var(--global-text-color-light);
-    margin-top: 3.5rem;
-    padding-top: 1.5rem;
+    margin-top: 64px;
+    padding-top: 20px;
   }
 
   .home-sibling p {
-    margin-bottom: 0;
+    margin: 0;
+    max-width: 46rem;
   }
 </style>
 
@@ -278,8 +208,7 @@ layout: default
   </div>
 </section>
 
-<div class="home-grid">
-  <section class="ideas-block home-objectives" id="objectives" aria-labelledby="objectives-title">
+<section class="ideas-block home-objectives" id="objectives" aria-labelledby="objectives-title">
     <div class="ideas-block-head">
       <h2 class="ideas-block-title" id="objectives-title">Objectives</h2>
       <a class="ideas-block-more" href="{{ '/research/' | relative_url }}">The research</a>
@@ -336,20 +265,20 @@ layout: default
     </div>
   </section>
 
-  <div class="home-news" id="news">
-    <h2 class="home-block-title">
-      <a href="{{ '/news/' | relative_url }}">Latest news</a>
-    </h2>
+<div class="home-split">
+  <section class="ideas-block home-news" id="news" aria-labelledby="news-title">
+    <div class="ideas-block-head">
+      <h2 class="ideas-block-title" id="news-title">Latest news</h2>
+      <a class="ideas-block-more" href="{{ '/news/' | relative_url }}">All news</a>
+    </div>
     {% include news.liquid limit=true %}
-    <p class="home-more">
-      <a href="{{ '/news/' | relative_url }}">All news</a>
-    </p>
-  </div>
+  </section>
 
-  <div class="home-events" id="events">
-    <h2 class="home-block-title">
-      <a href="{{ '/events/' | relative_url }}">Upcoming events</a>
-    </h2>
+  <section class="ideas-block home-events" id="events" aria-labelledby="events-title">
+    <div class="ideas-block-head">
+      <h2 class="ideas-block-title" id="events-title">Upcoming events</h2>
+      <a class="ideas-block-more" href="{{ '/events/' | relative_url }}">All events</a>
+    </div>
     {% comment %}
       The same upcoming/past rule as the Events index: an event is past only
       once its end date has fully passed, so a whole-day event stays
@@ -366,19 +295,19 @@ layout: default
     {% assign home_upcoming_events = home_upcoming_events | sort: 'start_date' %}
     {% if home_upcoming_events.size > 0 %}
       {% assign next_event = home_upcoming_events.first %}
-      <article class="home-event-card">
-        <p class="home-card-kicker">{{ next_event.event_type }}</p>
-        <h3>
+      <article class="ideas-event-card">
+        <p class="ideas-kicker">{{ next_event.event_type }}</p>
+        <h3 class="ideas-event-title">
           <a href="{{ next_event.url | relative_url }}">{{ next_event.title }}</a>
         </h3>
-        <p class="home-event-dates">
+        <p class="ideas-event-dates">
           {% if next_event.start_date == next_event.end_date %}
             {{ next_event.start_date | date: '%B %-d, %Y' }}
           {% else %}
             {{ next_event.start_date | date: '%B %-d' }} – {{ next_event.end_date | date: '%B %-d, %Y' }}
           {% endif %}
         </p>
-        <p class="home-event-meta">
+        <p class="ideas-event-meta">
           {% if next_event.venue and next_event.venue.name %}{{ next_event.venue.name }}{% else %}Venue TBA{% endif %}
           · {{ next_event.format -}}
           {%- if next_event.rsvp_required %} · RSVP required{% endif %}
@@ -387,10 +316,7 @@ layout: default
     {% else %}
       <p>No upcoming events yet.</p>
     {% endif %}
-    <p class="home-more">
-      <a href="{{ '/events/' | relative_url }}">All events</a>
-    </p>
-  </div>
+  </section>
 </div>
 
 {% if story[1] %}
