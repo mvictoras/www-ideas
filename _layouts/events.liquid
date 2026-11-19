@@ -7,50 +7,44 @@ layout: page
   automatically on the first build after its end date has passed. The build
   harness (test/assert_site.js) asserts that the All-Hands Meeting is listed
   under Upcoming.
+
+  P1 (issue #25): the groups are P1 section headings (rule underneath, via
+  the shared .ideas-block system) and each Event is the same .ideas-event-card
+  figure-led card as the Home page's next-event card — with its dates in the
+  mono .ideas-date treatment.
 {% endcomment %}
 
 <style>
-  .event-group {
-    margin-top: 3rem;
+  /* P1's page head: title and lead (as on the Research page). */
+  .post-header {
+    padding: 56px 0 8px;
   }
-
-  .event-group > h2 {
-    margin-top: 0;
+  .post-title {
+    font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin: 0 0 12px;
   }
-
-  .event-card {
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--global-divider-color);
-  }
-
-  .event-card:first-of-type {
-    margin-top: 1.5rem;
-    border-top: none;
-    padding-top: 0;
-  }
-
-  .event-card-kicker {
-    margin-bottom: 0.25rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--global-theme-color);
-  }
-
-  .event-card h3 {
-    margin-bottom: 0.5rem;
-  }
-
-  .event-card-dates {
-    margin-bottom: 0.25rem;
-    font-weight: 600;
-  }
-
-  .event-card-meta {
-    margin-bottom: 0;
+  .post-description {
     color: var(--global-text-color-light);
+    font-size: 1.15rem;
+    margin: 0;
+  }
+
+  /* The Upcoming/Past groups are P1 blocks (the head carries the rule). */
+  .event-group {
+    margin-top: 64px;
+  }
+  .event-group .ideas-event-card + .ideas-event-card {
+    margin-top: 20px;
+  }
+  .event-group-empty {
+    color: var(--global-text-color-light);
+  }
+  @media (max-width: 560px) {
+    .event-group {
+      margin-top: 48px;
+    }
   }
 </style>
 
@@ -77,53 +71,62 @@ layout: page
 {% assign past_events = past_events | sort: 'start_date' | reverse %}
 
 <div class="event-group" id="upcoming">
-  <h2>Upcoming</h2>
+  <div class="ideas-block-head">
+    <h2 class="ideas-block-title">Upcoming</h2>
+  </div>
   {% if upcoming_events.size == 0 %}
-    <p>No upcoming events yet.</p>
+    <p class="event-group-empty">No upcoming events yet.</p>
   {% endif %}
   {% for event in upcoming_events %}
-    <article class="event-card">
-      <p class="event-card-kicker">{{ event.event_type }}</p>
-      <h3>
+    <article class="ideas-event-card">
+      <p class="ideas-kicker">{{ event.event_type }}</p>
+      <h3 class="ideas-event-title">
         <a href="{{ event.url | relative_url }}">{{ event.title }}</a>
       </h3>
-      <p class="event-card-dates">
-        {% if event.start_date == event.end_date %}
-          {{ event.start_date | date: '%B %-d, %Y' }}
-        {% else %}
-          {{ event.start_date | date: '%B %-d' }} – {{ event.end_date | date: '%B %-d, %Y' }}
-        {% endif %}
+      <p class="ideas-event-dates">
+        <time class="ideas-date" datetime="{{ event.start_date | date: '%Y-%m-%d' }}">
+          {%- if event.start_date == event.end_date -%}
+            {{ event.start_date | date: '%B %-d, %Y' }}
+          {%- else -%}
+            {{ event.start_date | date: '%B %-d' }} – {{ event.end_date | date: '%B %-d, %Y' }}
+          {%- endif -%}
+        </time>
       </p>
-      <p class="event-card-meta">
-        {% if event.venue and event.venue.name %}{{ event.venue.name }}{% else %}Venue TBA{% endif %}
+      <p class="ideas-event-meta">
+        {%- if event.venue and event.venue.name %}{{ event.venue.name }}{% else %}Venue TBA{% endif %}
         · {{ event.format -}}
-        {%- if event.rsvp_required %} · RSVP required{% endif %}
+        {%- if event.rsvp_required %} · RSVP required{% endif -%}
       </p>
     </article>
   {% endfor %}
 </div>
 
 <div class="event-group" id="past">
-  <h2>Past</h2>
+  <div class="ideas-block-head">
+    <h2 class="ideas-block-title">Past</h2>
+  </div>
   {% if past_events.size == 0 %}
-    <p>No past events yet.</p>
+    <p class="event-group-empty">No past events yet.</p>
   {% endif %}
   {% for event in past_events %}
-    <article class="event-card">
-      <p class="event-card-kicker">{{ event.event_type }}</p>
-      <h3>
+    <article class="ideas-event-card">
+      <p class="ideas-kicker">{{ event.event_type }}</p>
+      <h3 class="ideas-event-title">
         <a href="{{ event.url | relative_url }}">{{ event.title }}</a>
       </h3>
-      <p class="event-card-dates">
-        {% if event.start_date == event.end_date %}
-          {{ event.start_date | date: '%B %-d, %Y' }}
-        {% else %}
-          {{ event.start_date | date: '%B %-d' }} – {{ event.end_date | date: '%B %-d, %Y' }}
-        {% endif %}
+      <p class="ideas-event-dates">
+        <time class="ideas-date" datetime="{{ event.start_date | date: '%Y-%m-%d' }}">
+          {%- if event.start_date == event.end_date -%}
+            {{ event.start_date | date: '%B %-d, %Y' }}
+          {%- else -%}
+            {{ event.start_date | date: '%B %-d' }} – {{ event.end_date | date: '%B %-d, %Y' }}
+          {%- endif -%}
+        </time>
       </p>
-      <p class="event-card-meta">
-        {% if event.venue and event.venue.name %}{{ event.venue.name }}{% else %}Venue TBA{% endif %}
-        · {{ event.format }}
+      <p class="ideas-event-meta">
+        {%- if event.venue and event.venue.name %}{{ event.venue.name }}{% else %}Venue TBA{% endif %}
+        · {{ event.format -}}
+        {%- if event.rsvp_required %} · RSVP required{% endif -%}
       </p>
     </article>
   {% endfor %}

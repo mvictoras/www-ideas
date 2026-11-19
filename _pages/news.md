@@ -3,11 +3,11 @@ layout: page
 title: News
 permalink: /news/
 nav_order: 7
-description: Short dated announcements of what has happened in IDEAS
+description: Short dated announcements of what has happened in IDEAS — papers published and Software Releases, newest first
 nav: true
 ---
 
-Short dated announcements of what has happened in IDEAS — papers published and Software Releases. Newest first. Upcoming gatherings (All-Hands Meetings, workshops) are listed under Events, never here.
+Upcoming gatherings (All-Hands Meetings, workshops) are listed under [Events]({{ '/events/' | relative_url }}), never here.
 
 {% include news.liquid %}
 
