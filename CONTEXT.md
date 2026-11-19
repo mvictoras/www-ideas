@@ -38,7 +38,7 @@ _Avoid_: compressed data, neural compression
 ### People and events
 
 **Partner**:
-An external institution contributing to IDEAS, funded or not (UC Davis, UNL, UIC, Kitware, NVIDIA).
+An external institution contributing to IDEAS, funded or not: University of Nebraska–Lincoln, UC Davis, University of Cincinnati, UIC, Kitware, Veeda AI. Argonne leads IDEAS and is not a Partner. A Team Member's employer is not a Partner by that fact alone (e.g. NVIDIA).
 _Avoid_: collaborator site, subcontract, advisor
 
 **Team Member**:

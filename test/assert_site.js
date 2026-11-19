@@ -32,7 +32,11 @@
  * Apple touch icon linked everywhere), and the P1 site-design acceptance
  * criteria (issue #20: the Inter and JetBrains Mono type families and the
  * Partner Strip footer on every page, the one-row header, the Home Ink hero
- * and 2×2 Objective cards with summaries, and the figure-led Use Case cards).
+ * and 2×2 Objective cards with summaries, and the figure-led Use Case cards),
+ * and the News-page and generic-page-layout acceptance criteria (issue #26:
+ * every `page`-layout page carries the P1 page head, the News page's dated
+ * stream is the Home Latest news block untruncated, and the 404 page keeps
+ * its redirect while linking back to Home and Research).
  */
 const fs = require("fs");
 const path = require("path");
@@ -575,7 +579,10 @@ if (!fs.existsSync(RESEARCH_PAGE)) {
 // used ("Turbulence in Complex Geometries", never "Fusion Flow"); each Use
 // Case explains its bottleneck and the assistant's approach; the proposal's
 // HACC cluster and XPCS interface figures are captioned and credited; and
-// the fusion breeding-blanket figure is absent.
+// the fusion breeding-blanket figure is absent. P1 (issue #21): the groups
+// head with the shared rule-under block heading, every Use Case section
+// carries the mono status kicker and frames its figure, and the upcoming
+// Use Case is marked secondary.
 const USE_CASES_PAGE = path.join(SITE, "use-cases", "index.html");
 const USE_CASE_GROUPS = [
   {
@@ -614,7 +621,11 @@ if (!fs.existsSync(USE_CASES_PAGE)) {
     }
 
     for (const group of groups) {
-      const sectionStarts = [...group.html.matchAll(/<section class="use-case"/g)];
+      // P1: the group heading is the shared rule-under block heading.
+      if (!group.html.includes('<div class="ideas-block-head">') || !group.html.includes("ideas-block-title")) {
+        fail(`use-cases/index.html: the ${group.id} group does not head with the P1 block heading`);
+      }
+      const sectionStarts = [...group.html.matchAll(/<section class="use-case[ "]/g)];
       if (sectionStarts.length !== group.titles.length) {
         fail(`use-cases/index.html: expected ${group.titles.length} use cases in the ${group.id} group, found ${sectionStarts.length}`);
         continue;
@@ -634,9 +645,21 @@ if (!fs.existsSync(USE_CASES_PAGE)) {
           fail(`use-cases/index.html: ${group.id} use case ${index + 1} is "${headingText}", expected "${title}"`);
         }
         // The kicker states the status, so the split is visible beyond the
-        // group heading.
+        // group heading, and it is set in the shared mono label style.
         if (!segment.includes(group.kicker)) {
           fail(`use-cases/index.html: "${title}" does not carry the "${group.kicker}" kicker`);
+        }
+        if (!segment.includes('class="ideas-kicker')) {
+          fail(`use-cases/index.html: "${title}" does not use the P1 mono kicker`);
+        }
+        // Upcoming Use Cases are marked secondary; active ones are not.
+        const isUpcoming = group.id === "upcoming";
+        if (segment.includes("use-case-secondary") !== isUpcoming) {
+          fail(
+            isUpcoming
+              ? `use-cases/index.html: "${title}" is upcoming but not marked secondary`
+              : `use-cases/index.html: "${title}" is active but marked secondary`
+          );
         }
         // The tagline plus at least two prose paragraphs: the bottleneck and
         // how the IDEAS assistant addresses it.
@@ -647,7 +670,7 @@ if (!fs.existsSync(USE_CASES_PAGE)) {
     }
 
     // No use-case section outside the two groups.
-    const totalSections = (ucHtml.match(/<section class="use-case"/g) || []).length;
+    const totalSections = (ucHtml.match(/<section class="use-case[ "]/g) || []).length;
     const expectedSections = USE_CASE_GROUPS.reduce((total, group) => total + group.titles.length, 0);
     if (totalSections !== expectedSections) {
       fail(`use-cases/index.html: found ${totalSections - expectedSections} use-case sections outside the groups`);
@@ -672,6 +695,10 @@ if (!fs.existsSync(USE_CASES_PAGE)) {
         if (!/<img[^>]*\salt="[^"]+"/.test(figureBlock[0])) fail(`use-cases/index.html: ${figure.name} figure has no alt text`);
         if (!/<figcaption>[\s\S]*?\S[\s\S]*?<\/figcaption>/.test(figureBlock[0])) fail(`use-cases/index.html: ${figure.name} figure has no caption`);
         if (!/Credit:/.test(figureBlock[0])) fail(`use-cases/index.html: ${figure.name} figure has no credit line`);
+        // P1: the figure is framed like the Research figures.
+        if (!figureBlock[0].includes("ideas-figure-frame")) {
+          fail(`use-cases/index.html: ${figure.name} figure is not framed in the P1 figure style`);
+        }
       }
     }
 
@@ -1506,6 +1533,83 @@ const PARTNER_LOGOS = ["argonne", "ucdavis", "cincinnati", "uic", "unl", "kitwar
 for (const partner of PARTNER_LOGOS) {
   if (!fs.existsSync(path.join(SITE, "assets", "img", "logos", "partners", `${partner}.svg`))) {
     fail(`assets/img/logos/partners/${partner}.svg: not published in the build`);
+  }
+}
+
+// 16. News page and the generic page layout (issue #26): every page built on
+// al-folio's generic `page` layout carries the P1 page head — the clamp'd
+// 800-weight title and the muted lead — from the local layout override; the
+// News page renders the same dated stream as the Home Latest news block (the
+// shared news include, untruncated); and the 404 page keeps its redirect
+// while linking back to Home and Research.
+const PAGE_LAYOUT_PAGES = [
+  ["news/index.html", "News"],
+  ["404.html", "Page not found"],
+  ["publications/index.html", "Publications"],
+  ["software/index.html", "Software"],
+  ["team/index.html", "Team"],
+  ["use-cases/index.html", "Use Cases"],
+  ["events/index.html", "Events"],
+];
+for (const [rel, title] of PAGE_LAYOUT_PAGES) {
+  const file = path.join(SITE, rel);
+  if (!fs.existsSync(file)) {
+    fail(`${rel}: missing — cannot check the generic page layout`);
+    continue;
+  }
+  const html = fs.readFileSync(file, "utf8");
+  if (!html.includes('<header class="post-header">')) fail(`${rel}: the generic page layout has no P1 page head`);
+  if (!html.includes(`<h1 class="post-title">${escapeHtml(title)}</h1>`)) {
+    fail(`${rel}: the P1 page head does not carry its title "${title}"`);
+  }
+  if (!/<p class="post-description">\s*\S/.test(html)) fail(`${rel}: the P1 page head has no lead (post-description)`);
+  // The P1 treatment itself travels with the local page-layout override: a
+  // clamp'd 800-weight title and a muted 1.15rem lead (the research page's
+  // page head, generalized).
+  if (!/\.post-title\s*{[^}]*font-size:\s*clamp\(/.test(html) || !/\.post-title\s*{[^}]*font-weight:\s*800/.test(html)) {
+    fail(`${rel}: the P1 page-head title treatment (clamp'd 800 weight) is missing`);
+  }
+  if (!/\.post-description\s*{[^}]*font-size:\s*1\.15rem/.test(html)) {
+    fail(`${rel}: the P1 page-head lead treatment (1.15rem) is missing`);
+  }
+}
+
+// The News page's stream is the Home Latest news block, untruncated: the
+// same shared news include, so the same dated-item markup (mono date in a
+// left column) and every News Item, not just the Home limit.
+const NOT_FOUND_PAGE = path.join(SITE, "404.html");
+if (!fs.existsSync(NEWS_PAGE) || !fs.existsSync(HOME_PAGE) || !fs.existsSync(NOT_FOUND_PAGE)) {
+  fail("missing news/index.html, index.html or 404.html — cannot compare the dated streams");
+} else {
+  const newsPageHtml = fs.readFileSync(NEWS_PAGE, "utf8");
+  const homeHtmlForNews = fs.readFileSync(HOME_PAGE, "utf8");
+  const newsStreamStart = newsPageHtml.indexOf('<ul class="ideas-news-list"');
+  const homeStreamStart = homeHtmlForNews.indexOf('<ul class="ideas-news-list"');
+  if (newsStreamStart === -1 || homeStreamStart === -1) {
+    fail("the News page or the Home Latest news block has no dated news stream");
+  } else {
+    const newsStream = extractElement(newsPageHtml, newsStreamStart, "ul");
+    const homeStream = extractElement(homeHtmlForNews, homeStreamStart, "ul");
+    const datedItemPattern = /<li class="ideas-news-item">\s*<time class="ideas-date"/;
+    if (!newsStream || !datedItemPattern.test(newsStream)) {
+      fail("news/index.html: the dated stream does not render the shared P1 news items (mono date, left column)");
+    }
+    if (!homeStream || !datedItemPattern.test(homeStream)) {
+      fail("index.html: the Latest news block does not render the shared P1 news items");
+    }
+    const newsItemCount = (newsStream.match(/<li class="ideas-news-item">/g) || []).length;
+    if (newsItemCount < newsSlugs.length) {
+      fail(`news/index.html: the dated stream shows ${newsItemCount} items, expected all ${newsSlugs.length} News Items`);
+    }
+  }
+
+  // The 404 page: redirect kept, plus links back to Home and Research.
+  const notFoundHtml = fs.readFileSync(NOT_FOUND_PAGE, "utf8");
+  if (!notFoundHtml.includes(`<meta http-equiv="refresh" content="3; url=${BASEURL}/">`)) {
+    fail("404.html: the redirect to the main page is gone");
+  }
+  if (!notFoundHtml.includes(`href="${BASEURL}/"`) || !notFoundHtml.includes(`href="${BASEURL}/research/"`)) {
+    fail("404.html: does not link back to both Home and Research");
   }
 }
 
