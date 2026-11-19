@@ -12,74 +12,116 @@ layout: page
 {% assign story = content | split: '<!-- use-cases -->' %}
 
 <style>
+  /* P1's container-narrow for the essay. This block renders only on pages
+     using the use-cases layout, so the cap is effectively page-scoped. */
+  .container {
+    max-width: 820px;
+  }
+
+  /* P1's page head: title and lead. */
+  .post-header {
+    padding: 56px 0 8px;
+  }
+  .post-title {
+    font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin: 0 0 12px;
+  }
+  .post-description {
+    color: var(--global-text-color-light);
+    font-size: 1.15rem;
+    margin: 0;
+  }
+
+  article p {
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+
   .use-cases-lede {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     line-height: 1.7;
+    margin-top: 32px;
   }
 
+  /* The Active / Upcoming groups head with the shared P1 block heading
+     (rule underneath). */
   .use-case-group {
-    margin-top: 4rem;
-  }
-
-  .use-case-group > h2 {
-    margin-top: 0;
+    margin-top: 64px;
   }
 
   .use-case {
-    margin-top: 3rem;
-    padding-top: 2rem;
     border-top: 1px solid var(--global-divider-color);
+    margin-top: 56px;
+    padding-top: 32px;
+    scroll-margin-top: 72px;
   }
 
-  .use-case:first-of-type {
-    margin-top: 1.5rem;
+  /* The group's first section follows the block heading, whose rule it
+     would otherwise double. */
+  .use-case-group .use-case:first-of-type {
     border-top: none;
+    margin-top: 24px;
     padding-top: 0;
   }
 
   .use-case-kicker {
-    margin-bottom: 0.25rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
     color: var(--global-theme-color);
   }
 
-  .use-case h2 {
-    margin-top: 0;
+  .use-case-title {
+    font-size: 1.85rem;
+    font-weight: 700;
+    margin: 0 0 8px;
   }
 
   .use-case-tagline {
-    margin-bottom: 1.5rem;
-    font-size: 1.35rem;
-    font-style: italic;
+    color: var(--global-text-color-light);
+    font-size: 1.3rem;
+    font-style: normal;
+    font-weight: 500;
     line-height: 1.4;
+    margin-bottom: 24px;
+  }
+
+  /* Diagrams (figure.fit: contain) keep their own aspect inside the frame,
+     capped so a screenshot does not stretch across the column. */
+  .use-case-figure-diagram .ideas-figure-frame img {
+    max-width: 640px;
+  }
+
+  /* Upcoming Use Cases read as clearly secondary: a quiet tinted surface
+     behind a dashed rule, muted heading and kicker, smaller title. */
+  .use-case-secondary {
+    background: color-mix(in srgb, var(--global-divider-color) 18%, transparent);
+    border: 1px dashed var(--global-divider-color);
+    border-radius: 10px;
+    margin-top: 56px;
+    padding: 24px 24px 8px;
+  }
+  .use-case-secondary .use-case-kicker {
     color: var(--global-text-color-light);
   }
-
-  .use-case-figure {
-    margin: 2.5rem 0;
-  }
-
-  .use-case-figure img {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: 0.5rem;
-  }
-
-  .use-case-figure figcaption {
-    margin-top: 0.75rem;
-    font-size: 0.875rem;
-    line-height: 1.5;
+  .use-case-secondary .use-case-title {
     color: var(--global-text-color-light);
+    font-size: 1.5rem;
+  }
+  .use-case-secondary .use-case-tagline {
+    font-size: 1.15rem;
+  }
+  .use-case-secondary article p,
+  .use-case-secondary p {
+    font-size: 1rem;
+  }
+  .use-case-secondary .ideas-figure {
+    margin: 24px 0 8px;
   }
 
   .use-cases-closing {
-    margin-top: 4rem;
-    padding-top: 2.5rem;
     border-top: 1px solid var(--global-divider-color);
+    margin-top: 56px;
+    padding-top: 32px;
   }
 </style>
 
@@ -89,17 +131,24 @@ layout: page
 {% for status in use_case_statuses %}
   {% assign use_cases = site.projects | where: 'category', 'use-case' | where: 'status', status | sort: 'importance' %}
   <div class="use-case-group" id="{{ status }}">
-    <h2>{{ status | capitalize }}</h2>
+    <div class="ideas-block-head">
+      <h2 class="ideas-block-title">{{ status | capitalize }}</h2>
+    </div>
     {% for use_case in use_cases %}
-      <section class="use-case" id="{{ use_case.slug }}">
-        <p class="use-case-kicker">{{ status | capitalize }} Use Case</p>
-        <h2>{{ use_case.title }}</h2>
+      <section class="use-case{% if status == 'upcoming' %} use-case-secondary{% endif %}" id="{{ use_case.slug }}">
+        <p class="ideas-kicker use-case-kicker">{{ status | capitalize }} Use Case</p>
+        <h2 class="use-case-title">{{ use_case.title }}</h2>
         <p class="use-case-tagline">{{ use_case.tagline }}</p>
         {{ use_case.content | markdownify }}
         {% if use_case.figure %}
-          <figure class="use-case-figure">
-            <img src="{{ use_case.figure.src | relative_url }}" alt="{{ use_case.figure.alt }}">
-            <figcaption>{{ use_case.figure.caption }} Credit: {{ use_case.figure.credit }}</figcaption>
+          <figure class="ideas-figure use-case-figure{% if use_case.figure.fit == 'contain' %} use-case-figure-diagram{% endif %}">
+            <div class="ideas-figure-frame">
+              <img src="{{ use_case.figure.src | relative_url }}" alt="{{ use_case.figure.alt }}">
+            </div>
+            <figcaption>
+              {{ use_case.figure.caption }}
+              <span class="credit">Credit: {{ use_case.figure.credit }}</span>
+            </figcaption>
           </figure>
         {% endif %}
       </section>
