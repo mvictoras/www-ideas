@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: publications
 permalink: /publications/
 title: Publications
 description: IDEAS publications, generated from BibTeX by jekyll-scholar

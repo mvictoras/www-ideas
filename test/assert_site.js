@@ -32,7 +32,10 @@
  * Apple touch icon linked everywhere), and the P1 site-design acceptance
  * criteria (issue #20: the Inter and JetBrains Mono type families and the
  * Partner Strip footer on every page, the one-row header, the Home Ink hero
- * and 2×2 Objective cards with summaries, and the figure-led Use Case cards).
+ * and 2×2 Objective cards with summaries, and the figure-led Use Case cards),
+ * and the Publications-page P1 design (issue #23: entries as 10px-radius cards
+ * that lift on hover, ruled mono year headings, a restyled bibsearch field —
+ * all via CSS only, with jekyll-scholar's markup untouched).
  */
 const fs = require("fs");
 const path = require("path");
@@ -452,6 +455,34 @@ if (!fs.existsSync(PUBLICATIONS_PAGE)) {
   if (/<span class="more-authors"/.test(pubsHtml)) {
     fail("publications/index.html: author lists are truncated; all BibTeX authors must render");
   }
+
+  // P1 design (issue #23): the page is restyled via CSS only — jekyll-scholar's
+  // rendered markup above must stay byte-compatible. The layout override embeds
+  // a page-specific style block asserting the P1 look: entries as P1 cards
+  // (white surface, 1px rule, 10px radius, lift on hover), year-group headings
+  // with a rule underneath set in the mono family, and the P1-styled search
+  // field. Only the block that scopes the page (contains ".publications") is
+  // asserted, so the shared shell styles cannot satisfy these checks.
+  const pubsStyleBlocks = [...pubsHtml.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map((m) => m[1]).filter((css) => css.includes(".publications"));
+  const pubsStyles = pubsStyleBlocks.join("\n");
+  if (pubsStyleBlocks.length !== 1) {
+    fail(`publications/index.html: expected exactly one publications-scoped style block, found ${pubsStyleBlocks.length}`);
+  }
+  if (!/\.publications\s+ol\.bibliography\s*\{/.test(pubsStyles) || !pubsStyles.includes("border-radius: 10px")) {
+    fail("publications/index.html: entries are not restyled as 10px-radius P1 cards");
+  }
+  if (!/\.publications\s+(?:ol\.bibliography\s+)?\.row:hover\s*\{[^}]*transform:\s*translateY\(-2px\)/.test(pubsStyles)) {
+    fail("publications/index.html: publication cards do not lift on hover");
+  }
+  if (!/\.publications\s+h2\.bibliography\s*\{[^}]*border-bottom:/.test(pubsStyles)) {
+    fail("publications/index.html: year-group headings have no rule underneath");
+  }
+  if (!/\.publications\s+h2\.bibliography\s*\{[^}]*var\(--ideas-font-mono\)/.test(pubsStyles)) {
+    fail("publications/index.html: the P1 mono family is not used for the year headings/dates");
+  }
+  if (!pubsStyles.includes(".bibsearch-form-input")) {
+    fail("publications/index.html: the bibsearch field is not restyled in the P1 design");
+  }
 }
 
 // 7. Research page: the four IDEAS Objectives render in order, each with a
@@ -533,7 +564,7 @@ if (!fs.existsSync(RESEARCH_PAGE)) {
       fail(`research/index.html: ${figure.name} is not inside a <figure>`);
     } else {
       if (!/<img[^>]*\salt="[^"]+"/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no alt text`);
-        if (!/<figcaption>[\s\S]*?\S[\s\S]*?<\/figcaption>/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no caption`);
+      if (!/<figcaption>[\s\S]*?\S[\s\S]*?<\/figcaption>/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no caption`);
       if (!/Credit:/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no credit line`);
       // P1 (issue #20): figures render inside a frame on the figure surface.
       if (!figureIsFramed(figureBlock[0], srcPattern)) {
@@ -1094,7 +1125,7 @@ if (!fs.existsSync(HOME_PAGE)) {
     if (!wordmarkImg) {
       fail("index.html: the hero does not carry the Wordmark Hero");
     } else if (!/alt=""/.test(wordmarkImg[0])) {
-      fail("index.html: the Wordmark Hero must be decorative (alt=\"\")");
+      fail('index.html: the Wordmark Hero must be decorative (alt="")');
     }
     const chameleonImg = homeHeroHtml.match(/<img[^>]*chameleon-hero[^>]*>/);
     if (!chameleonImg) {
