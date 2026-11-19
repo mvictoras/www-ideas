@@ -1,14 +1,77 @@
+{%- comment -%}
+  IDEAS brand palette (issue #12), concept A from the logo prototype: Ink
+  (#0b1f3a) with the Transfer-Function Ramp's blue for light mode and sky for
+  dark mode. These variable overrides re-brand every token-driven surface
+  (navbar, links, buttons, dropdowns, cards, code backgrounds) in both modes;
+  the al-folio defaults (purple light / cyan dark) no longer render anywhere.
+
+  Both accents and both text colours meet WCAG AA (>= 4.5:1) against their
+  background — asserted over the build output by test/assert_site.js.
+
+  The header include is a local override (ADR-0001) rendered on every page,
+  so the tokens need no extra stylesheet request; the footer override follows
+  the same embedded-style pattern.
+{%- endcomment -%}
+<style>
+  :root {
+    --global-bg-color: #f7f8fb; /* the brand Background (ideas-colours.css) */
+    --global-card-bg-color: #ffffff;
+    --global-text-color: #0b1f3a; /* Ink */
+    --global-text-color-light: #4a5a70;
+    --global-theme-color: #1d4ed8; /* ramp blue */
+    --global-hover-color: #1d4ed8;
+    --global-divider-color: rgba(11, 31, 58, 0.1);
+    --global-code-bg-color: rgba(29, 78, 216, 0.05);
+  }
+  html[data-theme='dark'] {
+    --global-bg-color: #0b1f3a; /* Ink */
+    --global-card-bg-color: #12294d;
+    --global-code-bg-color: #132c50;
+    --global-text-color: #d5deea;
+    --global-text-color-light: #93a7c0;
+    /* Sky instead of the ramp's starting navy: the first ramp steps nearly
+       vanish on Ink (issue #12), and #1d4ed8 on Ink is only ~2:1. */
+    --global-theme-color: #0ea5e9;
+    --global-hover-color: #0ea5e9;
+    --global-hover-text-color: #0b1f3a;
+    --global-divider-color: rgba(213, 222, 234, 0.15);
+  }
+
+  /* The Horizontal Lockup: 34 px tall next to the nav, slightly smaller on
+     phones. Width follows the SVG's own proportions. */
+  .ideas-nav-logo {
+    height: 34px;
+    width: auto;
+  }
+  @media (max-width: 575.98px) {
+    .ideas-nav-logo {
+      height: 28px;
+    }
+  }
+</style>
 <header>
   <!-- Nav Bar -->
   <nav id="navbar" class="navbar navbar-light navbar-expand-sm {% if site.navbar_fixed %}fixed-top{% else %}sticky-top{% endif %}" role="navigation">
     <div class="container">
       {%- comment -%}
-        Local override (IDEAS): the site title is the text wordmark, so the
-        brand is shown on every page — including home, where al-folio hides it
-        for a personal profile layout. Navbar social icons are dropped.
+        Local override (IDEAS): the brand is the Horizontal Lockup (Wordmark
+        plus the three-line Tagline), shown on every page — including home,
+        where al-folio hides the brand for a personal profile layout. The
+        light and dark colour versions swap via the theme's only-light /
+        only-dark classes; the dark variant is the on-Ink lockup with the
+        ramp's start lightened (issue #12). Navbar social icons are dropped.
       {%- endcomment -%}
-      <a class="navbar-brand title font-weight-lighter" href="{{ site.baseurl }}/">
-        {{- site.title -}}
+      <a class="navbar-brand" href="{{ site.baseurl }}/">
+        <img
+          class="only-light ideas-nav-logo"
+          src="{{ '/assets/img/logo/ideas-horizontal-lockup-color-on-light.svg' | relative_url | bust_file_cache }}"
+          alt="IDEAS — intelligent data exploration assistant for science"
+        >
+        <img
+          class="only-dark ideas-nav-logo"
+          src="{{ '/assets/img/logo/ideas-horizontal-lockup-color-on-ink-lightened.svg' | relative_url | bust_file_cache }}"
+          alt="IDEAS — intelligent data exploration assistant for science"
+        >
       </a>
       <!-- Navbar Toggle -->
       <button

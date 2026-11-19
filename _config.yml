@@ -6,11 +6,13 @@ title: IDEAS
 description: > # the ">" symbol means to ignore newlines until "footer_text:"
   IDEAS (Intelligent Data Exploration Assistant for Science) is the visualization
   thrust of the DOE ASCR Argonne Base program at Argonne National Laboratory.
-# Text wordmark placeholder; replaced once the team picks a logo concept.
+# Favicons (issue #12): the Icon from the ideas-branding build — a multi-size
+# .ico (16/32/48 px, per branding #5) on a solid Ink tile, plus the 180x180
+# Apple touch icon. Both files are copied from ideas-branding/build/favicon/.
+icon: favicon.ico
+apple_touch_icon: apple-touch-icon.png
 keywords: IDEAS, scientific visualization, Argonne, DOE Office of Science, ASCR
 lang: en # the language of your site (for example: en, fr, cn, ru, etc.)
-icon: ⚛️ # the emoji used as the favicon (alternatively, provide image name in /assets/img/)
-apple_touch_icon: # image name in /assets/img/ (or a rooted path / absolute URL) used for iOS home-screen bookmarks; needs a real 180x180 PNG, since Safari ignores the emoji favicon above. Left empty, iOS falls back to a screenshot of the page.
 
 # Single source of truth for the site URL and base path. Moving to an
 # organization repository or custom domain only requires changing these two
@@ -184,7 +186,6 @@ exclude:
   - lighthouse_results/
   - package.json
   - package-lock.json
-  - prototype/
   - purgecss.config.js
   - README.md
   - readme_preview/

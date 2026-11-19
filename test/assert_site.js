@@ -2,7 +2,8 @@
 /**
  * Page and privacy assertions over the production build output (_site).
  *
- * Covers the site-shell acceptance criteria (nav pages, IDEAS title/wordmark,
+ * Covers the site-shell acceptance criteria (nav pages, IDEAS title and
+ * header lockup,
  * search + dark-mode toggles, ASCR footer with both funder logos, no
  * email/mailto, no analytics, no removed al-folio features), the Team-page
  * acceptance criteria (grid matches _data/team.yml 1:1) and the
@@ -23,7 +24,12 @@
  * criteria (hypothesis hero, Objective and Use Case cards linking into
  * Research/Use Cases, the newest News Items and the next upcoming Event
  * rendering automatically from their collections, the sibling-Thrust note —
- * and TIDES mentioned only there, site-wide).
+ * and TIDES mentioned only there, site-wide), the brand-palette acceptance
+ * criteria (the Ink/ramp token overrides present on every page, both accents
+ * meeting WCAG AA against their backgrounds), and the logo and favicon
+ * acceptance criteria (the Horizontal Lockup on every page in both colour
+ * versions with an on-palette, dark-legible ramp; the multi-size .ico and
+ * Apple touch icon linked everywhere).
  */
 const fs = require("fs");
 const path = require("path");
@@ -94,7 +100,8 @@ for (const file of walk(SITE, "")) {
   if (EMAIL_RE.test(content)) fail(`${rel}: contains an email address`);
 }
 
-// 3. Per-page checks: navbar, wordmark, toggles, footer and no analytics.
+// 3. Per-page checks: navbar, header lockup, favicons, toggles, footer and no
+// analytics.
 const ANALYTICS_SNIPPETS = [
   "google-analytics.com",
   "googletagmanager.com",
@@ -119,6 +126,10 @@ for (const file of htmlFiles) {
   }
   if (!html.includes('id="search-toggle"')) fail(`${rel}: search toggle missing`);
   if (!html.includes('id="light-toggle"')) fail(`${rel}: light/dark toggle missing`);
+  if (!html.includes("assets/img/logo/ideas-horizontal-lockup-color-on-light.svg")) fail(`${rel}: light-mode header lockup missing`);
+  if (!html.includes("assets/img/logo/ideas-horizontal-lockup-color-on-ink-lightened.svg")) fail(`${rel}: dark-mode header lockup missing`);
+  if (!/rel="shortcut icon"\s+href="[^"]*\/favicon\.ico/.test(html)) fail(`${rel}: favicon.ico link missing`);
+  if (!/rel="apple-touch-icon"\s+href="[^"]*\/apple-touch-icon\.png/.test(html)) fail(`${rel}: apple-touch-icon link missing`);
   if (!html.includes("DE-AC02-06CH11357")) fail(`${rel}: ASCR contract missing from footer`);
   if (!html.includes("Office of Science")) fail(`${rel}: Office of Science acknowledgment missing`);
   if (!html.includes("assets/img/logos/argonne.svg")) fail(`${rel}: Argonne logo missing`);
@@ -1180,6 +1191,122 @@ if (!fs.existsSync(HOME_PAGE)) {
   const tidesMentions = (homeText.match(/\bTIDES\b/g) || []).length;
   if (tidesMentions !== 1) {
     fail(`index.html: expected exactly one TIDES mention (the sibling-Thrust note), found ${tidesMentions}`);
+  }
+}
+
+// 13. IDEAS brand palette (issue #12): the header override defines the brand
+// tokens on every page — Ink text and the ramp-blue accent in light mode,
+// re-pointed for dark mode (light text on Ink, sky accent, since the ramp's
+// starting navy is unreadable on Ink) — and every accent/text colour meets
+// WCAG AA (>= 4.5:1) against its background.
+const BRAND_DECLARATIONS = [
+  ["--global-bg-color", "#f7f8fb", "light-mode brand Background"],
+  ["--global-text-color", "#0b1f3a", "light-mode Ink text"],
+  ["--global-theme-color", "#1d4ed8", "light-mode ramp-blue accent"],
+  ["--global-bg-color", "#0b1f3a", "dark-mode Ink background"],
+  ["--global-theme-color", "#0ea5e9", "dark-mode sky accent"],
+];
+for (const file of htmlFiles) {
+  const html = fs.readFileSync(file, "utf8");
+  const rel = path.relative(SITE, file).split(path.sep).join("/");
+  for (const [prop, value, label] of BRAND_DECLARATIONS) {
+    if (!new RegExp(`${prop}:\\s*${value}`).test(html)) {
+      fail(`${rel}: missing the ${label} token (${prop}: ${value}) — the IDEAS palette is not applied`);
+    }
+  }
+}
+
+// The palette itself, checked against WCAG AA rather than trusted by eye:
+// sRGB relative luminance and the contrast ratio, per WCAG 2.x.
+const srgbLuminance = (hex) => {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+  const linear = (c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b);
+};
+const wcagContrast = (fg, bg) => {
+  const [hi, lo] = [srgbLuminance(fg), srgbLuminance(bg)].sort((a, b) => b - a);
+  return (hi + 0.05) / (lo + 0.05);
+};
+const BRAND_CONTRAST_PAIRS = [
+  ["#0b1f3a", "#f7f8fb", "light-mode Ink text on the Background"],
+  ["#1d4ed8", "#f7f8fb", "light-mode ramp-blue accent on the Background"],
+  ["#d5deea", "#0b1f3a", "dark-mode text on Ink"],
+  ["#0ea5e9", "#0b1f3a", "dark-mode sky accent on Ink"],
+];
+for (const [fg, bg, label] of BRAND_CONTRAST_PAIRS) {
+  const ratio = wcagContrast(fg, bg);
+  if (ratio < 4.5) {
+    fail(`brand palette (issue #12): ${label} is ${ratio.toFixed(2)}:1, below WCAG AA's 4.5:1 for text`);
+  }
+}
+
+// 14. Header logo and favicons (issue #12): every page carries the Horizontal
+// Lockup in both colour versions, the favicon links point at the branding
+// build's Icon files, and the logo assets stay on-palette — the light lockup
+// uses only Transfer-Function Ramp colours (plus the Ink tagline), and the
+// dark lockup's lightened ramp start keeps every Voxel at >= 3:1 on Ink
+// (WCAG 1.4.11 for non-text graphics).
+const RAMP7 = ["#1e3a8a", "#1d4ed8", "#0284c7", "#0ea5e9", "#14b8a6", "#84cc16", "#f59e0b"];
+const LIGHT_LOCKUP = path.join(SITE, "assets", "img", "logo", "ideas-horizontal-lockup-color-on-light.svg");
+const DARK_LOCKUP = path.join(SITE, "assets", "img", "logo", "ideas-horizontal-lockup-color-on-ink-lightened.svg");
+const svgColours = (svg) => [...svg.matchAll(/(?:fill|stroke)="(#[0-9a-fA-F]{6})"/g)].map((m) => m[1].toLowerCase());
+
+// The dark lockup is the one that renders on Ink: every Voxel colour in it
+// (the white Tagline excepted) must clear 3:1 on Ink. The light lockup keeps
+// the ramp as-is and an Ink Tagline, so only its palette membership is pinned.
+if (fs.existsSync(DARK_LOCKUP)) {
+  const darkColours = [...new Set(svgColours(fs.readFileSync(DARK_LOCKUP, "utf8")))].filter((c) => c !== "#ffffff");
+  for (const c of darkColours) {
+    const ratio = wcagContrast(c, "#0b1f3a");
+    if (ratio < 3) {
+      fail(`dark-mode header lockup: ${c} is only ${ratio.toFixed(2)}:1 on Ink — below the 3:1 (WCAG 1.4.11) needed to render crisply in dark mode`);
+    }
+  }
+  for (const [lightened, original] of [
+    ["#486ed7", "#1e3a8a"],
+    ["#4c74e7", "#1d4ed8"],
+  ]) {
+    if (!darkColours.includes(lightened) || darkColours.includes(original)) {
+      fail(`dark-mode header lockup: expected the lightened ramp start (${original} -> ${lightened}); regenerate the derivation`);
+    }
+  }
+}
+
+if (fs.existsSync(LIGHT_LOCKUP)) {
+  const offPalette = [...new Set(svgColours(fs.readFileSync(LIGHT_LOCKUP, "utf8")))].filter((c) => c !== "#0b1f3a" && !RAMP7.includes(c));
+  if (offPalette.length > 0) {
+    fail(`light-mode header lockup: off-palette colours ${offPalette.join(", ")} — regenerate from the ideas-branding build`);
+  }
+}
+
+if (fs.existsSync(DARK_LOCKUP)) {
+  const darkColours = new Set(svgColours(fs.readFileSync(DARK_LOCKUP, "utf8")));
+  for (const [lightened, original] of [
+    ["#486ed7", "#1e3a8a"],
+    ["#4c74e7", "#1d4ed8"],
+  ]) {
+    if (!darkColours.has(lightened) || darkColours.has(original)) {
+      fail(`dark-mode header lockup: expected the lightened ramp start (${original} -> ${lightened}); regenerate the derivation`);
+    }
+  }
+}
+
+// The favicon must be the branding build's multi-size .ico (16/32/48), not a
+// single-size image: parse the directory entries like an .ico reader would.
+const ICO = path.join(SITE, "assets", "img", "favicon.ico");
+if (!fs.existsSync(ICO)) {
+  fail("favicon.ico missing from the build output (assets/img/favicon.ico)");
+} else {
+  const ico = fs.readFileSync(ICO);
+  const sizes = [];
+  for (let i = 0; i < ico.readUInt16LE(4); i++) {
+    const w = ico[6 + i * 16] || 256;
+    const h = ico[7 + i * 16] || 256;
+    if (w === h) sizes.push(w);
+  }
+  const expected = [16, 32, 48];
+  if (JSON.stringify(sizes) !== JSON.stringify(expected)) {
+    fail(`favicon.ico contains ${sizes.join("/")}px images, expected ${expected.join("/")}px (the ideas-branding build's set)`);
   }
 }
 
