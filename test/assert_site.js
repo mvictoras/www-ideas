@@ -33,10 +33,13 @@
  * criteria (issue #20: the Inter and JetBrains Mono type families and the
  * Partner Strip footer on every page, the one-row header, the Home Ink hero
  * and 2×2 Objective cards with summaries, and the figure-led Use Case cards),
- * and the News-page and generic-page-layout acceptance criteria (issue #26:
+ * the News-page and generic-page-layout acceptance criteria (issue #26:
  * every `page`-layout page carries the P1 page head, the News page's dated
  * stream is the Home Latest news block untruncated, and the 404 page keeps
- * its redirect while linking back to Home and Research).
+ * its redirect while linking back to Home and Research), and the
+ * Publications-page P1 design (issue #23: entries as 10px-radius cards
+ * that lift on hover, ruled mono year headings, a restyled bibsearch field —
+ * all via CSS only, with jekyll-scholar's markup untouched).
  */
 const fs = require("fs");
 const path = require("path");
@@ -481,6 +484,34 @@ if (!fs.existsSync(PUBLICATIONS_PAGE)) {
   // All authors shown: no "N more authors" truncation hides any name.
   if (/<span class="more-authors"/.test(pubsHtml)) {
     fail("publications/index.html: author lists are truncated; all BibTeX authors must render");
+  }
+
+  // P1 design (issue #23): the page is restyled via CSS only — jekyll-scholar's
+  // rendered markup above must stay byte-compatible. The layout override embeds
+  // a page-specific style block asserting the P1 look: entries as P1 cards
+  // (white surface, 1px rule, 10px radius, lift on hover), year-group headings
+  // with a rule underneath set in the mono family, and the P1-styled search
+  // field. Only the block that scopes the page (contains ".publications") is
+  // asserted, so the shared shell styles cannot satisfy these checks.
+  const pubsStyleBlocks = [...pubsHtml.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map((m) => m[1]).filter((css) => css.includes(".publications"));
+  const pubsStyles = pubsStyleBlocks.join("\n");
+  if (pubsStyleBlocks.length !== 1) {
+    fail(`publications/index.html: expected exactly one publications-scoped style block, found ${pubsStyleBlocks.length}`);
+  }
+  if (!/\.publications\s+ol\.bibliography\s*\{/.test(pubsStyles) || !pubsStyles.includes("border-radius: 10px")) {
+    fail("publications/index.html: entries are not restyled as 10px-radius P1 cards");
+  }
+  if (!/\.publications\s+(?:ol\.bibliography\s+)?\.row:hover\s*\{[^}]*transform:\s*translateY\(-2px\)/.test(pubsStyles)) {
+    fail("publications/index.html: publication cards do not lift on hover");
+  }
+  if (!/\.publications\s+h2\.bibliography\s*\{[^}]*border-bottom:/.test(pubsStyles)) {
+    fail("publications/index.html: year-group headings have no rule underneath");
+  }
+  if (!/\.publications\s+h2\.bibliography\s*\{[^}]*var\(--ideas-font-mono\)/.test(pubsStyles)) {
+    fail("publications/index.html: the P1 mono family is not used for the year headings/dates");
+  }
+  if (!pubsStyles.includes(".bibsearch-form-input")) {
+    fail("publications/index.html: the bibsearch field is not restyled in the P1 design");
   }
 }
 
