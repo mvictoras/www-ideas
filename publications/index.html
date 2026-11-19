@@ -2,9 +2,473 @@
   :root {
     --max-content-width: 930px;
   }
-</style> <link rel="stylesheet" href="/www-ideas/assets/css/tailwind.css?v=50c64c15cbb9fd1ce6056fdb8bcb4b62"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" integrity="sha256-MVopmdyC2tYTiJ8wlktf0uh0v4NgT+vNdyVFepi7Q0c=" crossorigin="anonymous"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.5/css/academicons.min.css" integrity="sha256-SzrCOBJbGVFMahewkgjwnApaV2+av1DwMAA+/QGLyZw=" crossorigin="anonymous"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/scholar-icons@1.0.3/css/scholar-icons.css" integrity="sha256-VY3hHVj/hNX3fYG6wtbA6TcKJQl7+FthzGSyIB64klY=" crossorigin="anonymous"> <link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap"> <link defer rel="stylesheet" href="/www-ideas/assets/css/jekyll-pygments-themes-github.css?v=591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light"> <link rel="shortcut icon" href="/www-ideas/assets/img/favicon.ico?v=13044232c6e639dff59c80540392d135"> <link rel="apple-touch-icon" href="/www-ideas/assets/img/apple-touch-icon.png?v=427f5278d0b9368b65d473eff3773a21"> <link rel="stylesheet" href="/www-ideas/assets/css/main.css?v=3116ba77db9ee1581d05bb3e86fbf7f1"> <link rel="canonical" href="https://mvictoras.github.io/www-ideas/publications/"> <script src="/www-ideas/assets/js/theme.js?v=5286c3e4c334d0ecb8fc0c40ff4fa7ec"></script> <link defer rel="stylesheet" href="/www-ideas/assets/css/jekyll-pygments-themes-native.css?v=5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark"> <script>
+</style> <link rel="stylesheet" href="/www-ideas/assets/css/tailwind.css?v=50c64c15cbb9fd1ce6056fdb8bcb4b62"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" integrity="sha256-MVopmdyC2tYTiJ8wlktf0uh0v4NgT+vNdyVFepi7Q0c=" crossorigin="anonymous"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.5/css/academicons.min.css" integrity="sha256-SzrCOBJbGVFMahewkgjwnApaV2+av1DwMAA+/QGLyZw=" crossorigin="anonymous"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/scholar-icons@1.0.3/css/scholar-icons.css" integrity="sha256-VY3hHVj/hNX3fYG6wtbA6TcKJQl7+FthzGSyIB64klY=" crossorigin="anonymous"> <link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap"> <link defer rel="stylesheet" href="/www-ideas/assets/css/jekyll-pygments-themes-github.css?v=591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light"> <link rel="shortcut icon" href="/www-ideas/assets/img/favicon.ico?v=13044232c6e639dff59c80540392d135"> <link rel="apple-touch-icon" href="/www-ideas/assets/img/apple-touch-icon.png?v=427f5278d0b9368b65d473eff3773a21"> <link rel="stylesheet" href="/www-ideas/assets/css/main.css?v=3116ba77db9ee1581d05bb3e86fbf7f1"> <link rel="canonical" href="https://mvictoras.github.io/www-ideas/publications/"> <script src="/www-ideas/assets/js/theme.js?v=5286c3e4c334d0ecb8fc0c40ff4fa7ec"></script> <link defer rel="stylesheet" href="/www-ideas/assets/css/jekyll-pygments-themes-native.css?v=5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark"> <script>
     initTheme();
   </script> </head> <body class="fixed-top-nav sticky-bottom-footer"> <style>
+  :root {
+    --ideas-font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --ideas-font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+    --ideas-shadow:
+      0 1px 2px rgba(11, 31, 58, 0.08),
+      0 8px 24px rgba(11, 31, 58, 0.06);
+    /* The Ink hero band keeps its own colours in both modes (it is always an
+       Ink surface); dark mode deepens it toward black like the prototype. */
+    --ideas-hero-bg: #0b1f3a;
+    --ideas-hero-text: #ffffff;
+    --ideas-hero-muted: rgba(255, 255, 255, 0.76);
+  }
+  html[data-theme='dark'] {
+    --ideas-hero-bg: #071527;
+    --ideas-shadow: none;
+  }
+
+  body {
+    font-family: var(--ideas-font-sans);
+    /* Full-bleed bands (the Home hero) span 100vw, which includes the
+       scrollbar; clip rather than hide so sticky positioning survives. */
+    overflow-x: hidden;
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--ideas-font-sans);
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+  }
+
+  /* Labels and dates are set in the mono family, uppercase (the prototype's
+     .kicker / .date). */
+  .ideas-kicker,
+  .ideas-date {
+    font-family: var(--ideas-font-mono);
+    font-weight: 500;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .ideas-kicker {
+    margin: 0 0 6px;
+    color: var(--global-text-color-light);
+  }
+
+  /* --------------------------------------------- Blocks and figure-led cards */
+  .ideas-block {
+    margin-top: 64px;
+  }
+  .ideas-block-head {
+    align-items: baseline;
+    border-bottom: 1px solid var(--global-divider-color);
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+  }
+  .ideas-block-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0;
+  }
+  .ideas-block-more {
+    flex: none;
+    font: 500 0.8rem var(--ideas-font-mono);
+    text-decoration: none;
+  }
+  .ideas-block-more::after {
+    content: ' →';
+  }
+
+  .ideas-cards {
+    display: grid;
+    gap: 20px;
+  }
+  /* Objectives as a 2x2: room for a large figure and a short summary each. */
+  .ideas-cards-objectives {
+    gap: 24px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ideas-cards-use-cases {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  @media (max-width: 720px) {
+    .ideas-cards-objectives,
+    .ideas-cards-use-cases {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .ideas-card {
+    background: var(--global-card-bg-color);
+    border: 1px solid var(--global-divider-color);
+    border-radius: 10px;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    text-decoration: none;
+    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  }
+  .ideas-card:hover {
+    border-color: var(--global-theme-color);
+    box-shadow: var(--ideas-shadow);
+    transform: translateY(-2px);
+  }
+  .ideas-card-media {
+    aspect-ratio: 16 / 10;
+    background: var(--global-card-bg-color);
+    border-bottom: 1px solid var(--global-divider-color);
+    overflow: hidden;
+  }
+  .ideas-card-media img {
+    display: block;
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+  }
+  /* Diagrams keep their own aspect inside the frame instead of cropping. */
+  .ideas-card-media-diagram img {
+    object-fit: contain;
+    padding: 12px;
+  }
+  /* The ramp voxel tile for a card with no figure yet. */
+  .ideas-card-media-grid {
+    align-items: flex-end;
+    background:
+      repeating-linear-gradient(90deg, transparent 0 15px, #0b1f3a 15px 18px),
+      repeating-linear-gradient(0deg, transparent 0 15px, #0b1f3a 15px 18px),
+      linear-gradient(90deg, #1e3a8a, #1d4ed8, #0284c7, #0ea5e9, #14b8a6, #84cc16, #f59e0b);
+    display: flex;
+    padding: 12px;
+    position: relative;
+  }
+  .ideas-card-grid-label {
+    background: #0b1f3a;
+    border-radius: 4px;
+    color: #ffffff;
+    font: 500 0.7rem var(--ideas-font-mono);
+    letter-spacing: 0.04em;
+    padding: 4px 8px;
+  }
+  .ideas-card-body {
+    padding: 16px 18px 20px;
+  }
+  .ideas-card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 6px;
+  }
+  .ideas-card-tagline {
+    color: var(--global-text-color-light);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+  .ideas-cards-objectives .ideas-card-body {
+    padding: 20px 24px 24px;
+  }
+  .ideas-cards-objectives .ideas-card-title {
+    font-size: 1.3rem;
+  }
+  .ideas-cards-objectives .ideas-card-tagline {
+    color: var(--global-text-color);
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+  .ideas-card-summary {
+    color: var(--global-text-color-light);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+  .ideas-cards-objectives .ideas-card-media-diagram img {
+    padding: 20px;
+  }
+
+  /* ------------------------------------------------------- News and events */
+  .ideas-news-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .ideas-news-item {
+    border-bottom: 1px solid var(--global-divider-color);
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    padding: 14px 0;
+  }
+  .ideas-news-item:first-child {
+    padding-top: 0;
+  }
+  .ideas-news-item .ideas-date {
+    color: var(--global-text-color-light);
+    padding-top: 3px;
+  }
+  .ideas-news-item-body p {
+    margin: 0;
+  }
+  @media (max-width: 560px) {
+    .ideas-news-item {
+      gap: 4px;
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .ideas-event-card {
+    background: var(--global-card-bg-color);
+    border: 1px solid var(--global-divider-color);
+    border-left: 4px solid var(--global-theme-color);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .ideas-event-title {
+    font-size: 1.15rem;
+    margin: 0 0 8px;
+  }
+  .ideas-event-title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .ideas-event-dates {
+    color: var(--global-text-color);
+    font-size: 0.85rem;
+    margin: 0 0 4px;
+  }
+  .ideas-event-meta {
+    color: var(--global-text-color-light);
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  /* --------------------------------------------------------------- Figures */
+  .ideas-figure {
+    margin: 32px 0;
+  }
+  .ideas-figure-frame {
+    background: var(--global-card-bg-color);
+    border: 1px solid var(--global-divider-color);
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .ideas-figure-frame img {
+    display: block;
+    height: auto;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .ideas-figure figcaption {
+    color: var(--global-text-color-light);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-top: 10px;
+    padding: 0 4px;
+  }
+  .credit {
+    font-family: var(--ideas-font-mono);
+    font-size: 0.75rem;
+  }
+
+  /* The filled button (P1): ramp amber on Ink, in the hero and elsewhere. */
+  .ideas-button {
+    background: #f59e0b; /* ramp-7 */
+    border-radius: 8px;
+    color: #0b1f3a; /* Ink */
+    display: inline-block;
+    font-weight: 700;
+    padding: 12px 20px;
+    text-decoration: none;
+  }
+  .ideas-button:hover {
+    background: color-mix(in srgb, #f59e0b 85%, white);
+    color: #0b1f3a;
+  }
+
+  /* ------------------------------------------------------------ Header */
+  /* P1's one-row header: the Horizontal Lockup and the nav on one line,
+     sticky, on the white surface with a hairline rule underneath. The nav
+     collapses under 1040px into a panel below the bar (P1's mobile nav). */
+  #navbar {
+    background: var(--global-card-bg-color);
+    border-bottom: 1px solid var(--global-divider-color);
+    box-shadow: none;
+  }
+  #navbar .container {
+    max-width: 1140px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+  #navbar .nav-link {
+    position: relative;
+    padding: 8px 10px;
+    color: var(--global-text-color-light);
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    border-radius: 6px;
+  }
+  #navbar .nav-link:hover {
+    color: var(--global-text-color);
+    background: color-mix(in srgb, var(--global-divider-color) 50%, transparent);
+  }
+  #navbar .nav-link[aria-current='page'] {
+    color: var(--global-text-color);
+    font-weight: 600;
+  }
+  #navbar .nav-link[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: -11px;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: var(--global-theme-color);
+  }
+  #navbar .navbar-toggler {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--global-divider-color);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--global-text-color);
+    font: 500 0.8rem var(--ideas-font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  #navbar .nav-link .fa-magnifying-glass {
+    font-size: 0.85rem;
+  }
+  #navbar .toggle-container button {
+    color: var(--global-text-color-light);
+  }
+
+  /* The nav panel is hidden until the toggle opens it (below 1040px it sits
+     under the bar like P1's mobile nav; above, it is a plain flex row). The
+     theme's `collapse` class is deliberately NOT used here: Tailwind ships a
+     layered .collapse { display: none !important } that would win the
+     cascade. The toggle JS only toggles .show. */
+  #navbar .navbar-collapse {
+    display: none;
+  }
+  #navbar .navbar-collapse.show {
+    display: flex;
+    flex-direction: column;
+  }
+  @media (max-width: 1039.98px) {
+    #navbar .navbar-collapse.show {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      z-index: 30;
+      padding: 8px 16px 16px;
+      background: var(--global-card-bg-color);
+      border-bottom: 1px solid var(--global-divider-color);
+      box-shadow: var(--ideas-shadow);
+    }
+    #navbar .nav-link {
+      padding: 12px 8px;
+      font-size: 1rem;
+    }
+    #navbar .nav-link[aria-current='page']::after {
+      left: 0;
+      right: auto;
+      top: 12px;
+      bottom: 12px;
+      width: 3px;
+      height: auto;
+      border-radius: 0 3px 3px 0;
+    }
+  }
+
+  /* One row from 1040px up: the panel is a plain flex row and the toggle
+     disappears. */
+  @media (min-width: 1040px) {
+    #navbar .navbar-collapse {
+      display: flex;
+      justify-content: flex-end;
+    }
+    #navbar .navbar-nav {
+      flex-direction: row;
+      align-items: center;
+      gap: 4px;
+    }
+    #navbar .navbar-toggler {
+      display: none;
+    }
+  }
+
+  /* P1 centres the page in a 1140px container (820px for narrow pages). */
+  .container {
+    max-width: 1140px;
+  }
+
+  /* ------------------------------------------------------------ Footer */
+  .site-footer {
+    margin-top: 80px;
+    padding: 40px 0 32px;
+    background: var(--global-card-bg-color);
+    border-top: 1px solid var(--global-divider-color);
+    text-align: center;
+  }
+  /* Partner logos are never recoloured: the strip always sits on white. */
+  .ideas-partner-strip {
+    max-width: 920px;
+    margin: 0 auto 24px;
+    padding: 16px 20px;
+    background: #ffffff;
+    border-radius: 10px;
+  }
+  .ideas-partner-strip-line {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .ideas-partner-strip-grid {
+    display: none;
+  }
+  @media (max-width: 640px) {
+    .ideas-partner-strip-line {
+      display: none;
+    }
+    .ideas-partner-strip-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    /* Each logo file is 108 units tall with 72 units of ink, and carries its
+       own clear space, so no gap is added. At 72px the ink is 48px (0.5 in),
+       which meets UNL's minimum height, the largest minimum among the
+       partners. */
+    .ideas-partner-strip-grid img {
+      display: block;
+      height: 72px;
+      width: auto;
+    }
+  }
+  .ideas-acknowledgment {
+    max-width: 46rem;
+    margin: 0 auto;
+    color: var(--global-text-color-light);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+  @media (max-width: 560px) {
+    .ideas-partner-strip {
+      padding: 10px 8px;
+    }
+  }
+</style> <style>
   :root {
     --global-bg-color: #f7f8fb; /* the brand Background (ideas-colours.css) */
     --global-card-bg-color: #ffffff;
@@ -29,18 +493,18 @@
     --global-divider-color: rgba(213, 222, 234, 0.15);
   }
 
-  /* The Horizontal Lockup: 34 px tall next to the nav, slightly smaller on
-     phones. Width follows the SVG's own proportions. */
+  /* The Horizontal Lockup: 40 px tall next to the nav (34 px on phones),
+     per P1's one-row header. Width follows the SVG's own proportions. */
   .ideas-nav-logo {
-    height: 34px;
+    height: 40px;
     width: auto;
   }
   @media (max-width: 575.98px) {
     .ideas-nav-logo {
-      height: 28px;
+      height: 34px;
     }
   }
-</style> <header> <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation"> <div class="container"> <a class="navbar-brand" href="/www-ideas/"> <img class="only-light ideas-nav-logo" src="/www-ideas/assets/img/logo/ideas-horizontal-lockup-color-on-light.svg?v=ca072ea9b651085f9cdfb2f23fdab6e7" alt="IDEAS — intelligent data exploration assistant for science"> <img class="only-dark ideas-nav-logo" src="/www-ideas/assets/img/logo/ideas-horizontal-lockup-color-on-ink-lightened.svg?v=9d1d38b2f6a802db60a0243b91ae9e80" alt="IDEAS — intelligent data exploration assistant for science"> </a> <button class="navbar-toggler collapsed navbar-toggler-main" type="button" data-nav-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar top-bar"></span> <span class="icon-bar middle-bar"></span> <span class="icon-bar bottom-bar"></span> </button> <div class="collapse navbar-collapse navbar-collapse-main" id="navbarNav"> <ul class="navbar-nav navbar-menu-list flex-nowrap"> <li class="nav-item "> <a class="nav-link" href="/www-ideas/">Home </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/research/">Research </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/use-cases/">Use Cases </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/team/">Team </a> </li> <li class="nav-item active"> <a class="nav-link" href="/www-ideas/publications/">Publications <span class="sr-only">(current)</span> </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/software/">Software </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/news/">News </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/events/">Events </a> </li> <li class="nav-item"> <button id="search-toggle" type="button" title="Search" aria-label="Open search"> <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span> </button> </li> <li class="toggle-container"> <button id="light-toggle" type="button" title="Change theme" aria-label="Change color theme"> <i class="fa-half-sun-moon" id="light-toggle-system"></i> <i class="fa-solid fa-moon" id="light-toggle-dark"></i> <i class="fa-solid fa-sun" id="light-toggle-light"></i> </button> </li> </ul> </div> </div> </nav> <progress id="progress" value="0"> <div class="progress-container"> <span class="progress-bar"></span> </div> </progress> </header> <div class="container mt-5" role="main"> <div class="post"> <header class="post-header"> <h1 class="post-title">Publications</h1> <p class="post-description">IDEAS publications, generated from BibTeX by jekyll-scholar</p> </header> <article> <script src="/www-ideas/assets/js/bibsearch.js?v=1bc438ca9037884cc579601c09afd847" type="module"></script> <p><input type="text" id="bibsearch" spellcheck="false" autocomplete="off" class="search bibsearch-form-input" placeholder="Type to filter"></p> <div class="publications"> <h2 class="bibliography">2026</h2> <ol class="bibliography"> <li> <div class="row"> <div class="col col-sm-2 abbr"> </div> <div id="mathai2026nl2scivis" class="col-sm-8"> <div class="title">NL2SciVis: A Benchmark for Natural Language to Scientific Visualization</div> <div class="author"> Manish Mathai , <strong>Mengjiao Han</strong> , <strong>Janet Knowles</strong> , <strong>Victor A. Mateevitsi</strong> , <strong>Silvio Rizzi</strong> , and Hank Childs </div> <div class="periodical"> <em>In EuroVis 2026 — Short Papers</em>, 2026 </div> <div class="periodical"> </div> <div class="links"> <a class="abstract btn btn-sm z-depth-0" role="button">Abs</a> <a href="https://doi.org/10.2312/evs.20261017" class="btn btn-sm z-depth-0" role="button" rel="external nofollow noopener" target="_blank">DOI</a> <a class="bibtex btn btn-sm z-depth-0" role="button">Bib</a> </div> <div class="abstract hidden"> <p> Scientific visualization (SciVis) tools enable exploration of complex scientific datasets but present a steep learning curve, creating hurdles for scientists and making it difficult to evaluate natural-language interfaces to them. We present NL2SciVis, a benchmark for natural language to scientific visualization: each task feeds a prompt to a large language model, executes the generated code in ParaView, and applies two gates — an execution gate checking that a valid state file was produced, and a technique gate checking that the visualization method, field, and parameters are correct. A task passes only if both gates pass, so the protocol verifies pipeline correctness rather than visual similarity alone. </p> </div> <div class="bibtex hidden"> <figure class="highlight"><pre><code class="language-bibtex" data-lang="bibtex"><span class="nc">@inproceedings</span><span class="p">{</span><span class="nl">mathai2026nl2scivis</span><span class="p">,</span>
+</style> <header> <nav id="navbar" class="navbar navbar-light fixed-top" role="navigation"> <div class="container"> <a class="navbar-brand" href="/www-ideas/"> <img class="only-light ideas-nav-logo" src="/www-ideas/assets/img/logo/ideas-horizontal-lockup-color-on-light.svg?v=ca072ea9b651085f9cdfb2f23fdab6e7" alt="IDEAS — intelligent data exploration assistant for science"> <img class="only-dark ideas-nav-logo" src="/www-ideas/assets/img/logo/ideas-horizontal-lockup-color-on-ink-lightened.svg?v=9d1d38b2f6a802db60a0243b91ae9e80" alt="IDEAS — intelligent data exploration assistant for science"> </a> <button class="navbar-toggler collapsed navbar-toggler-main" type="button" data-nav-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar top-bar"></span> <span class="icon-bar middle-bar"></span> <span class="icon-bar bottom-bar"></span> </button> <div class="navbar-collapse navbar-collapse-main" id="navbarNav"> <ul class="navbar-nav navbar-menu-list flex-nowrap"> <li class="nav-item "> <a class="nav-link" href="/www-ideas/">Home </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/research/">Research </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/use-cases/">Use Cases </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/team/">Team </a> </li> <li class="nav-item active"> <a class="nav-link" href="/www-ideas/publications/" aria-current="page">Publications </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/software/">Software </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/news/">News </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/events/">Events </a> </li> <li class="nav-item"> <button id="search-toggle" type="button" title="Search" aria-label="Open search"> <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span> </button> </li> <li class="toggle-container"> <button id="light-toggle" type="button" title="Change theme" aria-label="Change color theme"> <i class="fa-half-sun-moon" id="light-toggle-system"></i> <i class="fa-solid fa-moon" id="light-toggle-dark"></i> <i class="fa-solid fa-sun" id="light-toggle-light"></i> </button> </li> </ul> </div> </div> </nav> <progress id="progress" value="0"> <div class="progress-container"> <span class="progress-bar"></span> </div> </progress> </header> <div class="container mt-5" role="main"> <div class="post"> <header class="post-header"> <h1 class="post-title">Publications</h1> <p class="post-description">IDEAS publications, generated from BibTeX by jekyll-scholar</p> </header> <article> <script src="/www-ideas/assets/js/bibsearch.js?v=1bc438ca9037884cc579601c09afd847" type="module"></script> <p><input type="text" id="bibsearch" spellcheck="false" autocomplete="off" class="search bibsearch-form-input" placeholder="Type to filter"></p> <div class="publications"> <h2 class="bibliography">2026</h2> <ol class="bibliography"> <li> <div class="row"> <div class="col col-sm-2 abbr"> </div> <div id="mathai2026nl2scivis" class="col-sm-8"> <div class="title">NL2SciVis: A Benchmark for Natural Language to Scientific Visualization</div> <div class="author"> Manish Mathai , <strong>Mengjiao Han</strong> , <strong>Janet Knowles</strong> , <strong>Victor A. Mateevitsi</strong> , <strong>Silvio Rizzi</strong> , and Hank Childs </div> <div class="periodical"> <em>In EuroVis 2026 — Short Papers</em>, 2026 </div> <div class="periodical"> </div> <div class="links"> <a class="abstract btn btn-sm z-depth-0" role="button">Abs</a> <a href="https://doi.org/10.2312/evs.20261017" class="btn btn-sm z-depth-0" role="button" rel="external nofollow noopener" target="_blank">DOI</a> <a class="bibtex btn btn-sm z-depth-0" role="button">Bib</a> </div> <div class="abstract hidden"> <p> Scientific visualization (SciVis) tools enable exploration of complex scientific datasets but present a steep learning curve, creating hurdles for scientists and making it difficult to evaluate natural-language interfaces to them. We present NL2SciVis, a benchmark for natural language to scientific visualization: each task feeds a prompt to a large language model, executes the generated code in ParaView, and applies two gates — an execution gate checking that a valid state file was produced, and a technique gate checking that the visualization method, field, and parameters are correct. A task passes only if both gates pass, so the protocol verifies pipeline correctness rather than visual similarity alone. </p> </div> <div class="bibtex hidden"> <figure class="highlight"><pre><code class="language-bibtex" data-lang="bibtex"><span class="nc">@inproceedings</span><span class="p">{</span><span class="nl">mathai2026nl2scivis</span><span class="p">,</span>
   <span class="na">title</span> <span class="p">=</span> <span class="s">{NL2SciVis: A Benchmark for Natural Language to Scientific Visualization}</span><span class="p">,</span>
   <span class="na">author</span> <span class="p">=</span> <span class="s">{Mathai, Manish and Han, Mengjiao and Knowles, Janet and Mateevitsi, Victor A. and Rizzi, Silvio and Childs, Hank}</span><span class="p">,</span>
   <span class="na">booktitle</span> <span class="p">=</span> <span class="s">{EuroVis 2026 — Short Papers}</span><span class="p">,</span>
@@ -81,19 +545,7 @@
   <span class="na">pages</span> <span class="p">=</span> <span class="s">{2225--2233}</span><span class="p">,</span>
   <span class="na">year</span> <span class="p">=</span> <span class="s">{2025}</span><span class="p">,</span>
   <span class="na">doi</span> <span class="p">=</span> <span class="s">{10.1145/3731599.3767578}</span><span class="p">,</span>
-<span class="p">}</span></code></pre></figure> </div> </div> </div> </li></ol> </div> </article> </div> </div> <footer class="sticky-bottom mt-5" role="contentinfo"> <style>
-    .ideas-footer-logo {
-      height: 48px;
-      width: auto;
-    }
-    html[data-theme='dark'] .ideas-footer-logo {
-      /* The logos have black wordmarks; keep them legible on dark backgrounds
-         by putting them on a white chip instead of inverting official colors. */
-      background: #ffffff;
-      border-radius: 6px;
-      padding: 4px 8px;
-    }
-  </style> <div class="container"> <hr> <div class="d-flex flex-column flex-sm-row align-items-center justify-content-center gap-3"> <img src="/www-ideas/assets/img/logos/argonne.svg?v=144830fae52cc308c55c4406c52b9772" alt="Argonne National Laboratory logo" class="ideas-footer-logo" loading="lazy"> <img src="/www-ideas/assets/img/logos/doe-office-of-science.svg?v=7d3bf8b788b28e438d3a16db92dc60e9" alt="U.S. Department of Energy Office of Science logo" class="ideas-footer-logo" loading="lazy"> </div> <p class="text-center mt-2 mb-0"> This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Advanced Scientific Computing Research (ASCR) under Contract DE-AC02-06CH11357. </p> </div> </footer> <script>
+<span class="p">}</span></code></pre></figure> </div> </div> </div> </li></ol> </div> </article> </div> </div> <footer class="site-footer" role="contentinfo"> <div class="container"> <div class="ideas-partner-strip" role="img" aria-label="Argonne National Laboratory, which leads IDEAS, and the Partners: University of California Davis, University of Cincinnati, University of Illinois Chicago, University of Nebraska–Lincoln, Kitware and Veeda AI."> <img class="ideas-partner-strip-line" src="/www-ideas/assets/img/logos/ideas-partner-strip-large-on-light.svg?v=2f91fc5028f3497e8bf4c90fea190050" alt="" width="907" height="64" loading="lazy"> <ul class="ideas-partner-strip-grid" aria-hidden="true"> <li> <img src="/www-ideas/assets/img/logos/partners/argonne.svg?v=f21e6da3b26a0f3b10bcb650bb509373" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/ucdavis.svg?v=9f55f9d3e6aaa7bc2883e62f1f18dc1f" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/cincinnati.svg?v=778c80dab350a8cfd49c66c96698cce4" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/uic.svg?v=b2ceb127dc6f64dc25c32e6e512aead6" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/unl.svg?v=c38fa06ec4243aaa9ed6c4a7430b6af7" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/kitware.svg?v=a85b0d1663bab67c9c3f72013eaee479" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/veeda.svg?v=2b849bdde0234f6d878bb49bfdc4e080" alt="" loading="lazy"> </li> </ul> </div> <p class="ideas-acknowledgment"> This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Advanced Scientific Computing Research (ASCR) under Contract DE-AC02-06CH11357. </p> </div> </footer> <script>
   window.alFolio = {
     compatBootstrap: false
   };
