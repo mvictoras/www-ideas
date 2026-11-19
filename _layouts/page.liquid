@@ -1,0 +1,61 @@
+---
+layout: default
+---
+{% comment %}
+  Local override of al-folio's _layouts/page.liquid (al_folio_core gem).
+
+  P1 (issue #26): the generic page layout carries the P1 page head — the
+  clamp'd 800-weight title and the muted 1.15rem lead — generalized from the
+  research layout's treatment, so every page built on this layout (News,
+  404, and the collection indexes) reads as part of the redesign.
+
+  Tracked with the al-folio overrides audit (ADR-0001):
+  bundle exec al-folio upgrade overrides audit
+{% endcomment %}
+{% if page._styles %}
+  <!-- Page/Post style -->
+  <style type="text/css">
+    {{ page._styles }}
+  </style>
+{% endif %}
+
+<style>
+  /* P1's page head: title and lead. Lives here rather than in each page so
+     the treatment is defined once for the generic layout. */
+  .post-header {
+    padding: 56px 0 8px;
+  }
+  .post-title {
+    font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin: 0 0 12px;
+  }
+  .post-description {
+    color: var(--global-text-color-light);
+    font-size: 1.15rem;
+    margin: 0;
+  }
+</style>
+
+<div class="post">
+  <header class="post-header">
+    <h1 class="post-title">{{ page.title }}</h1>
+    <p class="post-description">{{ page.description }}</p>
+  </header>
+
+  <article>
+    {{ content }}
+  </article>
+
+  {% if page.related_publications %}
+    <h2>References</h2>
+    <div class="publications">
+      {% bibliography --cited_in_order %}
+    </div>
+  {% endif %}
+
+  {% if site.plugins contains 'al_comments' %}
+    {% include plugins/al_comments.liquid %}
+  {% endif %}
+</div>
