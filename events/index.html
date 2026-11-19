@@ -504,7 +504,24 @@
       height: 34px;
     }
   }
-</style> <header> <nav id="navbar" class="navbar navbar-light fixed-top" role="navigation"> <div class="container"> <a class="navbar-brand" href="/www-ideas/"> <img class="only-light ideas-nav-logo" src="/www-ideas/assets/img/logo/ideas-horizontal-lockup-color-on-light.svg?v=ca072ea9b651085f9cdfb2f23fdab6e7" alt="IDEAS — intelligent data exploration assistant for science"> <img class="only-dark ideas-nav-logo" src="/www-ideas/assets/img/logo/ideas-horizontal-lockup-color-on-ink-lightened.svg?v=9d1d38b2f6a802db60a0243b91ae9e80" alt="IDEAS — intelligent data exploration assistant for science"> </a> <button class="navbar-toggler collapsed navbar-toggler-main" type="button" data-nav-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar top-bar"></span> <span class="icon-bar middle-bar"></span> <span class="icon-bar bottom-bar"></span> </button> <div class="navbar-collapse navbar-collapse-main" id="navbarNav"> <ul class="navbar-nav navbar-menu-list flex-nowrap"> <li class="nav-item "> <a class="nav-link" href="/www-ideas/">Home </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/research/">Research </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/use-cases/">Use Cases </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/team/">Team </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/publications/">Publications </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/software/">Software </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/news/">News </a> </li> <li class="nav-item active"> <a class="nav-link" href="/www-ideas/events/" aria-current="page">Events </a> </li> <li class="nav-item"> <button id="search-toggle" type="button" title="Search" aria-label="Open search"> <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span> </button> </li> <li class="toggle-container"> <button id="light-toggle" type="button" title="Change theme" aria-label="Change color theme"> <i class="fa-half-sun-moon" id="light-toggle-system"></i> <i class="fa-solid fa-moon" id="light-toggle-dark"></i> <i class="fa-solid fa-sun" id="light-toggle-light"></i> </button> </li> </ul> </div> </div> </nav> <progress id="progress" value="0"> <div class="progress-container"> <span class="progress-bar"></span> </div> </progress> </header> <div class="container mt-5" role="main"> <div class="post"> <header class="post-header"> <h1 class="post-title">Events</h1> <p class="post-description">Upcoming and past IDEAS Events</p> </header> <article> <style>
+</style> <header> <nav id="navbar" class="navbar navbar-light fixed-top" role="navigation"> <div class="container"> <a class="navbar-brand" href="/www-ideas/"> <img class="only-light ideas-nav-logo" src="/www-ideas/assets/img/logo/ideas-horizontal-lockup-color-on-light.svg?v=ca072ea9b651085f9cdfb2f23fdab6e7" alt="IDEAS — intelligent data exploration assistant for science"> <img class="only-dark ideas-nav-logo" src="/www-ideas/assets/img/logo/ideas-horizontal-lockup-color-on-ink-lightened.svg?v=9d1d38b2f6a802db60a0243b91ae9e80" alt="IDEAS — intelligent data exploration assistant for science"> </a> <button class="navbar-toggler collapsed navbar-toggler-main" type="button" data-nav-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar top-bar"></span> <span class="icon-bar middle-bar"></span> <span class="icon-bar bottom-bar"></span> </button> <div class="navbar-collapse navbar-collapse-main" id="navbarNav"> <ul class="navbar-nav navbar-menu-list flex-nowrap"> <li class="nav-item "> <a class="nav-link" href="/www-ideas/">Home </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/research/">Research </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/use-cases/">Use Cases </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/team/">Team </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/publications/">Publications </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/software/">Software </a> </li> <li class="nav-item "> <a class="nav-link" href="/www-ideas/news/">News </a> </li> <li class="nav-item active"> <a class="nav-link" href="/www-ideas/events/" aria-current="page">Events </a> </li> <li class="nav-item"> <button id="search-toggle" type="button" title="Search" aria-label="Open search"> <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span> </button> </li> <li class="toggle-container"> <button id="light-toggle" type="button" title="Change theme" aria-label="Change color theme"> <i class="fa-half-sun-moon" id="light-toggle-system"></i> <i class="fa-solid fa-moon" id="light-toggle-dark"></i> <i class="fa-solid fa-sun" id="light-toggle-light"></i> </button> </li> </ul> </div> </div> </nav> <progress id="progress" value="0"> <div class="progress-container"> <span class="progress-bar"></span> </div> </progress> </header> <div class="container mt-5" role="main"> <style>
+  /* P1's page head: title and lead. Lives here rather than in each page so
+     the treatment is defined once for the generic layout. */
+  .post-header {
+    padding: 56px 0 8px;
+  }
+  .post-title {
+    font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin: 0 0 12px;
+  }
+  .post-description {
+    color: var(--global-text-color-light);
+    font-size: 1.15rem;
+    margin: 0;
+  }
+</style> <div class="post"> <header class="post-header"> <h1 class="post-title">Events</h1> <p class="post-description">Upcoming and past IDEAS Events</p> </header> <article> <style>
   .event-group {
     margin-top: 3rem;
   }
@@ -602,7 +619,7 @@ ninja.data = [{
           },
         },{id: "nav-news",
           title: "News",
-          description: "Short dated announcements of what has happened in IDEAS",
+          description: "Short dated announcements of what has happened in IDEAS — papers published and Software Releases, newest first",
           section: "Navigation",
           handler: () => {
             window.location.href = "/www-ideas/news/";
