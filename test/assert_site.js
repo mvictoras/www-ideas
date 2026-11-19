@@ -575,7 +575,10 @@ if (!fs.existsSync(RESEARCH_PAGE)) {
 // used ("Turbulence in Complex Geometries", never "Fusion Flow"); each Use
 // Case explains its bottleneck and the assistant's approach; the proposal's
 // HACC cluster and XPCS interface figures are captioned and credited; and
-// the fusion breeding-blanket figure is absent.
+// the fusion breeding-blanket figure is absent. P1 (issue #21): the groups
+// head with the shared rule-under block heading, every Use Case section
+// carries the mono status kicker and frames its figure, and the upcoming
+// Use Case is marked secondary.
 const USE_CASES_PAGE = path.join(SITE, "use-cases", "index.html");
 const USE_CASE_GROUPS = [
   {
@@ -614,7 +617,11 @@ if (!fs.existsSync(USE_CASES_PAGE)) {
     }
 
     for (const group of groups) {
-      const sectionStarts = [...group.html.matchAll(/<section class="use-case"/g)];
+      // P1: the group heading is the shared rule-under block heading.
+      if (!group.html.includes('<div class="ideas-block-head">') || !group.html.includes("ideas-block-title")) {
+        fail(`use-cases/index.html: the ${group.id} group does not head with the P1 block heading`);
+      }
+      const sectionStarts = [...group.html.matchAll(/<section class="use-case[ "]/g)];
       if (sectionStarts.length !== group.titles.length) {
         fail(`use-cases/index.html: expected ${group.titles.length} use cases in the ${group.id} group, found ${sectionStarts.length}`);
         continue;
@@ -634,9 +641,21 @@ if (!fs.existsSync(USE_CASES_PAGE)) {
           fail(`use-cases/index.html: ${group.id} use case ${index + 1} is "${headingText}", expected "${title}"`);
         }
         // The kicker states the status, so the split is visible beyond the
-        // group heading.
+        // group heading, and it is set in the shared mono label style.
         if (!segment.includes(group.kicker)) {
           fail(`use-cases/index.html: "${title}" does not carry the "${group.kicker}" kicker`);
+        }
+        if (!segment.includes('class="ideas-kicker')) {
+          fail(`use-cases/index.html: "${title}" does not use the P1 mono kicker`);
+        }
+        // Upcoming Use Cases are marked secondary; active ones are not.
+        const isUpcoming = group.id === "upcoming";
+        if (segment.includes("use-case-secondary") !== isUpcoming) {
+          fail(
+            isUpcoming
+              ? `use-cases/index.html: "${title}" is upcoming but not marked secondary`
+              : `use-cases/index.html: "${title}" is active but marked secondary`
+          );
         }
         // The tagline plus at least two prose paragraphs: the bottleneck and
         // how the IDEAS assistant addresses it.
@@ -647,7 +666,7 @@ if (!fs.existsSync(USE_CASES_PAGE)) {
     }
 
     // No use-case section outside the two groups.
-    const totalSections = (ucHtml.match(/<section class="use-case"/g) || []).length;
+    const totalSections = (ucHtml.match(/<section class="use-case[ "]/g) || []).length;
     const expectedSections = USE_CASE_GROUPS.reduce((total, group) => total + group.titles.length, 0);
     if (totalSections !== expectedSections) {
       fail(`use-cases/index.html: found ${totalSections - expectedSections} use-case sections outside the groups`);
@@ -672,6 +691,10 @@ if (!fs.existsSync(USE_CASES_PAGE)) {
         if (!/<img[^>]*\salt="[^"]+"/.test(figureBlock[0])) fail(`use-cases/index.html: ${figure.name} figure has no alt text`);
         if (!/<figcaption>[\s\S]*?\S[\s\S]*?<\/figcaption>/.test(figureBlock[0])) fail(`use-cases/index.html: ${figure.name} figure has no caption`);
         if (!/Credit:/.test(figureBlock[0])) fail(`use-cases/index.html: ${figure.name} figure has no credit line`);
+        // P1: the figure is framed like the Research figures.
+        if (!figureBlock[0].includes("ideas-figure-frame")) {
+          fail(`use-cases/index.html: ${figure.name} figure is not framed in the P1 figure style`);
+        }
       }
     }
 
@@ -1094,7 +1117,7 @@ if (!fs.existsSync(HOME_PAGE)) {
     if (!wordmarkImg) {
       fail("index.html: the hero does not carry the Wordmark Hero");
     } else if (!/alt=""/.test(wordmarkImg[0])) {
-      fail("index.html: the Wordmark Hero must be decorative (alt=\"\")");
+      fail('index.html: the Wordmark Hero must be decorative (alt="")');
     }
     const chameleonImg = homeHeroHtml.match(/<img[^>]*chameleon-hero[^>]*>/);
     if (!chameleonImg) {
