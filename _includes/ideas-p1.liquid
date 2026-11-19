@@ -53,4 +53,114 @@
     margin: 0 0 6px;
     color: var(--global-text-color-light);
   }
+
+  /* ------------------------------------------------------------ Header */
+  /* P1's one-row header: the Horizontal Lockup and the nav on one line,
+     sticky, on the white surface with a hairline rule underneath. The nav
+     collapses under 1040px into a panel below the bar (P1's mobile nav). */
+  #navbar {
+    background: var(--global-card-bg-color);
+    border-bottom: 1px solid var(--global-divider-color);
+    box-shadow: none;
+  }
+  #navbar .container {
+    max-width: 1140px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+  #navbar .nav-link {
+    position: relative;
+    padding: 8px 10px;
+    color: var(--global-text-color-light);
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    border-radius: 6px;
+  }
+  #navbar .nav-link:hover {
+    color: var(--global-text-color);
+    background: color-mix(in srgb, var(--global-divider-color) 50%, transparent);
+  }
+  #navbar .nav-link[aria-current='page'] {
+    color: var(--global-text-color);
+    font-weight: 600;
+  }
+  #navbar .nav-link[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: -11px;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: var(--global-theme-color);
+  }
+  #navbar .navbar-toggler {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--global-divider-color);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--global-text-color);
+    font: 500 0.8rem var(--ideas-font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  #navbar .nav-link .fa-magnifying-glass {
+    font-size: 0.85rem;
+  }
+  #navbar .toggle-container button {
+    color: var(--global-text-color-light);
+  }
+
+  /* One row from 1040px up: the panel is a plain flex row and the toggle
+     disappears. Below, the panel sits under the bar like P1's mobile nav. */
+  @media (min-width: 1040px) {
+    #navbar .navbar-collapse {
+      display: flex !important;
+      justify-content: flex-end;
+    }
+    #navbar .navbar-nav {
+      flex-direction: row;
+      align-items: center;
+      gap: 4px;
+    }
+    #navbar .navbar-toggler {
+      display: none;
+    }
+  }
+  @media (max-width: 1039.98px) {
+    #navbar .navbar-collapse.show {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      z-index: 30;
+      padding: 8px 16px 16px;
+      background: var(--global-card-bg-color);
+      border-bottom: 1px solid var(--global-divider-color);
+      box-shadow: var(--ideas-shadow);
+    }
+    #navbar .nav-link {
+      padding: 12px 8px;
+      font-size: 1rem;
+    }
+    #navbar .nav-link[aria-current='page']::after {
+      left: 0;
+      right: auto;
+      top: 12px;
+      bottom: 12px;
+      width: 3px;
+      height: auto;
+      border-radius: 0 3px 3px 0;
+    }
+  }
+
+  /* P1 centres the page in a 1140px container (820px for narrow pages). */
+  .container {
+    max-width: 1140px;
+  }
 </style>

@@ -38,21 +38,21 @@
     --global-divider-color: rgba(213, 222, 234, 0.15);
   }
 
-  /* The Horizontal Lockup: 34 px tall next to the nav, slightly smaller on
-     phones. Width follows the SVG's own proportions. */
+  /* The Horizontal Lockup: 40 px tall next to the nav (34 px on phones),
+     per P1's one-row header. Width follows the SVG's own proportions. */
   .ideas-nav-logo {
-    height: 34px;
+    height: 40px;
     width: auto;
   }
   @media (max-width: 575.98px) {
     .ideas-nav-logo {
-      height: 28px;
+      height: 34px;
     }
   }
 </style>
 <header>
   <!-- Nav Bar -->
-  <nav id="navbar" class="navbar navbar-light navbar-expand-sm {% if site.navbar_fixed %}fixed-top{% else %}sticky-top{% endif %}" role="navigation">
+  <nav id="navbar" class="navbar navbar-light {% if site.navbar_fixed %}fixed-top{% else %}sticky-top{% endif %}" role="navigation">
     <div class="container">
       {%- comment -%}
         Local override (IDEAS): the brand is the Horizontal Lockup (Wordmark
@@ -97,11 +97,12 @@
 
           <!-- About -->
           <li class="nav-item {% if page.permalink == '/' %}active{% endif %}">
-            <a class="nav-link" href="{{ '/' | relative_url }}">
+            <a
+              class="nav-link"
+              href="{{ '/' | relative_url }}"
+              {% if page.permalink == '/' %}aria-current="page"{% endif %}
+            >
               {{- about_title }}
-              {% if page.permalink == '/' %}
-                <span class="sr-only">(current)</span>
-              {% endif %}
             </a>
           </li>
 
@@ -156,11 +157,12 @@
                   {%- else -%}
                     {%- assign url = p.url -%}
                   {%- endif %}
-                  <a class="nav-link" href="{{ url | relative_url }}">
+                  <a
+                    class="nav-link"
+                    href="{{ url | relative_url }}"
+                    {% if page.url contains parent_link %}aria-current="page"{% endif %}
+                  >
                     {{- p.title }}
-                    {% if page.url contains p.url %}
-                      <span class="sr-only">(current)</span>
-                    {% endif %}
                   </a>
                 </li>
               {% endif %}

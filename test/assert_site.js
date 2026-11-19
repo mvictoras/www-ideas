@@ -74,7 +74,7 @@ if (htmlFiles.length === 0) {
 }
 
 // 1. Every nav page exists and has one primary heading.
-for (const p of NAV_PAGES) {
+for (const [index, p] of NAV_PAGES.entries()) {
   const file = path.join(SITE, p);
   if (!fs.existsSync(file)) {
     fail(`missing page: ${p}`);
@@ -83,6 +83,19 @@ for (const p of NAV_PAGES) {
   const html = fs.readFileSync(file, "utf8");
   const headings = html.match(/<h1(?:\s|>)/gi) || [];
   if (headings.length !== 1) fail(`${p}: expected one primary heading, found ${headings.length}`);
+
+  // The header marks the current page with aria-current="page" on exactly one
+  // navbar link — the link to the page itself (P1's accent underline hangs
+  // off it, issue #20).
+  const navStart = html.indexOf('id="navbar');
+  const navEnd = html.indexOf("</nav>", navStart);
+  const navRegion = navStart === -1 || navEnd === -1 ? "" : html.slice(navStart, navEnd);
+  const currentLinks = [...navRegion.matchAll(/<a\b[^>]*aria-current="page"[^>]*>/g)];
+  if (currentLinks.length !== 1) {
+    fail(`${p}: expected exactly one aria-current="page" nav link, found ${currentLinks.length}`);
+  } else if (!currentLinks[0][0].includes(`href="${NAV_LINKS[index]}"`)) {
+    fail(`${p}: aria-current="page" is not on the link to ${NAV_LINKS[index]}`);
+  }
 }
 
 // 2. Privacy applies to all published bytes, including binary metadata,
