@@ -56,6 +56,15 @@ const fail = (msg) => failures.push(msg);
 // Data-file values could contain characters HTML escapes in rendered text.
 const escapeHtml = (value) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
+// Front matter of the collection/project sources, read directly so the
+// assertions can compare rendered pages against their own sources.
+const parseFrontMatter = (file) => {
+  const match = fs.readFileSync(file, "utf8").match(/^---\n([\s\S]*?)\n---\n/);
+  return match ? yaml.load(match[1]) : null;
+};
+
+const projectsDir = path.join(__dirname, "..", "_projects");
+
 // Returns the complete <div ...>...</div> starting at html[startIndex] (the
 // index of an opening <div), tracking nesting depth.
 const extractDiv = (html, startIndex) => {
@@ -507,6 +516,40 @@ if (!fs.existsSync(RESEARCH_PAGE)) {
       if (!/<img[^>]*\salt="[^"]+"/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no alt text`);
       if (!/<figcaption>[\s\S]*?\S[\s\S]*?<\/figcaption>/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no caption`);
       if (!/Credit:/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no credit line`);
+      // P1 (issue #20): figures render inside a frame on the figure surface.
+      const figureImgIndex = figureBlock[0].indexOf(srcPattern);
+      const frameOpen = figureBlock[0].lastIndexOf('<div class="ideas-figure-frame"', figureImgIndex);
+      if (frameOpen === -1) fail(`research/index.html: ${figure.name} is not rendered in a P1 figure frame`);
+    }
+  }
+
+  // P1 (issue #20): every Objective's own figure (if any) renders in its
+  // section — the overview crops from the card figures included — and is
+  // framed like the rest.
+  const researchObjectives = fs
+    .readdirSync(projectsDir)
+    .filter((name) => name.endsWith(".md"))
+    .map((name) => {
+      const data = parseFrontMatter(path.join(projectsDir, name));
+      return data && data.category === "objective" ? { slug: name.replace(/\.md$/, ""), ...data } : null;
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.importance - b.importance);
+  for (const objective of researchObjectives) {
+    if (!objective.figure) continue;
+    const srcPattern = `${BASEURL}/${objective.figure.src}`;
+    if (!researchHtml.includes(srcPattern)) {
+      fail(`research/index.html: Objective "${objective.title}" does not render its figure ${objective.figure.src}`);
+      continue;
+    }
+    if (!fs.existsSync(path.join(SITE, objective.figure.src))) {
+      fail(`${objective.figure.src}: not published in the build`);
+    }
+    const figureImgIndex = researchHtml.indexOf(srcPattern);
+    const frameOpen = researchHtml.lastIndexOf('<div class="ideas-figure-frame"', figureImgIndex);
+    const figureOpen = researchHtml.lastIndexOf("<figure", figureImgIndex);
+    if (frameOpen === -1 || frameOpen < figureOpen) {
+      fail(`research/index.html: the ${objective.figure.src} figure is not rendered in a P1 figure frame`);
     }
   }
 }
@@ -713,10 +756,6 @@ const eventSlugs = fs
   .readdirSync(EVENTS_DIR)
   .filter((name) => name.endsWith(".md"))
   .map((name) => name.replace(/\.md$/, ""));
-const parseFrontMatter = (file) => {
-  const match = fs.readFileSync(file, "utf8").match(/^---\n([\s\S]*?)\n---\n/);
-  return match ? yaml.load(match[1]) : null;
-};
 // Matches the layout's date format ("Tuesday, February 2, 2027").
 const formatEventDay = (yamlDate) => {
   const [year, month, day] = String(yamlDate).slice(0, 10).split("-").map(Number);
@@ -1061,7 +1100,6 @@ if (!fs.existsSync(HOME_PAGE)) {
 
   // Objective cards: one per objective project, in importance order, linking
   // to its anchor on the Research page with title and tagline visible.
-  const projectsDir = path.join(__dirname, "..", "_projects");
   const homeProjects = fs
     .readdirSync(projectsDir)
     .filter((name) => name.endsWith(".md"))
