@@ -1,47 +1,50 @@
 {%- comment -%}
   Local override of al-folio's _includes/footer.liquid (al_folio_core gem).
 
-  Replaces the personal "about" footer with the IDEAS funding footer:
-  the DOE Office of Science ASCR acknowledgment (contract DE-AC02-06CH11357)
-  and Argonne / DOE Office of Science logos. No contact email is published.
+  The P1 footer (issue #20): the Partner Strip — Argonne (which leads IDEAS),
+  then the six Partners in brand order — above the DOE Office of Science ASCR
+  acknowledgment (contract DE-AC02-06CH11357). No contact email is published.
+  On phones the one-line strip is too small to read, so the same logos render
+  byte for byte from their own files in a grid.
+
+  Partner logos are never recoloured: the strip always sits on white, in both
+  modes.
 
   Tracked with the al-folio overrides audit (ADR-0001):
   bundle exec al-folio upgrade overrides audit
 {%- endcomment -%}
 
-<footer class="sticky-bottom mt-5" role="contentinfo">
-  <style>
-    .ideas-footer-logo {
-      height: 48px;
-      width: auto;
-    }
-    html[data-theme='dark'] .ideas-footer-logo {
-      /* The logos have black wordmarks; keep them legible on dark backgrounds
-         by putting them on a white chip instead of inverting official colors. */
-      background: #ffffff;
-      border-radius: 6px;
-      padding: 4px 8px;
-    }
-  </style>
+<footer class="site-footer" role="contentinfo">
   <div class="container">
-    <hr>
-    <div class="d-flex flex-column flex-sm-row align-items-center justify-content-center gap-3">
+    <div
+      class="ideas-partner-strip"
+      role="img"
+      aria-label="Argonne National Laboratory, which leads IDEAS, and the Partners: University of California Davis, University of Cincinnati, University of Illinois Chicago, University of Nebraska–Lincoln, Kitware and Veeda AI."
+    >
       <img
-        src="{{ '/assets/img/logos/argonne.svg' | relative_url | bust_file_cache }}"
-        alt="Argonne National Laboratory logo"
-        class="ideas-footer-logo"
+        class="ideas-partner-strip-line"
+        src="{{ '/assets/img/logos/ideas-partner-strip-large-on-light.svg' | relative_url | bust_file_cache }}"
+        alt=""
+        width="907"
+        height="64"
         loading="lazy"
       >
-      <img
-        src="{{ '/assets/img/logos/doe-office-of-science.svg' | relative_url | bust_file_cache }}"
-        alt="U.S. Department of Energy Office of Science logo"
-        class="ideas-footer-logo"
-        loading="lazy"
-      >
+      <ul class="ideas-partner-strip-grid" aria-hidden="true">
+        {% assign partner_slugs = 'argonne,ucdavis,cincinnati,uic,unl,kitware,veeda' | split: ',' %}
+      {%- for partner in partner_slugs -%}
+          <li>
+            <img
+              src="{{ '/assets/img/logos/partners/' | append: partner | append: '.svg' | relative_url | bust_file_cache }}"
+              alt=""
+              loading="lazy"
+            >
+          </li>
+        {%- endfor -%}
+      </ul>
     </div>
-    <p class="text-center mt-2 mb-0">
-      This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Advanced Scientific Computing Research
-      (ASCR) under Contract DE-AC02-06CH11357.
+    <p class="ideas-acknowledgment">
+      This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Advanced
+      Scientific Computing Research (ASCR) under Contract DE-AC02-06CH11357.
     </p>
   </div>
 </footer>

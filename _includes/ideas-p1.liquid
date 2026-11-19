@@ -163,4 +163,64 @@
   .container {
     max-width: 1140px;
   }
+
+  /* ------------------------------------------------------------ Footer */
+  .site-footer {
+    margin-top: 80px;
+    padding: 40px 0 32px;
+    background: var(--global-card-bg-color);
+    border-top: 1px solid var(--global-divider-color);
+    text-align: center;
+  }
+  /* Partner logos are never recoloured: the strip always sits on white. */
+  .ideas-partner-strip {
+    max-width: 920px;
+    margin: 0 auto 24px;
+    padding: 16px 20px;
+    background: #ffffff;
+    border-radius: 10px;
+  }
+  .ideas-partner-strip-line {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .ideas-partner-strip-grid {
+    display: none;
+  }
+  @media (max-width: 640px) {
+    .ideas-partner-strip-line {
+      display: none;
+    }
+    .ideas-partner-strip-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    /* Each logo file is 108 units tall with 72 units of ink, and carries its
+       own clear space, so no gap is added. At 72px the ink is 48px (0.5 in),
+       which meets UNL's minimum height, the largest minimum among the
+       partners. */
+    .ideas-partner-strip-grid img {
+      display: block;
+      height: 72px;
+      width: auto;
+    }
+  }
+  .ideas-acknowledgment {
+    max-width: 46rem;
+    margin: 0 auto;
+    color: var(--global-text-color-light);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+  @media (max-width: 560px) {
+    .ideas-partner-strip {
+      padding: 10px 8px;
+    }
+  }
 </style>

@@ -30,9 +30,9 @@
  * acceptance criteria (the Horizontal Lockup on every page in both colour
  * versions with an on-palette, dark-legible ramp; the multi-size .ico and
  * Apple touch icon linked everywhere), and the P1 site-design acceptance
- * criteria (issue #20: the Inter and JetBrains Mono type families on every
- * page, the one-row header, the Partner Strip footer, the Home Ink hero and
- * 2×2 Objective cards with summaries, and the figure-led Use Case cards).
+ * criteria (issue #20: the Inter and JetBrains Mono type families and the
+ * Partner Strip footer on every page, the one-row header, the Home Ink hero
+ * and 2×2 Objective cards with summaries, and the figure-led Use Case cards).
  */
 const fs = require("fs");
 const path = require("path");
@@ -148,9 +148,8 @@ for (const file of htmlFiles) {
   if (!/rel="apple-touch-icon"\s+href="[^"]*\/apple-touch-icon\.png/.test(html)) fail(`${rel}: apple-touch-icon link missing`);
   if (!html.includes("DE-AC02-06CH11357")) fail(`${rel}: ASCR contract missing from footer`);
   if (!html.includes("Office of Science")) fail(`${rel}: Office of Science acknowledgment missing`);
-  if (!html.includes("assets/img/logos/argonne.svg")) fail(`${rel}: Argonne logo missing`);
-  if (!html.includes("assets/img/logos/doe-office-of-science.svg")) {
-    fail(`${rel}: DOE Office of Science logo missing`);
+  if (!html.includes("assets/img/logos/ideas-partner-strip-large-on-light.svg")) {
+    fail(`${rel}: the Partner Strip is missing from the footer`);
   }
   for (const snippet of ANALYTICS_SNIPPETS) {
     if (html.includes(snippet)) fail(`${rel}: contains analytics reference "${snippet}"`);
@@ -1339,6 +1338,15 @@ for (const file of htmlFiles) {
   }
   if (!/family=Inter\b/.test(fontsLink[1])) fail(`${rel}: the P1 sans (Inter) is not loaded`);
   if (!/family=JetBrains\+Mono\b/.test(fontsLink[1])) fail(`${rel}: the P1 mono (JetBrains Mono) is not loaded`);
+}
+
+// The phone grid renders the same Partner logos byte for byte from their own
+// files; they must be published.
+const PARTNER_LOGOS = ["argonne", "ucdavis", "cincinnati", "uic", "unl", "kitware", "veeda"];
+for (const partner of PARTNER_LOGOS) {
+  if (!fs.existsSync(path.join(SITE, "assets", "img", "logos", "partners", `${partner}.svg`))) {
+    fail(`assets/img/logos/partners/${partner}.svg: not published in the build`);
+  }
 }
 
 if (failures.length > 0) {
