@@ -1029,6 +1029,35 @@ if (!fs.existsSync(HOME_PAGE)) {
     fail("index.html: sibling-Thrust note missing");
   }
 
+  // The P1 hero (issue #20): an Ink band carrying the Wordmark Hero above the
+  // title and the chameleon render — both decorative (alt="") — with a filled
+  // button into the Research page.
+  const homeHeroStart = homeHtml.indexOf('<section class="home-hero"');
+  const homeHeroEnd = homeHeroStart === -1 ? -1 : homeHtml.indexOf("</section>", homeHeroStart);
+  const homeHero = homeHeroStart === -1 ? "" : homeHtml.slice(homeHeroStart, homeHeroEnd);
+  if (!homeHero) {
+    fail("index.html: no hero section");
+  } else {
+    const wordmarkImg = homeHero.match(/<img[^>]*ideas-wordmark-hero[^>]*>/);
+    if (!wordmarkImg) {
+      fail("index.html: the hero does not carry the Wordmark Hero");
+    } else if (!/alt=""/.test(wordmarkImg[0])) {
+      fail("index.html: the Wordmark Hero must be decorative (alt=\"\")");
+    }
+    const chameleonImg = homeHero.match(/<img[^>]*chameleon-hero[^>]*>/);
+    if (!chameleonImg) {
+      fail("index.html: the hero does not carry the chameleon render");
+    } else if (!/alt=""/.test(chameleonImg[0])) {
+      fail('index.html: the chameleon render must be decorative (alt="")');
+    }
+    if (!homeHero.includes("DOE ASCR · Argonne Base · Thrust 2")) {
+      fail("index.html: the hero is missing its kicker");
+    }
+    if (!homeHero.match(new RegExp(`<a\\b[^>]*class="[^"]*\\bideas-button\\b[^"]*"[^>]*href="${BASEURL}/research/"`))) {
+      fail("index.html: the hero has no button into the Research page");
+    }
+  }
+
   // Objective cards: one per objective project, in importance order, linking
   // to its anchor on the Research page with title and tagline visible.
   const projectsDir = path.join(__dirname, "..", "_projects");

@@ -23,20 +23,134 @@ layout: default
 {% assign story = content | split: '<!-- home-blocks -->' %}
 
 <style>
+  /* The Ink hero band. It breaks out of the centred container to span the
+     viewport; the render fills its right side at full height and dissolves
+     to the left (from the top on phones, where it stacks under the text). */
   .home-hero {
-    margin-bottom: 3rem;
+    background: var(--ideas-hero-bg);
+    color: var(--ideas-hero-text);
+    margin: -3rem calc(50% - 50vw) 4rem;
+    overflow: hidden;
+    position: relative;
+    width: 100vw;
+  }
+
+  .home-hero-inner {
+    align-items: center;
+    display: flex;
+    margin: 0 auto;
+    max-width: 1140px;
+    min-height: 600px;
+    padding: 0 24px;
+    position: relative;
+  }
+
+  .home-hero-text {
+    max-width: 36rem;
+    padding: 80px 0 88px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .home-hero-kicker {
+    color: #14b8a6; /* ramp-5 on Ink */
+  }
+
+  .home-hero-wordmark {
+    display: block;
+    height: auto;
+    margin: 4px 0 28px -20px; /* the Volume Grid's outer column hangs into the gutter */
+    width: min(100%, 380px);
   }
 
   .home-hero-title {
-    font-size: 2.1rem;
-    line-height: 1.25;
-    margin-bottom: 1rem;
+    color: var(--ideas-hero-text);
+    font-size: clamp(2rem, 1.2rem + 2.6vw, 3.1rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    margin-bottom: 20px;
   }
 
   .home-hero-copy {
-    font-size: 1.3rem;
+    color: var(--ideas-hero-muted);
+    font-size: 1.15rem;
     line-height: 1.6;
-    margin-bottom: 0;
+    margin-bottom: 28px;
+    max-width: 34rem;
+  }
+
+  .home-hero-copy p {
+    margin: 0;
+  }
+
+  .home-hero-actions {
+    margin: 0;
+  }
+
+  .home-hero-figure {
+    bottom: 0;
+    margin: 0;
+    position: absolute;
+    right: calc(-1 * max(0px, (100vw - 1140px) / 2));
+    top: 0;
+    width: 62%;
+  }
+
+  .home-hero-figure img {
+    display: block;
+    height: 100%;
+    object-fit: cover;
+    object-position: 15% 50%;
+    /* The render's black background becomes the Ink band itself. */
+    mix-blend-mode: screen;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 40%);
+    mask-image: linear-gradient(to right, transparent 0%, #000 40%);
+    width: 100%;
+  }
+
+  .home-hero-figure figcaption {
+    bottom: 14px;
+    color: var(--ideas-hero-muted);
+    font: 400 0.7rem var(--ideas-font-mono);
+    letter-spacing: 0.04em;
+    position: absolute;
+    right: 24px;
+  }
+
+  @media (max-width: 860px) {
+    .home-hero-inner {
+      display: block;
+      min-height: 0;
+      padding: 0;
+    }
+
+    .home-hero-text {
+      max-width: none;
+      padding: 48px 16px 16px;
+    }
+
+    .home-hero-wordmark {
+      margin-left: -12px;
+      width: min(100%, 300px);
+    }
+
+    .home-hero-figure {
+      position: relative;
+      right: auto;
+      width: 100%;
+    }
+
+    .home-hero-figure img {
+      aspect-ratio: 4 / 3;
+      height: auto;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 25%);
+      mask-image: linear-gradient(to bottom, transparent 0%, #000 25%);
+    }
+
+    .home-hero-figure figcaption {
+      right: 16px;
+    }
   }
 
   .home-grid {
@@ -133,21 +247,35 @@ layout: default
   .home-sibling p {
     margin-bottom: 0;
   }
-
-  @media (max-width: 575.98px) {
-    .home-hero-title {
-      font-size: 1.6rem;
-    }
-
-    .home-hero-copy {
-      font-size: 1.15rem;
-    }
-  }
 </style>
 
 <section class="home-hero">
-  <h1 class="home-hero-title">Intelligent Data Exploration Assistant for Science</h1>
-  {{ story[0] }}
+  <div class="home-hero-inner">
+    <div class="home-hero-text">
+      <p class="ideas-kicker home-hero-kicker">DOE ASCR · Argonne Base · Thrust 2</p>
+      <img
+        class="home-hero-wordmark"
+        src="{{ '/assets/img/logo/ideas-wordmark-hero-color-on-ink.svg' | relative_url | bust_file_cache }}"
+        alt=""
+        width="280"
+        height="110"
+      >
+      <h1 class="home-hero-title">Intelligent Data Exploration Assistant for Science</h1>
+      <div class="home-hero-copy">{{ story[0] }}</div>
+      <p class="home-hero-actions">
+        <a class="ideas-button" href="{{ '/research/' | relative_url }}">Explore the research</a>
+      </p>
+    </div>
+    <figure class="home-hero-figure">
+      <img
+        src="{{ '/assets/img/home/chameleon-hero.jpg' | relative_url | bust_file_cache }}"
+        alt=""
+        width="1270"
+        height="960"
+      >
+      <figcaption>Volume rendering of a chameleon CT scan.</figcaption>
+    </figure>
+  </div>
 </section>
 
 <div class="home-grid">
