@@ -1072,11 +1072,13 @@ if (!fs.existsSync(HOME_PAGE)) {
   const homeObjectives = homeProjects.filter((project) => project.category === "objective").sort((a, b) => a.importance - b.importance);
   const homeUseCases = homeProjects.filter((project) => project.category === "use-case").sort((a, b) => a.importance - b.importance);
 
-  const homeObjectivesDiv = extractDiv(homeHtml, homeHtml.indexOf('<div class="home-objectives"'));
+  const homeObjectivesStart = homeHtml.indexOf('<section class="ideas-block home-objectives"');
+  const homeObjectivesEnd = homeObjectivesStart === -1 ? -1 : homeHtml.indexOf("</section>", homeObjectivesStart);
+  const homeObjectivesDiv = homeObjectivesStart === -1 ? null : homeHtml.slice(homeObjectivesStart, homeObjectivesEnd);
   if (!homeObjectivesDiv) {
     fail("index.html: no Objectives block");
   } else {
-    const objectiveCards = [...homeObjectivesDiv.matchAll(/<a class="home-card"/g)].map((match, index, all) =>
+    const objectiveCards = [...homeObjectivesDiv.matchAll(/<a class="ideas-card"/g)].map((match, index, all) =>
       homeObjectivesDiv.slice(match.index, index + 1 < all.length ? all[index + 1].index : homeObjectivesDiv.length)
     );
     if (objectiveCards.length !== homeObjectives.length) {
@@ -1093,6 +1095,28 @@ if (!fs.existsSync(HOME_PAGE)) {
       }
       if (!normalizeText(card).includes(normalizeText(escapeHtml(objective.tagline)))) {
         fail(`index.html: Objective card for ${objective.slug} does not show its tagline`);
+      }
+      // P1 (issue #20): each card is figure-led and carries the Objective's
+      // own summary — authored once in the Objective's source, not a cut of
+      // the Research essay.
+      if (!objective.summary) {
+        fail(`_projects/${objective.slug}.md: no summary — every Objective card needs one`);
+        return;
+      }
+      if (!normalizeText(card).includes(normalizeText(escapeHtml(objective.summary)))) {
+        fail(`index.html: Objective card for ${objective.slug} does not show its summary from its source`);
+      }
+      const cardImg = card.match(/<img[^>]*src="([^"]*)"[^>]*>/);
+      if (!cardImg) {
+        fail(`index.html: Objective card for ${objective.slug} has no figure`);
+      } else if (objective.figure) {
+        const expectedSrc = `${BASEURL}/${objective.figure.src}`;
+        if (!cardImg[1].includes(expectedSrc)) {
+          fail(`index.html: Objective card for ${objective.slug} does not show its figure ${objective.figure.src}`);
+        }
+        if (!fs.existsSync(path.join(SITE, objective.figure.src))) {
+          fail(`${objective.figure.src}: not published in the build`);
+        }
       }
     });
   }

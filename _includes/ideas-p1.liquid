@@ -58,6 +58,121 @@
     color: var(--global-text-color-light);
   }
 
+  /* --------------------------------------------- Blocks and figure-led cards */
+  .ideas-block {
+    margin-top: 64px;
+  }
+  .ideas-block-head {
+    align-items: baseline;
+    border-bottom: 1px solid var(--global-divider-color);
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+  }
+  .ideas-block-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0;
+  }
+  .ideas-block-more {
+    flex: none;
+    font: 500 0.8rem var(--ideas-font-mono);
+    text-decoration: none;
+  }
+  .ideas-block-more::after {
+    content: ' →';
+  }
+
+  .ideas-cards {
+    display: grid;
+    gap: 20px;
+  }
+  /* Objectives as a 2x2: room for a large figure and a short summary each. */
+  .ideas-cards-objectives {
+    gap: 24px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ideas-cards-use-cases {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  @media (max-width: 720px) {
+    .ideas-cards-objectives,
+    .ideas-cards-use-cases {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .ideas-card {
+    background: var(--global-card-bg-color);
+    border: 1px solid var(--global-divider-color);
+    border-radius: 10px;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    text-decoration: none;
+    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  }
+  .ideas-card:hover {
+    border-color: var(--global-theme-color);
+    box-shadow: var(--ideas-shadow);
+    transform: translateY(-2px);
+  }
+  .ideas-card-media {
+    aspect-ratio: 16 / 10;
+    background: var(--global-card-bg-color);
+    border-bottom: 1px solid var(--global-divider-color);
+    overflow: hidden;
+  }
+  .ideas-card-media img {
+    display: block;
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+  }
+  /* Diagrams keep their own aspect inside the frame instead of cropping. */
+  .ideas-card-media-diagram img {
+    object-fit: contain;
+    padding: 12px;
+  }
+  .ideas-card-body {
+    padding: 16px 18px 20px;
+  }
+  .ideas-card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 6px;
+  }
+  .ideas-card-tagline {
+    color: var(--global-text-color-light);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+  .ideas-cards-objectives .ideas-card-body {
+    padding: 20px 24px 24px;
+  }
+  .ideas-cards-objectives .ideas-card-title {
+    font-size: 1.3rem;
+  }
+  .ideas-cards-objectives .ideas-card-tagline {
+    color: var(--global-text-color);
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+  .ideas-card-summary {
+    color: var(--global-text-color-light);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+  .ideas-cards-objectives .ideas-card-media-diagram img {
+    padding: 20px;
+  }
+
   /* The filled button (P1): ramp amber on Ink, in the hero and elsewhere. */
   .ideas-button {
     background: #f59e0b; /* ramp-7 */

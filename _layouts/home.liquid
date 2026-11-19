@@ -279,21 +279,30 @@ layout: default
 </section>
 
 <div class="home-grid">
-  <div class="home-objectives" id="objectives">
-    <h2 class="home-block-title">
-      <a href="{{ '/research/' | relative_url }}">Objectives</a>
-    </h2>
-    <div class="home-cards">
+  <section class="ideas-block home-objectives" id="objectives" aria-labelledby="objectives-title">
+    <div class="ideas-block-head">
+      <h2 class="ideas-block-title" id="objectives-title">Objectives</h2>
+      <a class="ideas-block-more" href="{{ '/research/' | relative_url }}">The research</a>
+    </div>
+    <div class="ideas-cards ideas-cards-objectives">
       {% assign objectives = site.projects | where: 'category', 'objective' | sort: 'importance' %}
       {% for objective in objectives %}
-        <a class="home-card" href="{{ '/research/' | relative_url }}#{{ objective.slug }}">
-          <p class="home-card-kicker">Objective {{ forloop.index }}</p>
-          <h3 class="home-card-name">{{ objective.title }}</h3>
-          <p class="home-card-tagline">{{ objective.tagline }}</p>
+        <a class="ideas-card" href="{{ '/research/' | relative_url }}#{{ objective.slug }}">
+          {% if objective.figure %}
+            <div class="ideas-card-media{% if objective.figure.fit == 'contain' %} ideas-card-media-diagram{% endif %}">
+              <img src="{{ objective.figure.src | relative_url }}" alt="" loading="lazy">
+            </div>
+          {% endif %}
+          <div class="ideas-card-body">
+            <p class="ideas-kicker">Objective {{ forloop.index }}</p>
+            <h3 class="ideas-card-title">{{ objective.title }}</h3>
+            <p class="ideas-card-tagline">{{ objective.tagline }}</p>
+            <p class="ideas-card-summary">{{ objective.summary }}</p>
+          </div>
         </a>
       {% endfor %}
     </div>
-  </div>
+  </section>
 
   <div class="home-use-cases" id="use-cases">
     <h2 class="home-block-title">
