@@ -522,49 +522,38 @@
     margin: 0;
   }
 </style> <div class="post"> <header class="post-header"> <h1 class="post-title">Events</h1> <p class="post-description">Upcoming and past IDEAS Events</p> </header> <article> <style>
+  /* P1's page head: title and lead (as on the Research page). */
+  .post-header {
+    padding: 56px 0 8px;
+  }
+  .post-title {
+    font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin: 0 0 12px;
+  }
+  .post-description {
+    color: var(--global-text-color-light);
+    font-size: 1.15rem;
+    margin: 0;
+  }
+
+  /* The Upcoming/Past groups are P1 blocks (the head carries the rule). */
   .event-group {
-    margin-top: 3rem;
+    margin-top: 64px;
   }
-
-  .event-group > h2 {
-    margin-top: 0;
+  .event-group .ideas-event-card + .ideas-event-card {
+    margin-top: 20px;
   }
-
-  .event-card {
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--global-divider-color);
-  }
-
-  .event-card:first-of-type {
-    margin-top: 1.5rem;
-    border-top: none;
-    padding-top: 0;
-  }
-
-  .event-card-kicker {
-    margin-bottom: 0.25rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--global-theme-color);
-  }
-
-  .event-card h3 {
-    margin-bottom: 0.5rem;
-  }
-
-  .event-card-dates {
-    margin-bottom: 0.25rem;
-    font-weight: 600;
-  }
-
-  .event-card-meta {
-    margin-bottom: 0;
+  .event-group-empty {
     color: var(--global-text-color-light);
   }
-</style> <p>Where the IDEAS team gathers — All-Hands Meetings, workshops and tutorials. Events move from Upcoming to Past automatically on the first build after their end date. Follow the RSVP link on an event’s own page to register.</p> <div class="event-group" id="upcoming"> <h2>Upcoming</h2> <article class="event-card"> <p class="event-card-kicker">All-Hands Meeting</p> <h3> <a href="/www-ideas/events/all-hands-2027/">IDEAS All-Hands Meeting</a> </h3> <p class="event-card-dates"> February 2 – February 3, 2027 </p> <p class="event-card-meta"> Argonne National Laboratory · In person · RSVP required </p> </article> </div> <div class="event-group" id="past"> <h2>Past</h2> <p>No past events yet.</p> </div> </article> </div> </div> <footer class="site-footer" role="contentinfo"> <div class="container"> <div class="ideas-partner-strip" role="img" aria-label="Argonne National Laboratory, which leads IDEAS, and the Partners: University of California Davis, University of Cincinnati, University of Illinois Chicago, University of Nebraska–Lincoln, Kitware and Veeda AI."> <img class="ideas-partner-strip-line" src="/www-ideas/assets/img/logos/ideas-partner-strip-large-on-light.svg?v=2f91fc5028f3497e8bf4c90fea190050" alt="" width="907" height="64" loading="lazy"> <ul class="ideas-partner-strip-grid" aria-hidden="true"> <li> <img src="/www-ideas/assets/img/logos/partners/argonne.svg?v=f21e6da3b26a0f3b10bcb650bb509373" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/ucdavis.svg?v=9f55f9d3e6aaa7bc2883e62f1f18dc1f" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/cincinnati.svg?v=778c80dab350a8cfd49c66c96698cce4" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/uic.svg?v=b2ceb127dc6f64dc25c32e6e512aead6" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/unl.svg?v=c38fa06ec4243aaa9ed6c4a7430b6af7" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/kitware.svg?v=a85b0d1663bab67c9c3f72013eaee479" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/veeda.svg?v=2b849bdde0234f6d878bb49bfdc4e080" alt="" loading="lazy"> </li> </ul> </div> <p class="ideas-acknowledgment"> This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Advanced Scientific Computing Research (ASCR) under Contract DE-AC02-06CH11357. </p> </div> </footer> <script>
+  @media (max-width: 560px) {
+    .event-group {
+      margin-top: 48px;
+    }
+  }
+</style> <p>Where the IDEAS team gathers — All-Hands Meetings, workshops and tutorials. Events move from Upcoming to Past automatically on the first build after their end date. Follow the RSVP link on an event’s own page to register.</p> <div class="event-group" id="upcoming"> <div class="ideas-block-head"> <h2 class="ideas-block-title">Upcoming</h2> </div> <article class="ideas-event-card"> <p class="ideas-kicker">All-Hands Meeting</p> <h3 class="ideas-event-title"> <a href="/www-ideas/events/all-hands-2027/">IDEAS All-Hands Meeting</a> </h3> <p class="ideas-event-dates"> <time class="ideas-date" datetime="2027-02-02">February 2 – February 3, 2027</time> </p> <p class="ideas-event-meta">Argonne National Laboratory · In person · RSVP required</p> </article> </div> <div class="event-group" id="past"> <div class="ideas-block-head"> <h2 class="ideas-block-title">Past</h2> </div> <p class="event-group-empty">No past events yet.</p> </div> </article> </div> </div> <footer class="site-footer" role="contentinfo"> <div class="container"> <div class="ideas-partner-strip" role="img" aria-label="Argonne National Laboratory, which leads IDEAS, and the Partners: University of California Davis, University of Cincinnati, University of Illinois Chicago, University of Nebraska–Lincoln, Kitware and Veeda AI."> <img class="ideas-partner-strip-line" src="/www-ideas/assets/img/logos/ideas-partner-strip-large-on-light.svg?v=2f91fc5028f3497e8bf4c90fea190050" alt="" width="907" height="64" loading="lazy"> <ul class="ideas-partner-strip-grid" aria-hidden="true"> <li> <img src="/www-ideas/assets/img/logos/partners/argonne.svg?v=f21e6da3b26a0f3b10bcb650bb509373" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/ucdavis.svg?v=9f55f9d3e6aaa7bc2883e62f1f18dc1f" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/cincinnati.svg?v=778c80dab350a8cfd49c66c96698cce4" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/uic.svg?v=b2ceb127dc6f64dc25c32e6e512aead6" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/unl.svg?v=c38fa06ec4243aaa9ed6c4a7430b6af7" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/kitware.svg?v=a85b0d1663bab67c9c3f72013eaee479" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/veeda.svg?v=2b849bdde0234f6d878bb49bfdc4e080" alt="" loading="lazy"> </li> </ul> </div> <p class="ideas-acknowledgment"> This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Advanced Scientific Computing Research (ASCR) under Contract DE-AC02-06CH11357. </p> </div> </footer> <script>
   window.alFolio = {
     compatBootstrap: false
   };

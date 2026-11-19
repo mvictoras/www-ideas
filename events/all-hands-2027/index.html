@@ -522,86 +522,127 @@
     margin: 0;
   }
 </style> <div class="post"> <header class="post-header"> <h1 class="post-title">IDEAS All-Hands Meeting</h1> <p class="post-description">The first IDEAS All-Hands Meeting — two days of talks, working sessions and demos at Argonne National Laboratory.</p> </header> <article> <style>
-  .event-kicker {
-    margin-bottom: 0.25rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--global-theme-color);
+  /* P1's page head: title and lead (as on the Research page). */
+  .post-header {
+    padding: 56px 0 8px;
+  }
+  .post-title {
+    font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin: 0 0 12px;
+  }
+  .post-description {
+    color: var(--global-text-color-light);
+    font-size: 1.15rem;
+    margin: 0;
   }
 
+  article p {
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+
+  /* The event's days: dates in the mono .ideas-date treatment, notes in the
+     muted sans beside them. */
   .event-days {
-    margin: 1.5rem 0 0;
-    padding-left: 0;
     list-style: none;
+    margin: 24px 0 0;
+    padding: 0;
   }
-
   .event-days li {
-    margin-bottom: 0.25rem;
+    margin-bottom: 6px;
   }
-
-  .event-day {
-    font-weight: 600;
-  }
-
   .event-day-note {
     color: var(--global-text-color-light);
   }
 
+  /* Structured details: rule-separated rows, labels in the mono family. */
   .event-details {
-    margin: 2rem 0;
+    margin: 32px 0;
   }
-
   .event-detail {
     display: flex;
-    gap: 1rem;
-    padding: 0.5rem 0;
+    gap: 24px;
+    padding: 14px 0;
     border-top: 1px solid var(--global-divider-color);
   }
-
+  .event-detail:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
   .event-detail dt {
     flex: 0 0 9rem;
-    font-weight: 600;
+    padding-top: 3px;
+    font-family: var(--ideas-font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--global-text-color-light);
   }
-
   .event-detail dd {
     margin: 0;
+    min-width: 0;
+  }
+  .event-detail dd p {
+    margin: 0 0 8px;
+  }
+  .event-detail dd p:last-child {
+    margin-bottom: 0;
+  }
+  @media (max-width: 560px) {
+    .event-detail {
+      flex-direction: column;
+      gap: 4px;
+    }
+    /* Stacked: the 9rem basis would become a height in column direction. */
+    .event-detail dt {
+      flex: none;
+    }
   }
 
+  /* Unset fields render as a visible dashed mono badge, never blank. */
   .event-tba {
     display: inline-block;
-    padding: 0.05rem 0.5rem;
+    padding: 2px 8px;
     border: 1px dashed var(--global-divider-color);
-    border-radius: 0.25rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
+    border-radius: 6px;
+    font-family: var(--ideas-font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--global-text-color-light);
   }
 
+  /* The RSVP button: the P1 filled button (ramp amber on Ink), as the
+     prototype's .button. The placeholder is its dashed ghost. */
   .event-rsvp-button {
     display: inline-block;
-    padding: 0.25rem 1rem;
-    border-radius: 0.25rem;
-    background-color: var(--global-theme-color);
-    border: 1px solid var(--global-theme-color);
-    color: var(--global-btn-text-color, #fff);
-    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: #f59e0b; /* ramp-7 */
+    color: #0b1f3a; /* Ink */
+    font-weight: 700;
   }
-
   a.event-rsvp-button:hover {
     text-decoration: none;
-    filter: brightness(1.1);
+    background: color-mix(in srgb, #f59e0b 85%, white);
+    color: #0b1f3a;
   }
-
   span.event-rsvp-button {
-    background-color: transparent;
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px dashed var(--global-divider-color);
+    border-radius: 8px;
     color: var(--global-text-color-light);
-    border-style: dashed;
+    font-family: var(--ideas-font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
-</style> <p class="event-kicker">All-Hands Meeting</p> <ul class="event-days"> <li> <span class="event-day">Tuesday, February 2, 2027</span> <span class="event-day-note">— Full day</span> </li> <li> <span class="event-day">Wednesday, February 3, 2027</span> <span class="event-day-note">— Half day, to allow for travel</span> </li> </ul> <dl class="event-details"> <div class="event-detail"> <dt>Venue</dt> <dd> Argonne National Laboratory, room <span class="event-tba">TBA</span> </dd> </div> <div class="event-detail"> <dt>Format</dt> <dd>In person</dd> </div> <div class="event-detail"> <dt>Audience</dt> <dd>Invite-only — all IDEAS participants, including Partners</dd> </div> <div class="event-detail"> <dt>RSVP</dt> <dd> RSVP required. <span class="event-rsvp-button" aria-disabled="true">RSVP link coming soon</span> Deadline: <span class="event-tba">TBA</span>. </dd> </div> <div class="event-detail"> <dt>Agenda</dt> <dd> <span class="event-tba">TBA</span> </dd> </div> <div class="event-detail"> <dt>Travel notes</dt> <dd> <span class="event-tba">TBA</span> </dd> </div> </dl> <p>The first IDEAS All-Hands Meeting brings the whole IDEAS team — Argonne and Partners — to Argonne National Laboratory for two days of research talks, use-case working sessions, software demos and planning.</p> <p>Tuesday, February 2 runs a full day. Wednesday, February 3 is a half day, to allow for travel.</p> <p>Attendance is by invitation only. All IDEAS participants should plan to attend; the RSVP form, agenda, room and travel details will be announced on this page as they are confirmed.</p> </article> </div> </div> <footer class="site-footer" role="contentinfo"> <div class="container"> <div class="ideas-partner-strip" role="img" aria-label="Argonne National Laboratory, which leads IDEAS, and the Partners: University of California Davis, University of Cincinnati, University of Illinois Chicago, University of Nebraska–Lincoln, Kitware and Veeda AI."> <img class="ideas-partner-strip-line" src="/www-ideas/assets/img/logos/ideas-partner-strip-large-on-light.svg?v=2f91fc5028f3497e8bf4c90fea190050" alt="" width="907" height="64" loading="lazy"> <ul class="ideas-partner-strip-grid" aria-hidden="true"> <li> <img src="/www-ideas/assets/img/logos/partners/argonne.svg?v=f21e6da3b26a0f3b10bcb650bb509373" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/ucdavis.svg?v=9f55f9d3e6aaa7bc2883e62f1f18dc1f" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/cincinnati.svg?v=778c80dab350a8cfd49c66c96698cce4" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/uic.svg?v=b2ceb127dc6f64dc25c32e6e512aead6" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/unl.svg?v=c38fa06ec4243aaa9ed6c4a7430b6af7" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/kitware.svg?v=a85b0d1663bab67c9c3f72013eaee479" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/veeda.svg?v=2b849bdde0234f6d878bb49bfdc4e080" alt="" loading="lazy"> </li> </ul> </div> <p class="ideas-acknowledgment"> This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Advanced Scientific Computing Research (ASCR) under Contract DE-AC02-06CH11357. </p> </div> </footer> <script>
+</style> <p class="ideas-kicker event-kicker">All-Hands Meeting</p> <ul class="event-days"> <li> <span class="event-day ideas-date">Tuesday, February 2, 2027</span> <span class="event-day-note">— Full day</span> </li> <li> <span class="event-day ideas-date">Wednesday, February 3, 2027</span> <span class="event-day-note">— Half day, to allow for travel</span> </li> </ul> <dl class="event-details"> <div class="event-detail"> <dt>Venue</dt> <dd> Argonne National Laboratory, room <span class="event-tba">TBA</span> </dd> </div> <div class="event-detail"> <dt>Format</dt> <dd>In person</dd> </div> <div class="event-detail"> <dt>Audience</dt> <dd>Invite-only — all IDEAS participants, including Partners</dd> </div> <div class="event-detail"> <dt>RSVP</dt> <dd> RSVP required. <span class="event-rsvp-button" aria-disabled="true">RSVP link coming soon</span> Deadline: <span class="event-tba">TBA</span>. </dd> </div> <div class="event-detail"> <dt>Agenda</dt> <dd> <span class="event-tba">TBA</span> </dd> </div> <div class="event-detail"> <dt>Travel notes</dt> <dd> <span class="event-tba">TBA</span> </dd> </div> </dl> <p>The first IDEAS All-Hands Meeting brings the whole IDEAS team — Argonne and Partners — to Argonne National Laboratory for two days of research talks, use-case working sessions, software demos and planning.</p> <p>Tuesday, February 2 runs a full day. Wednesday, February 3 is a half day, to allow for travel.</p> <p>Attendance is by invitation only. All IDEAS participants should plan to attend; the RSVP form, agenda, room and travel details will be announced on this page as they are confirmed.</p> </article> </div> </div> <footer class="site-footer" role="contentinfo"> <div class="container"> <div class="ideas-partner-strip" role="img" aria-label="Argonne National Laboratory, which leads IDEAS, and the Partners: University of California Davis, University of Cincinnati, University of Illinois Chicago, University of Nebraska–Lincoln, Kitware and Veeda AI."> <img class="ideas-partner-strip-line" src="/www-ideas/assets/img/logos/ideas-partner-strip-large-on-light.svg?v=2f91fc5028f3497e8bf4c90fea190050" alt="" width="907" height="64" loading="lazy"> <ul class="ideas-partner-strip-grid" aria-hidden="true"> <li> <img src="/www-ideas/assets/img/logos/partners/argonne.svg?v=f21e6da3b26a0f3b10bcb650bb509373" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/ucdavis.svg?v=9f55f9d3e6aaa7bc2883e62f1f18dc1f" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/cincinnati.svg?v=778c80dab350a8cfd49c66c96698cce4" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/uic.svg?v=b2ceb127dc6f64dc25c32e6e512aead6" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/unl.svg?v=c38fa06ec4243aaa9ed6c4a7430b6af7" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/kitware.svg?v=a85b0d1663bab67c9c3f72013eaee479" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/veeda.svg?v=2b849bdde0234f6d878bb49bfdc4e080" alt="" loading="lazy"> </li> </ul> </div> <p class="ideas-acknowledgment"> This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Advanced Scientific Computing Research (ASCR) under Contract DE-AC02-06CH11357. </p> </div> </footer> <script>
   window.alFolio = {
     compatBootstrap: false
   };
