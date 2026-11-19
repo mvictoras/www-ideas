@@ -33,7 +33,11 @@
  * criteria (issue #20: the Inter and JetBrains Mono type families and the
  * Partner Strip footer on every page, the one-row header, the Home Ink hero
  * and 2×2 Objective cards with summaries, and the figure-led Use Case cards),
- * and the Publications-page P1 design (issue #23: entries as 10px-radius cards
+ * the News-page and generic-page-layout acceptance criteria (issue #26:
+ * every `page`-layout page carries the P1 page head, the News page's dated
+ * stream is the Home Latest news block untruncated, and the 404 page keeps
+ * its redirect while linking back to Home and Research), and the
+ * Publications-page P1 design (issue #23: entries as 10px-radius cards
  * that lift on hover, ruled mono year headings, a restyled bibsearch field —
  * all via CSS only, with jekyll-scholar's markup untouched).
  */
@@ -203,7 +207,11 @@ if (fs.existsSync(sitemapPath)) {
 }
 
 // 5. The Team grid renders exactly the members in _data/team.yml, 1:1, in a
-// single grid with no institution-type group headings.
+// single grid with no institution-type group headings. P1 (issue #22): the
+// grid sits under one "Team Members" section heading with the rule
+// underneath; cards are figure-led (media frame with one consistent crop),
+// the institution is a mono kicker, and a member without a photo gets a
+// brand-coloured initials placeholder instead of a broken image.
 const TEAM_PAGE = path.join(SITE, "team", "index.html");
 if (!fs.existsSync(TEAM_PAGE)) {
   fail("team/index.html: missing — the Team page did not build");
@@ -213,13 +221,22 @@ if (!fs.existsSync(TEAM_PAGE)) {
     fail("_data/team.yml: expected a non-empty list of team members");
   } else {
     const teamHtml = fs.readFileSync(TEAM_PAGE, "utf8");
-    const gridStarts = [...teamHtml.matchAll(/<div class="team-grid">/g)];
-    if (gridStarts.length !== 1) fail(`team/index.html: expected exactly one team grid, found ${gridStarts.length}`);
 
-    // No group headings: every h2 on the Team page is a member name.
+    // The P1 section heading: one block head with the rule underneath.
+    if ((teamHtml.match(/<h2 class="ideas-block-title">Team Members<\/h2>/g) || []).length !== 1) {
+      fail('team/index.html: expected exactly one "Team Members" P1 section heading');
+    }
+    if (!teamHtml.includes('<div class="ideas-block-head">')) {
+      fail("team/index.html: the Team section heading does not use the P1 block head with the rule underneath");
+    }
+
+    // No group headings: the block title is the page's only h2; every member
+    // name is an h3 inside the grid.
     const h2s = (teamHtml.match(/<h2(?:\s|>)/g) || []).length;
-    const nameHeadings = (teamHtml.match(/<h2 class="team-name"/g) || []).length;
-    if (h2s !== nameHeadings) fail("team/index.html: contains headings other than Team Member names");
+    if (h2s !== 1) fail(`team/index.html: expected one section h2 (the block title), found ${h2s}`);
+
+    const gridStarts = [...teamHtml.matchAll(/<div class="team-grid ideas-cards">/g)];
+    if (gridStarts.length !== 1) fail(`team/index.html: expected exactly one team grid, found ${gridStarts.length}`);
 
     const teamGridHtml = gridStarts.length === 1 ? extractDiv(teamHtml, gridStarts[0].index) : null;
     if (!teamGridHtml) {
@@ -227,11 +244,11 @@ if (!fs.existsSync(TEAM_PAGE)) {
     } else {
       // Cards are flat siblings of the grid, so slicing between consecutive
       // card opening tags yields each card's rendered markup.
-      const cardStarts = [...teamGridHtml.matchAll(/<div class="team-card">/g)];
+      const cardStarts = [...teamGridHtml.matchAll(/<div class="team-card ideas-card">/g)];
       const cardSegments = cardStarts.map((match, index) =>
         teamGridHtml.slice(match.index, index + 1 < cardStarts.length ? cardStarts[index + 1].index : teamGridHtml.length)
       );
-      const pageCardCount = (teamHtml.match(/<div class="team-card">/g) || []).length;
+      const pageCardCount = (teamHtml.match(/<div class="team-card ideas-card">/g) || []).length;
       if (cardStarts.length !== team.length) {
         fail(`team/index.html: expected ${team.length} team cards in the grid, found ${cardStarts.length}`);
       }
@@ -245,7 +262,7 @@ if (!fs.existsSync(TEAM_PAGE)) {
       };
 
       for (const member of team) {
-        const renderedName = `<h2 class="team-name">${escapeHtml(member.name)}</h2>`;
+        const renderedName = `<h3 class="team-name">${escapeHtml(member.name)}</h3>`;
         const matches = cardSegments.filter((segment) => segment.includes(renderedName));
         if (matches.length !== 1) {
           fail(`team/index.html: expected exactly one card for data-file member "${member.name}", found ${matches.length}`);
@@ -256,8 +273,8 @@ if (!fs.existsSync(TEAM_PAGE)) {
         if (!segment.includes(`<p class="team-role">${escapeHtml(member.role)}</p>`)) {
           fail(`team/index.html: "${member.name}" card does not render role "${member.role}"`);
         }
-        if (!segment.includes(`<p class="team-institution">${escapeHtml(member.institution)}</p>`)) {
-          fail(`team/index.html: "${member.name}" card does not render institution "${member.institution}"`);
+        if (!segment.includes(`<p class="team-institution ideas-kicker">${escapeHtml(member.institution)}</p>`)) {
+          fail(`team/index.html: "${member.name}" card does not render institution "${member.institution}" as a mono kicker`);
         }
 
         // Optional links: rendered hrefs match the data file exactly, and no
@@ -273,26 +290,39 @@ if (!fs.existsSync(TEAM_PAGE)) {
           }
         }
 
-        // Optional photo: an <img> when present, a legible initials avatar when not.
+        // Optional photo: a consistently-cropped <img> in the P1 media frame
+        // when present, a brand-coloured initials placeholder when not.
+        if (!segment.includes('<div class="team-media ideas-card-media">')) {
+          fail(`team/index.html: "${member.name}" card has no P1 media frame for its consistent crop`);
+        }
         if (member.photo) {
           const expectedSrc = `src="${BASEURL}/assets/img/team/${member.photo}"`;
           if (!segment.includes('<img class="team-photo"') || !segment.includes(expectedSrc)) {
             fail(`team/index.html: "${member.name}" card does not render photo assets/img/team/${member.photo}`);
           }
         } else {
-          if (!segment.includes('class="team-avatar"')) {
+          if (!segment.includes('<div class="team-avatar"')) {
             fail(`team/index.html: "${member.name}" card has neither photo nor initials avatar`);
           }
-          if (!segment.includes(`>${initialsOf(member.name)}</div>`)) {
+          if (!segment.includes(`<span class="team-avatar-initials">${initialsOf(member.name)}</span>`)) {
             fail(`team/index.html: "${member.name}" card avatar does not show initials "${initialsOf(member.name)}"`);
           }
         }
       }
 
       for (const segment of cardSegments) {
-        if (!team.some((member) => segment.includes(`<h2 class="team-name">${escapeHtml(member.name)}</h2>`))) {
+        if (!team.some((member) => segment.includes(`<h3 class="team-name">${escapeHtml(member.name)}</h3>`))) {
           fail("team/index.html: contains a card with no entry in _data/team.yml");
         }
+      }
+
+      // One consistent aspect ratio for every photo crop, and a brand-ramp
+      // placeholder background — both live in the page's own style block.
+      if (!/\.team-media \{[^}]*aspect-ratio: 1 \/ 1;/.test(teamHtml)) {
+        fail("team/index.html: the media frame does not fix one aspect ratio for the photo crops");
+      }
+      if (!/\.team-avatar \{[^}]*linear-gradient\(90deg, #1e3a8a/.test(teamHtml)) {
+        fail("team/index.html: the initials placeholder is not brand-coloured (no ramp gradient)");
       }
     }
   }
@@ -606,7 +636,10 @@ if (!fs.existsSync(RESEARCH_PAGE)) {
 // used ("Turbulence in Complex Geometries", never "Fusion Flow"); each Use
 // Case explains its bottleneck and the assistant's approach; the proposal's
 // HACC cluster and XPCS interface figures are captioned and credited; and
-// the fusion breeding-blanket figure is absent.
+// the fusion breeding-blanket figure is absent. P1 (issue #21): the groups
+// head with the shared rule-under block heading, every Use Case section
+// carries the mono status kicker and frames its figure, and the upcoming
+// Use Case is marked secondary.
 const USE_CASES_PAGE = path.join(SITE, "use-cases", "index.html");
 const USE_CASE_GROUPS = [
   {
@@ -645,7 +678,11 @@ if (!fs.existsSync(USE_CASES_PAGE)) {
     }
 
     for (const group of groups) {
-      const sectionStarts = [...group.html.matchAll(/<section class="use-case"/g)];
+      // P1: the group heading is the shared rule-under block heading.
+      if (!group.html.includes('<div class="ideas-block-head">') || !group.html.includes("ideas-block-title")) {
+        fail(`use-cases/index.html: the ${group.id} group does not head with the P1 block heading`);
+      }
+      const sectionStarts = [...group.html.matchAll(/<section class="use-case[ "]/g)];
       if (sectionStarts.length !== group.titles.length) {
         fail(`use-cases/index.html: expected ${group.titles.length} use cases in the ${group.id} group, found ${sectionStarts.length}`);
         continue;
@@ -665,9 +702,21 @@ if (!fs.existsSync(USE_CASES_PAGE)) {
           fail(`use-cases/index.html: ${group.id} use case ${index + 1} is "${headingText}", expected "${title}"`);
         }
         // The kicker states the status, so the split is visible beyond the
-        // group heading.
+        // group heading, and it is set in the shared mono label style.
         if (!segment.includes(group.kicker)) {
           fail(`use-cases/index.html: "${title}" does not carry the "${group.kicker}" kicker`);
+        }
+        if (!segment.includes('class="ideas-kicker')) {
+          fail(`use-cases/index.html: "${title}" does not use the P1 mono kicker`);
+        }
+        // Upcoming Use Cases are marked secondary; active ones are not.
+        const isUpcoming = group.id === "upcoming";
+        if (segment.includes("use-case-secondary") !== isUpcoming) {
+          fail(
+            isUpcoming
+              ? `use-cases/index.html: "${title}" is upcoming but not marked secondary`
+              : `use-cases/index.html: "${title}" is active but marked secondary`
+          );
         }
         // The tagline plus at least two prose paragraphs: the bottleneck and
         // how the IDEAS assistant addresses it.
@@ -678,7 +727,7 @@ if (!fs.existsSync(USE_CASES_PAGE)) {
     }
 
     // No use-case section outside the two groups.
-    const totalSections = (ucHtml.match(/<section class="use-case"/g) || []).length;
+    const totalSections = (ucHtml.match(/<section class="use-case[ "]/g) || []).length;
     const expectedSections = USE_CASE_GROUPS.reduce((total, group) => total + group.titles.length, 0);
     if (totalSections !== expectedSections) {
       fail(`use-cases/index.html: found ${totalSections - expectedSections} use-case sections outside the groups`);
@@ -703,6 +752,10 @@ if (!fs.existsSync(USE_CASES_PAGE)) {
         if (!/<img[^>]*\salt="[^"]+"/.test(figureBlock[0])) fail(`use-cases/index.html: ${figure.name} figure has no alt text`);
         if (!/<figcaption>[\s\S]*?\S[\s\S]*?<\/figcaption>/.test(figureBlock[0])) fail(`use-cases/index.html: ${figure.name} figure has no caption`);
         if (!/Credit:/.test(figureBlock[0])) fail(`use-cases/index.html: ${figure.name} figure has no credit line`);
+        // P1: the figure is framed like the Research figures.
+        if (!figureBlock[0].includes("ideas-figure-frame")) {
+          fail(`use-cases/index.html: ${figure.name} figure is not framed in the P1 figure style`);
+        }
       }
     }
 
@@ -786,6 +839,25 @@ if (!fs.existsSync(SOFTWARE_PAGE)) {
           fail("software/index.html: contains a card with no entry in _data/software.yml");
         }
       }
+
+      // P1 rendering (issue #24): the page head is the shared post-header
+      // treatment and every card is the text-led P1 card — a mono kicker over
+      // the name, and the links in a rule-separated footer list.
+      if (!softwareHtml.includes('<h1 class="post-title">Software</h1>')) {
+        fail("software/index.html: missing the P1 post-header page title");
+      }
+      const softwarePageDescription = "Software Releases produced or substantially extended by IDEAS";
+      if (!softwareHtml.includes(`<p class="post-description">${escapeHtml(softwarePageDescription)}</p>`)) {
+        fail("software/index.html: missing the P1 post-header page description");
+      }
+      for (const segment of softwareCardSegments) {
+        if (!segment.includes('class="ideas-kicker')) {
+          fail("software/index.html: a Software Release card is missing the P1 mono kicker");
+        }
+        if (!segment.includes('<ul class="software-links">')) {
+          fail("software/index.html: a Software Release card is missing its links list");
+        }
+      }
     }
   }
 }
@@ -815,6 +887,17 @@ const formatEventDay = (yamlDate) => {
   });
 };
 
+// Matches the index card's date range format ("February 2 – February 3, 2027").
+const EVENT_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const formatEventRange = (event) => {
+  const [startYear, startMonth, startDay] = String(event.start_date).slice(0, 10).split("-").map(Number);
+  const [endYear, endMonth, endDay] = String(event.end_date).slice(0, 10).split("-").map(Number);
+  if (startYear === endYear && startMonth === endMonth && startDay === endDay) {
+    return `${EVENT_MONTHS[startMonth - 1]} ${startDay}, ${startYear}`;
+  }
+  return `${EVENT_MONTHS[startMonth - 1]} ${startDay} – ${EVENT_MONTHS[endMonth - 1]} ${endDay}, ${endYear}`;
+};
+
 if (eventSlugs.length === 0) {
   fail("_events/: no Event entries found");
 } else {
@@ -833,7 +916,9 @@ if (eventSlugs.length === 0) {
 
     // The details block runs from the kicker to the closing of the details
     // list, so text outside the event (nav, footer) cannot satisfy checks.
-    const start = html.indexOf('<p class="event-kicker">');
+    // P1 (issue #25): the kicker and the day dates carry the shared mono
+    // classes (.ideas-kicker / .ideas-date) alongside their semantic hooks.
+    const start = html.indexOf('<p class="ideas-kicker event-kicker">');
     const end = html.indexOf("</dl>", start);
     if (start === -1 || end === -1) {
       fail(`events/${slug}/index.html: no event details block rendered`);
@@ -844,13 +929,13 @@ if (eventSlugs.length === 0) {
     if (!html.includes(`<h1 class="post-title">${escapeHtml(event.title)}</h1>`)) {
       fail(`events/${slug}/index.html: <h1> is not its title "${event.title}"`);
     }
-    if (!segment.includes(`<p class="event-kicker">${escapeHtml(event.event_type)}</p>`)) {
+    if (!segment.includes(`<p class="ideas-kicker event-kicker">${escapeHtml(event.event_type)}</p>`)) {
       fail(`events/${slug}/index.html: does not render its event type "${event.event_type}"`);
     }
 
     // Both dates with their per-day notes (e.g. the half-day note).
     for (const day of event.days || []) {
-      if (!segment.includes(`<span class="event-day">${formatEventDay(day.date)}</span>`)) {
+      if (!segment.includes(`<span class="event-day ideas-date">${formatEventDay(day.date)}</span>`)) {
         fail(`events/${slug}/index.html: does not show the date ${day.date} in words`);
       }
       if (day.note && !segment.includes(escapeHtml(day.note))) {
@@ -929,14 +1014,44 @@ if (eventSlugs.length === 0) {
           if (groupHtmls[otherGroup].includes(cardLink)) {
             fail(`events/index.html: "${event.title}" is also listed under ${otherGroup}`);
           }
+          // P1 (issue #25): each Event is an .ideas-event-card whose dates
+          // are set in the shared mono .ideas-date treatment.
+          if (!groupHtmls[expectedGroup].includes('<article class="ideas-event-card">')) {
+            fail(`events/index.html: "${event.title}" is not an .ideas-event-card`);
+          }
+        }
+
+        // The groups use the shared P1 section-heading system (rule
+        // underneath, via .ideas-block-head / .ideas-block-title).
+        if (!groupHtmls.upcoming.includes('<h2 class="ideas-block-title">Upcoming</h2>')) {
+          fail("events/index.html: the Upcoming group does not use the P1 block head");
+        }
+        if (!groupHtmls.past.includes('<h2 class="ideas-block-title">Past</h2>')) {
+          fail("events/index.html: the Past group does not use the P1 block head");
         }
 
         // The All-Hands Meeting is the first seeded Event: assert its card
-        // explicitly (dates, venue, format and RSVP state are visible on the
-        // index, not only on the event page).
+        // explicitly (mono dates, venue, format and RSVP state are visible
+        // on the index, not only on the event page).
         const upcomingHtml = groupHtmls.upcoming;
         if (!upcomingHtml.includes(`href="${BASEURL}/events/${ALL_HANDS_SLUG}/"`)) {
           fail(`events/index.html: the All-Hands Meeting (${ALL_HANDS_SLUG}) is not listed under Upcoming`);
+        } else {
+          const allHands = parseFrontMatter(path.join(EVENTS_DIR, `${ALL_HANDS_SLUG}.md`));
+          const linkAt = upcomingHtml.indexOf(`href="${BASEURL}/events/${ALL_HANDS_SLUG}/"`);
+          const cardStart = upcomingHtml.lastIndexOf("<article", linkAt);
+          const cardHtml = upcomingHtml.slice(cardStart, upcomingHtml.indexOf("</article>", linkAt));
+          if (!cardHtml.includes('<time class="ideas-date"')) {
+            fail("events/index.html: the All-Hands card does not set its dates in the mono .ideas-date treatment");
+          }
+          if (!cardHtml.includes(formatEventRange(allHands))) {
+            fail(`events/index.html: the All-Hands card does not show the date range "${formatEventRange(allHands)}"`);
+          }
+          for (const expected of [allHands.venue.name, allHands.format, "RSVP required"]) {
+            if (!cardHtml.includes(escapeHtml(expected))) {
+              fail(`events/index.html: the All-Hands card does not show "${expected}"`);
+            }
+          }
         }
       }
     }
@@ -1494,6 +1609,83 @@ const PARTNER_LOGOS = ["argonne", "ucdavis", "cincinnati", "uic", "unl", "kitwar
 for (const partner of PARTNER_LOGOS) {
   if (!fs.existsSync(path.join(SITE, "assets", "img", "logos", "partners", `${partner}.svg`))) {
     fail(`assets/img/logos/partners/${partner}.svg: not published in the build`);
+  }
+}
+
+// 16. News page and the generic page layout (issue #26): every page built on
+// al-folio's generic `page` layout carries the P1 page head — the clamp'd
+// 800-weight title and the muted lead — from the local layout override; the
+// News page renders the same dated stream as the Home Latest news block (the
+// shared news include, untruncated); and the 404 page keeps its redirect
+// while linking back to Home and Research.
+const PAGE_LAYOUT_PAGES = [
+  ["news/index.html", "News"],
+  ["404.html", "Page not found"],
+  ["publications/index.html", "Publications"],
+  ["software/index.html", "Software"],
+  ["team/index.html", "Team"],
+  ["use-cases/index.html", "Use Cases"],
+  ["events/index.html", "Events"],
+];
+for (const [rel, title] of PAGE_LAYOUT_PAGES) {
+  const file = path.join(SITE, rel);
+  if (!fs.existsSync(file)) {
+    fail(`${rel}: missing — cannot check the generic page layout`);
+    continue;
+  }
+  const html = fs.readFileSync(file, "utf8");
+  if (!html.includes('<header class="post-header">')) fail(`${rel}: the generic page layout has no P1 page head`);
+  if (!html.includes(`<h1 class="post-title">${escapeHtml(title)}</h1>`)) {
+    fail(`${rel}: the P1 page head does not carry its title "${title}"`);
+  }
+  if (!/<p class="post-description">\s*\S/.test(html)) fail(`${rel}: the P1 page head has no lead (post-description)`);
+  // The P1 treatment itself travels with the local page-layout override: a
+  // clamp'd 800-weight title and a muted 1.15rem lead (the research page's
+  // page head, generalized).
+  if (!/\.post-title\s*{[^}]*font-size:\s*clamp\(/.test(html) || !/\.post-title\s*{[^}]*font-weight:\s*800/.test(html)) {
+    fail(`${rel}: the P1 page-head title treatment (clamp'd 800 weight) is missing`);
+  }
+  if (!/\.post-description\s*{[^}]*font-size:\s*1\.15rem/.test(html)) {
+    fail(`${rel}: the P1 page-head lead treatment (1.15rem) is missing`);
+  }
+}
+
+// The News page's stream is the Home Latest news block, untruncated: the
+// same shared news include, so the same dated-item markup (mono date in a
+// left column) and every News Item, not just the Home limit.
+const NOT_FOUND_PAGE = path.join(SITE, "404.html");
+if (!fs.existsSync(NEWS_PAGE) || !fs.existsSync(HOME_PAGE) || !fs.existsSync(NOT_FOUND_PAGE)) {
+  fail("missing news/index.html, index.html or 404.html — cannot compare the dated streams");
+} else {
+  const newsPageHtml = fs.readFileSync(NEWS_PAGE, "utf8");
+  const homeHtmlForNews = fs.readFileSync(HOME_PAGE, "utf8");
+  const newsStreamStart = newsPageHtml.indexOf('<ul class="ideas-news-list"');
+  const homeStreamStart = homeHtmlForNews.indexOf('<ul class="ideas-news-list"');
+  if (newsStreamStart === -1 || homeStreamStart === -1) {
+    fail("the News page or the Home Latest news block has no dated news stream");
+  } else {
+    const newsStream = extractElement(newsPageHtml, newsStreamStart, "ul");
+    const homeStream = extractElement(homeHtmlForNews, homeStreamStart, "ul");
+    const datedItemPattern = /<li class="ideas-news-item">\s*<time class="ideas-date"/;
+    if (!newsStream || !datedItemPattern.test(newsStream)) {
+      fail("news/index.html: the dated stream does not render the shared P1 news items (mono date, left column)");
+    }
+    if (!homeStream || !datedItemPattern.test(homeStream)) {
+      fail("index.html: the Latest news block does not render the shared P1 news items");
+    }
+    const newsItemCount = (newsStream.match(/<li class="ideas-news-item">/g) || []).length;
+    if (newsItemCount < newsSlugs.length) {
+      fail(`news/index.html: the dated stream shows ${newsItemCount} items, expected all ${newsSlugs.length} News Items`);
+    }
+  }
+
+  // The 404 page: redirect kept, plus links back to Home and Research.
+  const notFoundHtml = fs.readFileSync(NOT_FOUND_PAGE, "utf8");
+  if (!notFoundHtml.includes(`<meta http-equiv="refresh" content="3; url=${BASEURL}/">`)) {
+    fail("404.html: the redirect to the main page is gone");
+  }
+  if (!notFoundHtml.includes(`href="${BASEURL}/"`) || !notFoundHtml.includes(`href="${BASEURL}/research/"`)) {
+    fail("404.html: does not link back to both Home and Research");
   }
 }
 

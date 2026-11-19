@@ -2,150 +2,152 @@
 layout: page
 ---
 {% comment %}
-  Team grid. Renders every entry in _data/team.yml as one grid — Argonne and
-  Partner members together, not grouped by institution type. The build harness
-  (test/assert_site.js) asserts the visible grid matches the data file 1:1.
+  Team grid (P1, issue #22). Renders every entry in _data/team.yml as one
+  figure-led card grid — Argonne and Partner members together, not grouped by
+  institution type. The build harness (test/assert_site.js) asserts the visible
+  grid matches the data file 1:1: a consistently-cropped photo or a
+  brand-coloured initials placeholder, the role, the institution as a mono
+  kicker, and exactly the per-member links from the data file.
 {% endcomment %}
+{% assign team = site.data.team %}
+{% assign institution_count = team | map: 'institution' | uniq | size %}
 
 <style>
+  /* The P1 section: heading with the rule underneath, then the grid. */
+  .team-block {
+    margin-top: 48px;
+  }
+  .team-block-meta {
+    color: var(--global-text-color-light);
+    margin: 0;
+  }
+
+  /* P1's figure-led cards in an auto-fill grid: one column on phones, up to
+     four across the 1140px container. */
   .team-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   }
 
-  .team-card {
-    background-color: var(--global-card-bg-color);
-    border: 1px solid var(--global-divider-color);
-    border-radius: 0.5rem;
-    padding: 1.5rem 1rem;
-    text-align: center;
+  /* Every photo crops to the same square frame; the placeholder fills the
+     same frame, so the grid stays even with or without a photo. */
+  .team-media {
+    aspect-ratio: 1 / 1;
   }
 
-  .team-photo,
+  /* The brand-coloured placeholder for members without a photo: the P1 ramp
+     voxel tile (as for cards without figures) with the initials on an Ink
+     chip. Fixed colours, legible in both modes. */
   .team-avatar {
-    width: 6rem;
-    height: 6rem;
-    border-radius: 9999px;
-    margin-inline: auto;
-    margin-bottom: 0.75rem;
+    align-items: center;
+    background:
+      repeating-linear-gradient(90deg, transparent 0 15px, #0b1f3a 15px 18px), repeating-linear-gradient(0deg, transparent 0 15px, #0b1f3a 15px 18px),
+      linear-gradient(90deg, #1e3a8a, #1d4ed8, #0284c7, #0ea5e9, #14b8a6, #84cc16, #f59e0b);
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    width: 100%;
+  }
+  .team-avatar-initials {
+    background: #0b1f3a; /* Ink */
+    border-radius: 6px;
+    color: #ffffff;
+    font: 600 1.5rem var(--ideas-font-mono);
+    letter-spacing: 0.04em;
+    padding: 8px 16px;
   }
 
-  .team-photo {
-    object-fit: cover;
+  .team-card-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+    padding: 18px 20px 20px;
   }
-
-  .team-avatar {
-    display: grid;
-    place-items: center;
-    color: #fff;
-    font-size: 2rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-  }
-
-  /* Fixed mid-tone palette with white text, legible in light and dark mode.
-     Cycled deterministically by card position. */
-  .team-grid > .team-card:nth-child(6n + 1) .team-avatar {
-    background-color: #1d4ed8;
-  }
-  .team-grid > .team-card:nth-child(6n + 2) .team-avatar {
-    background-color: #7c3aed;
-  }
-  .team-grid > .team-card:nth-child(6n + 3) .team-avatar {
-    background-color: #0f766e;
-  }
-  .team-grid > .team-card:nth-child(6n + 4) .team-avatar {
-    background-color: #b45309;
-  }
-  .team-grid > .team-card:nth-child(6n + 5) .team-avatar {
-    background-color: #be185d;
-  }
-  .team-grid > .team-card:nth-child(6n + 6) .team-avatar {
-    background-color: #4d7c0f;
-  }
-
   .team-name {
-    font-size: 1.25rem;
-    margin-bottom: 0.25rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0;
   }
-
   .team-role {
     color: var(--global-text-color);
-    margin-bottom: 0.25rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0 0 6px;
   }
-
   .team-institution {
-    color: var(--global-text-color-light);
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
+    margin: 0 0 16px;
   }
-
   .team-links {
     display: flex;
-    justify-content: center;
-    gap: 0.75rem;
-    margin-bottom: 0;
-    padding-left: 0;
+    flex-wrap: wrap;
+    gap: 6px 14px;
     list-style: none;
+    margin: auto 0 0;
+    padding: 0;
   }
-
+  /* P1's mono link treatment (as the block "more" links), uppercase. */
   .team-links a {
-    font-size: 1.1rem;
+    color: var(--global-theme-color);
+    font: 500 0.75rem var(--ideas-font-mono);
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+  .team-links a:hover {
+    text-decoration: underline;
   }
 </style>
 
-{% assign team = site.data.team %}
-<div class="team-grid">
-  {% for member in team %}
-    <div class="team-card">
-      {% if member.photo %}
-        <img
-          class="team-photo"
-          src="{{ 'assets/img/team/' | append: member.photo | relative_url }}"
-          alt="Photo of {{ member.name }}"
-          width="96"
-          height="96"
-          loading="lazy"
-        >
-      {% else %}
-        {% assign words = member.name | split: ' ' %}
-        {% assign initials = words.first | slice: 0, 1 | upcase %}
-        {% if words.size > 1 %}
-          {% assign last_initial = words.last | slice: 0, 1 | upcase %}
-          {% assign initials = initials | append: last_initial %}
-        {% endif %}
-        <div class="team-avatar" aria-hidden="true">{{ initials }}</div>
-      {% endif %}
-      <h2 class="team-name">{{ member.name }}</h2>
-      <p class="team-role">{{ member.role }}</p>
-      <p class="team-institution">{{ member.institution }}</p>
-      {% if member.links %}
-        <ul class="team-links">
-          {% if member.links.homepage %}
-            <li>
-              <a href="{{ member.links.homepage }}" aria-label="{{ member.name }} — homepage"><i class="fa-solid fa-globe" aria-hidden="true"></i></a>
-            </li>
+<div class="ideas-block team-block">
+  <div class="ideas-block-head">
+    <h2 class="ideas-block-title">Team Members</h2>
+    <p class="ideas-kicker team-block-meta">{{ team.size }} members · {{ institution_count }} institutions</p>
+  </div>
+  <div class="team-grid ideas-cards">
+    {% for member in team %}
+      <div class="team-card ideas-card">
+        <div class="team-media ideas-card-media">
+          {% if member.photo %}
+            <img
+              class="team-photo"
+              src="{{ 'assets/img/team/' | append: member.photo | relative_url }}"
+              alt="Photo of {{ member.name }}"
+              loading="lazy"
+            >
+          {% else %}
+            {% assign words = member.name | split: ' ' %}
+            {% assign initials = words.first | slice: 0, 1 | upcase %}
+            {% if words.size > 1 %}
+              {% assign last_initial = words.last | slice: 0, 1 | upcase %}
+              {% assign initials = initials | append: last_initial %}
+            {% endif %}
+            <div class="team-avatar" aria-hidden="true">
+              <span class="team-avatar-initials">{{ initials }}</span>
+            </div>
           {% endif %}
-          {% if member.links.orcid %}
-            <li>
-              <a href="{{ member.links.orcid }}" aria-label="{{ member.name }} — ORCID"><i class="fa-brands fa-orcid" aria-hidden="true"></i></a>
-            </li>
+        </div>
+        <div class="team-card-body ideas-card-body">
+          <h3 class="team-name">{{ member.name }}</h3>
+          <p class="team-role">{{ member.role }}</p>
+          <p class="team-institution ideas-kicker">{{ member.institution }}</p>
+          {% if member.links %}
+            <ul class="team-links">
+              {% if member.links.homepage %}
+                <li><a href="{{ member.links.homepage }}" aria-label="{{ member.name }} — homepage">Homepage</a></li>
+              {% endif %}
+              {% if member.links.orcid %}
+                <li><a href="{{ member.links.orcid }}" aria-label="{{ member.name }} — ORCID">ORCID</a></li>
+              {% endif %}
+              {% if member.links.scholar %}
+                <li><a href="{{ member.links.scholar }}" aria-label="{{ member.name }} — Google Scholar">Scholar</a></li>
+              {% endif %}
+              {% if member.links.github %}
+                <li><a href="{{ member.links.github }}" aria-label="{{ member.name }} — GitHub">GitHub</a></li>
+              {% endif %}
+            </ul>
           {% endif %}
-          {% if member.links.scholar %}
-            <li>
-              <a href="{{ member.links.scholar }}" aria-label="{{ member.name }} — Google Scholar"
-                ><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i
-              ></a>
-            </li>
-          {% endif %}
-          {% if member.links.github %}
-            <li>
-              <a href="{{ member.links.github }}" aria-label="{{ member.name }} — GitHub"><i class="fa-brands fa-github" aria-hidden="true"></i></a>
-            </li>
-          {% endif %}
-        </ul>
-      {% endif %}
-    </div>
-  {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
 </div>
