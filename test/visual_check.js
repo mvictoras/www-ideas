@@ -13,7 +13,7 @@ const puppeteer = require("puppeteer-core");
 
 const BASE = process.env.CHECK_BASE || "http://localhost:8123/www-ideas";
 const SHOT_DIR = "screenshots";
-const PAGES = ["/", "/research/", "/use-cases/", "/team/", "/publications/", "/software/", "/news/", "/events/", "/404.html"];
+const PAGES = ["/", "/research/", "/use-cases/", "/team/", "/publications/", "/software/", "/news/", "/events/", "/events/all-hands-2027/", "/404.html"];
 const WIDTHS = [390, 1280];
 const THEMES = ["light", "dark"];
 // One representative shot per page: desktop light and phone dark.
@@ -55,7 +55,9 @@ SHOTS.push(...PAGES.map((path) => ({ url: path, width: 390, theme: "dark", name:
     await page.goto(`${BASE}${shot.url}`, { waitUntil: "networkidle0" });
     await page.evaluate((t) => {
       document.documentElement.setAttribute("data-theme", t);
-      try { localStorage.setItem("theme", t); } catch {}
+      try {
+        localStorage.setItem("theme", t);
+      } catch {}
     }, shot.theme);
     await new Promise((r) => setTimeout(r, 300));
     await page.screenshot({ path: `${SHOT_DIR}/${shot.name}.png` });
