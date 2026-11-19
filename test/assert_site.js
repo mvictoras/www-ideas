@@ -782,6 +782,25 @@ if (!fs.existsSync(SOFTWARE_PAGE)) {
           fail("software/index.html: contains a card with no entry in _data/software.yml");
         }
       }
+
+      // P1 rendering (issue #24): the page head is the shared post-header
+      // treatment and every card is the text-led P1 card — a mono kicker over
+      // the name, and the links in a rule-separated footer list.
+      if (!softwareHtml.includes('<h1 class="post-title">Software</h1>')) {
+        fail("software/index.html: missing the P1 post-header page title");
+      }
+      const softwarePageDescription = "Software Releases produced or substantially extended by IDEAS";
+      if (!softwareHtml.includes(`<p class="post-description">${escapeHtml(softwarePageDescription)}</p>`)) {
+        fail("software/index.html: missing the P1 post-header page description");
+      }
+      for (const segment of softwareCardSegments) {
+        if (!segment.includes('class="ideas-kicker')) {
+          fail("software/index.html: a Software Release card is missing the P1 mono kicker");
+        }
+        if (!segment.includes('<ul class="software-links">')) {
+          fail("software/index.html: a Software Release card is missing its links list");
+        }
+      }
     }
   }
 }
