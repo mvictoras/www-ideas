@@ -521,7 +521,330 @@
     font-size: 1.15rem;
     margin: 0;
   }
-</style> <div class="post"> <header class="post-header"> <h1 class="post-title">Publications</h1> <p class="post-description">IDEAS publications, generated from BibTeX by jekyll-scholar</p> </header> <article> <script src="/www-ideas/assets/js/bibsearch.js?v=1bc438ca9037884cc579601c09afd847" type="module"></script> <p><input type="text" id="bibsearch" spellcheck="false" autocomplete="off" class="search bibsearch-form-input" placeholder="Type to filter"></p> <div class="publications"> <h2 class="bibliography">2026</h2> <ol class="bibliography"> <li> <div class="row"> <div class="col col-sm-2 abbr"> </div> <div id="mathai2026nl2scivis" class="col-sm-8"> <div class="title">NL2SciVis: A Benchmark for Natural Language to Scientific Visualization</div> <div class="author"> Manish Mathai , <strong>Mengjiao Han</strong> , <strong>Janet Knowles</strong> , <strong>Victor A. Mateevitsi</strong> , <strong>Silvio Rizzi</strong> , and Hank Childs </div> <div class="periodical"> <em>In EuroVis 2026 — Short Papers</em>, 2026 </div> <div class="periodical"> </div> <div class="links"> <a class="abstract btn btn-sm z-depth-0" role="button">Abs</a> <a href="https://doi.org/10.2312/evs.20261017" class="btn btn-sm z-depth-0" role="button" rel="external nofollow noopener" target="_blank">DOI</a> <a class="bibtex btn btn-sm z-depth-0" role="button">Bib</a> </div> <div class="abstract hidden"> <p> Scientific visualization (SciVis) tools enable exploration of complex scientific datasets but present a steep learning curve, creating hurdles for scientists and making it difficult to evaluate natural-language interfaces to them. We present NL2SciVis, a benchmark for natural language to scientific visualization: each task feeds a prompt to a large language model, executes the generated code in ParaView, and applies two gates — an execution gate checking that a valid state file was produced, and a technique gate checking that the visualization method, field, and parameters are correct. A task passes only if both gates pass, so the protocol verifies pipeline correctness rather than visual similarity alone. </p> </div> <div class="bibtex hidden"> <figure class="highlight"><pre><code class="language-bibtex" data-lang="bibtex"><span class="nc">@inproceedings</span><span class="p">{</span><span class="nl">mathai2026nl2scivis</span><span class="p">,</span>
+</style> <div class="post"> <header class="post-header"> <h1 class="post-title">Publications</h1> <p class="post-description">IDEAS publications, generated from BibTeX by jekyll-scholar</p> </header> <article> <style> /* P1's container-narrow for the reading list. This block renders only on pages using the publications layout, so the cap is effectively page-scoped. */ .container { max-width: 920px; } /* P1's page head: title and lead (the gem's page layout renders them). */ .post-header { padding: 56px 0 8px; } .post-title { font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem); font-weight: 800; letter-spacing: -0.03em; margin: 0 0 12px; } .post-description { color: var(--global-text-color-light); font-size: 1.15rem; margin: 0; } /* The bibsearch field: a P1 input — white surface, hairline rule, mono- sized label — instead of the al-folio newsletter colours. */ .bibsearch-form-input { background: var(--global-card-bg-color); border: 1px solid var(--global-divider-color); border-radius: 8px; color: var(--global-text-color); font-family: var(--ideas-font-sans); font-size: 0.95rem; margin: 0 0 8px; max-width: 420px; } .bibsearch-form-input:focus { border-color: var(--global-theme-color); box-shadow: 0 0 0 3px color-mix(in srgb, var(--global-theme-color) 18%, transparent); color: var(--global-text-color); } .bibsearch-form-input::placeholder { color: var(--global-text-color-light); } /* Year-group headings: P1 section headings with a rule underneath, set in the mono family like the kickers and dates. One rule per year group. */ .publications h2.bibliography { border-bottom: 1px solid var(--global-divider-color); color: var(--global-text-color); font-family: var(--ideas-font-mono); font-size: 1rem; font-weight: 600; letter-spacing: 0.08em; margin: 56px 0 16px; padding-bottom: 10px; text-align: left; text-transform: uppercase; } .publications h2.bibliography:first-child { margin-top: 16px; } /* Entries as P1 cards: white surface, 1px rule, 10px radius, lift on hover. The list itself is the stack; the gem's li margin is replaced by the grid gap. */ .publications ol.bibliography { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); list-style: none; margin: 0; padding: 0; } /* The grid items (and the Bootstrap columns) must be allowed to shrink below their content width, or the BibTeX <pre>'s long lines blow the
+     cards out past the viewport. */
+  .publications ol.bibliography > li {
+    margin-bottom: 0;
+    min-width: 0;
+    padding: 0;
+  }
+  .publications ol.bibliography .row {
+    background: var(--global-card-bg-color);
+    border: 1px solid var(--global-divider-color);
+    border-radius: 10px;
+    display: block;
+    margin: 0;
+    padding: 20px 22px;
+    transition:
+      border-color 0.15s,
+      transform 0.15s,
+      box-shadow 0.15s;
+  }
+  .publications ol.bibliography .row:hover {
+    border-color: var(--global-theme-color);
+    box-shadow: var(--ideas-shadow);
+    transform: translateY(-2px);
+  }
+  /* The thumbnail/abbr column only exists when an entry carries one; the
+     grid column otherwise collapses instead of leaving dead space. */
+  .publications ol.bibliography .row > [class*='col'] {
+    max-width: 100%;
+    min-width: 0;
+    padding: 0;
+    width: 100%;
+  }
+  .publications .abbr {
+    display: none;
+  }
+  .publications .abbr:has(abbr, img, video) {
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  /* Entry typography. al-folio paints div/em/strong with the text colour
+     directly, so each element is re-declared here (landmine #2). */
+  .publications .title {
+    font-size: 1.08rem;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+  .publications .author {
+    color: var(--global-text-color-light);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+  .publications .author strong {
+    color: var(--global-text-color);
+    font-weight: 600;
+  }
+  .publications .periodical {
+    color: var(--global-text-color-light);
+    font-size: 0.9rem;
+  }
+  .publications .periodical em {
+    color: inherit;
+  }
+
+  /* The link buttons (Abs / DOI / arXiv / Bib / …): P1's mono chips. */
+  .publications .links {
+    margin-top: 12px;
+  }
+  .publications .links a.btn {
+    background: transparent;
+    border: 1px solid var(--global-divider-color);
+    border-radius: 8px;
+    box-shadow: none;
+    color: var(--global-text-color);
+    font: 500 0.75rem var(--ideas-font-mono);
+    letter-spacing: 0.04em;
+    padding: 5px 12px;
+    text-transform: uppercase;
+  }
+  .publications .links a.btn:hover,
+  .publications .links a.btn:focus {
+    border-color: var(--global-theme-color);
+    box-shadow: none;
+    color: var(--global-theme-color);
+  }
+  .publications .links a.award.btn {
+    border-color: var(--global-theme-color);
+    color: var(--global-theme-color);
+  }
+
+  /* The toggled abstract panel sits inside the card on the P1 surface,
+     separated by a hairline — visible only once opened (the gem's closed
+     border is painted in the page background, which ghosts on the card). */
+  .publications ol.bibliography li div.abstract.hidden {
+    border: 1px dashed transparent;
+  }
+  .publications ol.bibliography li div.abstract.hidden.open {
+    border-color: var(--global-theme-color);
+    margin-top: 12px;
+  }
+  .publications div.bibtex.hidden {
+    border: none;
+  }
+  .publications div.bibtex.hidden pre {
+    background: var(--global-code-bg-color);
+    border-radius: 8px;
+    overflow-x: auto;
+  }
+
+  @media (max-width: 575.98px) {
+    .publications ol.bibliography .row {
+      padding: 16px;
+    }
+  }
+</style>
+
+<!-- _pages/publications.md -->
+
+<!-- Bibsearch Feature -->
+
+<script src="/www-ideas/assets/js/bibsearch.js?v=1bc438ca9037884cc579601c09afd847" type="module"></script>
+
+<p><input type="text" id="bibsearch" spellcheck="false" autocomplete="off" class="search bibsearch-form-input" placeholder="Type to filter"></p>
+
+<div class="publications">
+
+<h2 class="bibliography">2026</h2>
+<ol class="bibliography">
+<li>
+<div class="row">
+  
+    <div class="col col-sm-2 abbr">
+      
+    </div>
+  
+
+  <!-- Entry bib key -->
+  <div id="mathai2026nl2scivis" class="col-sm-8">
+    <!-- Title -->
+    <div class="title">NL2SciVis: A Benchmark for Natural Language to Scientific Visualization</div>
+    <!-- Author -->
+    <div class="author">
+      
+
+      
+      
+        
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          Manish
+            Mathai
+        
+          
+          
+          
+          
+          
+          
+          
+          
+          
+            
+          
+          , <strong>Mengjiao
+            Han</strong>
+        
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+            
+          
+          , <strong>Janet
+            Knowles</strong>
+        
+                
+                
+          , <strong>Victor A.
+            Mateevitsi</strong>
+        
+          
+          
+          
+          
+          
+            
+          
+          , <strong>Silvio
+            Rizzi</strong>
+        
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          , and Hank
+            Childs
+      
+    </div>
+
+    <!-- Journal/Book title and date -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="periodical">
+      <em>In EuroVis 2026 — Short Papers</em>,  2026
+    </div>
+    <div class="periodical">
+      
+    </div>
+
+    <!-- Links/Buttons -->
+    <div class="links">
+      
+      
+        <a class="abstract btn btn-sm z-depth-0" role="button">Abs</a>
+      
+      
+        <a href="https://doi.org/10.2312/evs.20261017" class="btn btn-sm z-depth-0" role="button" rel="external nofollow noopener" target="_blank">DOI</a>
+      
+      
+      
+      
+        <a class="bibtex btn btn-sm z-depth-0" role="button">Bib</a>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </div>
+    
+      
+      
+
+      
+      
+
+      
+      
+
+      
+      
+      
+    
+
+    
+
+    
+      <!-- Hidden abstract block -->
+      <div class="abstract hidden">
+        <p>
+    Scientific visualization (SciVis) tools enable exploration of complex
+    scientific datasets but present a steep learning curve, creating hurdles
+    for scientists and making it difficult to evaluate natural-language
+    interfaces to them. We present NL2SciVis, a benchmark for natural language
+    to scientific visualization: each task feeds a prompt to a large language
+    model, executes the generated code in ParaView, and applies two gates — an
+    execution gate checking that a valid state file was produced, and a
+    technique gate checking that the visualization method, field, and
+    parameters are correct. A task passes only if both gates pass, so the
+    protocol verifies pipeline correctness rather than visual similarity
+    alone.
+  </p>
+      </div>
+    
+
+    
+      <!-- Hidden bibtex block -->
+      <div class="bibtex hidden">
+        <figure class="highlight"><pre><code class="language-bibtex" data-lang="bibtex"><span class="nc">@inproceedings</span><span class="p">{</span><span class="nl">mathai2026nl2scivis</span><span class="p">,</span>
   <span class="na">title</span> <span class="p">=</span> <span class="s">{NL2SciVis: A Benchmark for Natural Language to Scientific Visualization}</span><span class="p">,</span>
   <span class="na">author</span> <span class="p">=</span> <span class="s">{Mathai, Manish and Han, Mengjiao and Knowles, Janet and Mateevitsi, Victor A. and Rizzi, Silvio and Childs, Hank}</span><span class="p">,</span>
   <span class="na">booktitle</span> <span class="p">=</span> <span class="s">{EuroVis 2026 — Short Papers}</span><span class="p">,</span>
