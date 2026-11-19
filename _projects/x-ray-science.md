@@ -10,6 +10,7 @@ figure:
   alt: Screenshot of an XPCS data analysis interface. A g2 curve plot compares single (orange) and averaged (blue) curves, with red outlier bounds for filtering anomalous datasets, above averaging settings and a job list.
   caption: "Interface for XPCS data analysis showing single (orange) and averaged (blue) g₂(τ) curves. Outlier bounds (red lines) are applied to filter anomalous datasets before averaging, ensuring data quality and efficient beamtime use."
   credit: IDEAS team, Argonne Base proposal (2025).
+  fit: contain
 ---
 
 X-Ray Science moves the assistant from supercomputer output to live instrument data. X-ray photon correlation spectroscopy (XPCS) experiments at the Advanced Photon Source (APS) probe nanoscale dynamics by measuring temporal fluctuations in scattered X-ray intensity, producing g₂(τ) correlation curves that encode information about diffusion, relaxation and aging processes. To reduce noise, scientists perform hundreds to thousands of repeat measurements and manually aggregate the valid g₂ curves while discarding those with anomalies such as detector glitches or misalignments — a workflow that is largely post hoc and reliant on manual judgment, limiting the ability to interact with data during beamtime.

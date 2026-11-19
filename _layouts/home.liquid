@@ -304,24 +304,37 @@ layout: default
     </div>
   </section>
 
-  <div class="home-use-cases" id="use-cases">
-    <h2 class="home-block-title">
-      <a href="{{ '/use-cases/' | relative_url }}">Use Cases</a>
-    </h2>
-    <div class="home-cards">
+  <section class="ideas-block home-use-cases" id="use-cases" aria-labelledby="use-cases-title">
+    <div class="ideas-block-head">
+      <h2 class="ideas-block-title" id="use-cases-title">Use Cases</h2>
+      <a class="ideas-block-more" href="{{ '/use-cases/' | relative_url }}">All Use Cases</a>
+    </div>
+    <div class="ideas-cards ideas-cards-use-cases">
       {% assign use_case_statuses = 'active,upcoming' | split: ',' %}
       {% for status in use_case_statuses %}
         {% assign home_use_cases = site.projects | where: 'category', 'use-case' | where: 'status', status | sort: 'importance' %}
         {% for use_case in home_use_cases %}
-          <a class="home-card" href="{{ '/use-cases/' | relative_url }}#{{ use_case.slug }}">
-            <p class="home-card-kicker">{{ status | capitalize }} Use Case</p>
-            <h3 class="home-card-name">{{ use_case.title }}</h3>
-            <p class="home-card-tagline">{{ use_case.tagline }}</p>
+          <a class="ideas-card" href="{{ '/use-cases/' | relative_url }}#{{ use_case.slug }}">
+            {% if use_case.figure %}
+              <div class="ideas-card-media{% if use_case.figure.fit == 'contain' %} ideas-card-media-diagram{% endif %}">
+                <img src="{{ use_case.figure.src | relative_url }}" alt="" loading="lazy">
+              </div>
+            {% else %}
+              <!-- No figure yet for this Use Case: a ramp-coloured voxel tile stands in. -->
+              <div class="ideas-card-media ideas-card-media-grid" aria-hidden="true">
+                <span class="ideas-card-grid-label">{{ use_case.media_label }}</span>
+              </div>
+            {% endif %}
+            <div class="ideas-card-body">
+              <p class="ideas-kicker">{{ status | capitalize }} Use Case</p>
+              <h3 class="ideas-card-title">{{ use_case.title }}</h3>
+              <p class="ideas-card-tagline">{{ use_case.tagline }}</p>
+            </div>
           </a>
         {% endfor %}
       {% endfor %}
     </div>
-  </div>
+  </section>
 
   <div class="home-news" id="news">
     <h2 class="home-block-title">

@@ -5,6 +5,9 @@ category: use-case
 status: active
 importance: 2
 tagline: The hardest flows hide inside the most complex machines.
+# No figure yet: the Home card stands in with a ramp-coloured voxel tile
+# carrying this label (issue #20).
+media_label: NekRS · Taylor-Green Vortex
 ---
 
 Turbulence in Complex Geometries takes on the flows that matter in engineering, where the physics and the geometry are both unforgiving. The motivating problems come from next-generation reactors: pebble-bed cores and the breeding blankets of fusion machines, where performance depends on complex internal geometry and multiphysics interactions — particularly between liquid-metal coolant flow and strong magnetic fields. Scientists model these systems with NekRS, an exascale-ready, GPU-accelerated computational fluid dynamics code, at extreme resolution; the resulting massive, multivariable datasets demand expert-driven, time-intensive analysis.

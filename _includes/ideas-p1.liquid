@@ -137,6 +137,25 @@
     object-fit: contain;
     padding: 12px;
   }
+  /* The ramp voxel tile for a card with no figure yet. */
+  .ideas-card-media-grid {
+    align-items: flex-end;
+    background:
+      repeating-linear-gradient(90deg, transparent 0 15px, #0b1f3a 15px 18px),
+      repeating-linear-gradient(0deg, transparent 0 15px, #0b1f3a 15px 18px),
+      linear-gradient(90deg, #1e3a8a, #1d4ed8, #0284c7, #0ea5e9, #14b8a6, #84cc16, #f59e0b);
+    display: flex;
+    padding: 12px;
+    position: relative;
+  }
+  .ideas-card-grid-label {
+    background: #0b1f3a;
+    border-radius: 4px;
+    color: #ffffff;
+    font: 500 0.7rem var(--ideas-font-mono);
+    letter-spacing: 0.04em;
+    padding: 4px 8px;
+  }
   .ideas-card-body {
     padding: 16px 18px 20px;
   }

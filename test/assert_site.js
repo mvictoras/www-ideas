@@ -1124,11 +1124,13 @@ if (!fs.existsSync(HOME_PAGE)) {
   // Use Case cards: one per use-case project, Active before Upcoming (the
   // layout renders the statuses in that order), linking to the Use Cases
   // page with the status visible on the card.
-  const homeUseCasesDiv = extractDiv(homeHtml, homeHtml.indexOf('<div class="home-use-cases"'));
+  const homeUseCasesStart = homeHtml.indexOf('<section class="ideas-block home-use-cases"');
+  const homeUseCasesEnd = homeUseCasesStart === -1 ? -1 : homeHtml.indexOf("</section>", homeUseCasesStart);
+  const homeUseCasesDiv = homeUseCasesStart === -1 ? null : homeHtml.slice(homeUseCasesStart, homeUseCasesEnd);
   if (!homeUseCasesDiv) {
     fail("index.html: no Use Cases block");
   } else {
-    const useCaseCards = [...homeUseCasesDiv.matchAll(/<a class="home-card"/g)].map((match, index, all) =>
+    const useCaseCards = [...homeUseCasesDiv.matchAll(/<a class="ideas-card"/g)].map((match, index, all) =>
       homeUseCasesDiv.slice(match.index, index + 1 < all.length ? all[index + 1].index : homeUseCasesDiv.length)
     );
     if (useCaseCards.length !== homeUseCases.length) {
@@ -1151,6 +1153,22 @@ if (!fs.existsSync(HOME_PAGE)) {
       }
       if (!normalizeText(card).includes(normalizeText(escapeHtml(useCase.title)))) {
         fail(`index.html: Use Case card for ${useCase.slug} does not show its title`);
+      }
+      // P1 (issue #20): the Home Use Case cards are figure-led. A Use Case
+      // with a figure shows it; one without shows the ramp voxel tile
+      // carrying its media label.
+      if (useCase.figure) {
+        const cardImg = card.match(/<img[^>]*src="([^"]*)"[^>]*>/);
+        const expectedSrc = `${BASEURL}/${useCase.figure.src}`;
+        if (!cardImg || !cardImg[1].includes(expectedSrc)) {
+          fail(`index.html: Use Case card for ${useCase.slug} does not show its figure ${useCase.figure.src}`);
+        }
+      } else if (useCase.media_label) {
+        if (!normalizeText(card).includes(normalizeText(escapeHtml(useCase.media_label)))) {
+          fail(`index.html: Use Case card for ${useCase.slug} does not label its media tile "${useCase.media_label}"`);
+        }
+      } else {
+        fail(`_projects/${useCase.slug}.md: needs a figure or a media_label for its Home card`);
       }
     });
   }
