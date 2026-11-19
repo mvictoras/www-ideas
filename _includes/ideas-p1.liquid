@@ -353,21 +353,17 @@
     color: var(--global-text-color-light);
   }
 
-  /* One row from 1040px up: the panel is a plain flex row and the toggle
-     disappears. Below, the panel sits under the bar like P1's mobile nav. */
-  @media (min-width: 1040px) {
-    #navbar .navbar-collapse {
-      display: flex !important;
-      justify-content: flex-end;
-    }
-    #navbar .navbar-nav {
-      flex-direction: row;
-      align-items: center;
-      gap: 4px;
-    }
-    #navbar .navbar-toggler {
-      display: none;
-    }
+  /* The nav panel is hidden until the toggle opens it (below 1040px it sits
+     under the bar like P1's mobile nav; above, it is a plain flex row). The
+     theme's `collapse` class is deliberately NOT used here: Tailwind ships a
+     layered .collapse { display: none !important } that would win the
+     cascade. The toggle JS only toggles .show. */
+  #navbar .navbar-collapse {
+    display: none;
+  }
+  #navbar .navbar-collapse.show {
+    display: flex;
+    flex-direction: column;
   }
   @media (max-width: 1039.98px) {
     #navbar .navbar-collapse.show {
@@ -393,6 +389,23 @@
       width: 3px;
       height: auto;
       border-radius: 0 3px 3px 0;
+    }
+  }
+
+  /* One row from 1040px up: the panel is a plain flex row and the toggle
+     disappears. */
+  @media (min-width: 1040px) {
+    #navbar .navbar-collapse {
+      display: flex;
+      justify-content: flex-end;
+    }
+    #navbar .navbar-nav {
+      flex-direction: row;
+      align-items: center;
+      gap: 4px;
+    }
+    #navbar .navbar-toggler {
+      display: none;
     }
   }
 
