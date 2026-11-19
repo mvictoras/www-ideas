@@ -1,0 +1,34 @@
+{%- comment -%}
+  Local override of al-folio's _includes/news.liquid (al_folio_core gem).
+
+  P1 (issue #20): News Items render as a dated stream — a JetBrains Mono
+  date in a left column (stacking on phones) beside the inline body. Used
+  by the Home Latest news block (limit=true) and the News page.
+
+  Tracked with the al-folio overrides audit (ADR-0001):
+  bundle exec al-folio upgrade overrides audit
+{%- endcomment -%}
+{%- if site.news != blank -%}
+  {% assign news = site.news | reverse %}
+  {% if include.limit and page.announcements.limit %}
+    {% assign news_limit = page.announcements.limit %}
+  {% else %}
+    {% assign news_limit = news.size %}
+  {% endif %}
+  <ul class="ideas-news-list">
+    {% for item in news limit: news_limit %}
+      <li class="ideas-news-item">
+        <time class="ideas-date" datetime="{{ item.date | date: '%Y-%m-%d' }}">{{ item.date | date: '%b %-d, %Y' }}</time>
+        <div class="ideas-news-item-body">
+          {% if item.inline %}
+            {{ item.content | remove: '<p>' | remove: '</p>' | emojify }}
+          {% else %}
+            <a class="ideas-news-title" href="{{ item.url | relative_url }}">{{ item.title }}</a>
+          {% endif %}
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{%- else -%}
+  <p>No news so far...</p>
+{%- endif -%}

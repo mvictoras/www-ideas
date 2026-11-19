@@ -23,183 +23,263 @@ layout: default
 {% assign story = content | split: '<!-- home-blocks -->' %}
 
 <style>
+  /* The Ink hero band. It breaks out of the centred container to span the
+     viewport; the render fills its right side at full height and dissolves
+     to the left (from the top on phones, where it stacks under the text). */
   .home-hero {
-    margin-bottom: 3rem;
+    background: var(--ideas-hero-bg);
+    color: var(--ideas-hero-text);
+    margin: -3rem calc(50% - 50vw) 4rem;
+    overflow: hidden;
+    position: relative;
+    width: 100vw;
+  }
+
+  .home-hero-inner {
+    align-items: center;
+    display: flex;
+    margin: 0 auto;
+    max-width: 1140px;
+    min-height: 600px;
+    padding: 0 24px;
+    position: relative;
+  }
+
+  .home-hero-text {
+    max-width: 36rem;
+    padding: 80px 0 88px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .home-hero-kicker {
+    color: #14b8a6; /* ramp-5 on Ink */
+  }
+
+  .home-hero-wordmark {
+    display: block;
+    height: auto;
+    margin: 4px 0 28px -20px; /* the Volume Grid's outer column hangs into the gutter */
+    width: min(100%, 380px);
   }
 
   .home-hero-title {
-    font-size: 2.1rem;
-    line-height: 1.25;
-    margin-bottom: 1rem;
+    color: var(--ideas-hero-text);
+    font-size: clamp(2rem, 1.2rem + 2.6vw, 3.1rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    margin-bottom: 20px;
   }
 
   .home-hero-copy {
-    font-size: 1.3rem;
+    color: var(--ideas-hero-muted);
+    font-size: 1.15rem;
     line-height: 1.6;
-    margin-bottom: 0;
+    margin-bottom: 28px;
+    max-width: 34rem;
   }
 
-  .home-grid {
-    align-items: start;
-    display: grid;
-    gap: 2.5rem 3rem;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr));
+  .home-hero-copy p {
+    color: inherit; /* main.css paints every <p> Ink; the band overrides */
+    margin: 0;
   }
 
-  .home-block-title {
-    font-size: 1.5rem;
-    margin-bottom: 1.25rem;
+  .home-hero-actions {
+    margin: 0;
   }
 
-  .home-block-title a {
-    color: inherit;
+  .home-hero-figure {
+    bottom: 0;
+    margin: 0;
+    position: absolute;
+    right: calc(-1 * max(0px, (100vw - 1140px) / 2));
+    top: 0;
+    width: 62%;
   }
 
-  .home-cards {
-    display: grid;
-    gap: 1rem;
-  }
-
-  .home-card {
-    background-color: var(--global-card-bg-color);
-    border: 1px solid var(--global-divider-color);
-    border-radius: 0.5rem;
-    color: inherit;
+  .home-hero-figure img {
     display: block;
-    padding: 1.25rem 1.1rem;
+    height: 100%;
+    object-fit: cover;
+    object-position: 15% 50%;
+    /* The render's black background becomes the Ink band itself. */
+    mix-blend-mode: screen;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 40%);
+    mask-image: linear-gradient(to right, transparent 0%, #000 40%);
+    width: 100%;
   }
 
-  .home-card:hover {
-    border-color: var(--global-theme-color);
-    text-decoration: none;
+  .home-hero-figure figcaption {
+    bottom: 14px;
+    color: var(--ideas-hero-muted);
+    font: 400 0.7rem var(--ideas-font-mono);
+    letter-spacing: 0.04em;
+    position: absolute;
+    right: 24px;
   }
 
-  .home-card-kicker {
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    margin-bottom: 0.25rem;
-    text-transform: uppercase;
+  @media (max-width: 860px) {
+    .home-hero-inner {
+      display: block;
+      min-height: 0;
+      padding: 0;
+    }
+
+    .home-hero-text {
+      max-width: none;
+      padding: 48px 16px 16px;
+    }
+
+    .home-hero-wordmark {
+      margin-left: -12px;
+      width: min(100%, 300px);
+    }
+
+    .home-hero-figure {
+      position: relative;
+      right: auto;
+      width: 100%;
+    }
+
+    .home-hero-figure img {
+      aspect-ratio: 4 / 3;
+      height: auto;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 25%);
+      mask-image: linear-gradient(to bottom, transparent 0%, #000 25%);
+    }
+
+    .home-hero-figure figcaption {
+      right: 16px;
+    }
   }
 
-  .home-card-name {
-    font-size: 1.15rem;
-    margin-bottom: 0.25rem;
+  /* News and the next Event, side by side (stacking on phones). */
+  .home-split {
+    display: grid;
+    gap: 0 48px;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
   }
 
-  .home-card-tagline {
-    color: var(--global-text-color-light);
-    margin-bottom: 0;
-  }
-
-  .home-news {
-    margin-bottom: 0;
-  }
-
-  .home-event-card {
-    background-color: var(--global-card-bg-color);
-    border: 1px solid var(--global-divider-color);
-    border-radius: 0.5rem;
-    padding: 1.25rem 1.1rem;
-  }
-
-  .home-event-card h3 {
-    font-size: 1.15rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .home-event-dates {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-  }
-
-  .home-event-meta {
-    color: var(--global-text-color-light);
-    margin-bottom: 0;
-  }
-
-  .home-more {
-    margin-bottom: 0;
-    margin-top: 1.25rem;
+  @media (max-width: 860px) {
+    .home-split {
+      grid-template-columns: 1fr;
+    }
   }
 
   .home-sibling {
     border-top: 1px solid var(--global-divider-color);
     color: var(--global-text-color-light);
-    margin-top: 3.5rem;
-    padding-top: 1.5rem;
+    margin-top: 64px;
+    padding-top: 20px;
   }
 
   .home-sibling p {
-    margin-bottom: 0;
-  }
-
-  @media (max-width: 575.98px) {
-    .home-hero-title {
-      font-size: 1.6rem;
-    }
-
-    .home-hero-copy {
-      font-size: 1.15rem;
-    }
+    margin: 0;
+    max-width: 46rem;
   }
 </style>
 
 <section class="home-hero">
-  <h1 class="home-hero-title">Intelligent Data Exploration Assistant for Science</h1>
-  {{ story[0] }}
+  <div class="home-hero-inner">
+    <div class="home-hero-text">
+      <p class="ideas-kicker home-hero-kicker">DOE ASCR · Argonne Base · Thrust 2</p>
+      <img
+        class="home-hero-wordmark"
+        src="{{ '/assets/img/logo/ideas-wordmark-hero-color-on-ink.svg' | relative_url | bust_file_cache }}"
+        alt=""
+        width="280"
+        height="110"
+      >
+      <h1 class="home-hero-title">Intelligent Data Exploration Assistant for Science</h1>
+      <div class="home-hero-copy">{{ story[0] }}</div>
+      <p class="home-hero-actions">
+        <a class="ideas-button" href="{{ '/research/' | relative_url }}">Explore the research</a>
+      </p>
+    </div>
+    <figure class="home-hero-figure">
+      <img
+        src="{{ '/assets/img/home/chameleon-hero.jpg' | relative_url | bust_file_cache }}"
+        alt=""
+        width="1270"
+        height="960"
+      >
+      <figcaption>Volume rendering of a chameleon CT scan.</figcaption>
+    </figure>
+  </div>
 </section>
 
-<div class="home-grid">
-  <div class="home-objectives" id="objectives">
-    <h2 class="home-block-title">
-      <a href="{{ '/research/' | relative_url }}">Objectives</a>
-    </h2>
-    <div class="home-cards">
+<section class="ideas-block home-objectives" id="objectives" aria-labelledby="objectives-title">
+    <div class="ideas-block-head">
+      <h2 class="ideas-block-title" id="objectives-title">Objectives</h2>
+      <a class="ideas-block-more" href="{{ '/research/' | relative_url }}">The research</a>
+    </div>
+    <div class="ideas-cards ideas-cards-objectives">
       {% assign objectives = site.projects | where: 'category', 'objective' | sort: 'importance' %}
       {% for objective in objectives %}
-        <a class="home-card" href="{{ '/research/' | relative_url }}#{{ objective.slug }}">
-          <p class="home-card-kicker">Objective {{ forloop.index }}</p>
-          <h3 class="home-card-name">{{ objective.title }}</h3>
-          <p class="home-card-tagline">{{ objective.tagline }}</p>
+        <a class="ideas-card" href="{{ '/research/' | relative_url }}#{{ objective.slug }}">
+          {% if objective.figure %}
+            <div class="ideas-card-media{% if objective.figure.fit == 'contain' %} ideas-card-media-diagram{% endif %}">
+              <img src="{{ objective.figure.src | relative_url }}" alt="" loading="lazy">
+            </div>
+          {% endif %}
+          <div class="ideas-card-body">
+            <p class="ideas-kicker">Objective {{ forloop.index }}</p>
+            <h3 class="ideas-card-title">{{ objective.title }}</h3>
+            <p class="ideas-card-tagline">{{ objective.tagline }}</p>
+            <p class="ideas-card-summary">{{ objective.summary }}</p>
+          </div>
         </a>
       {% endfor %}
     </div>
-  </div>
+  </section>
 
-  <div class="home-use-cases" id="use-cases">
-    <h2 class="home-block-title">
-      <a href="{{ '/use-cases/' | relative_url }}">Use Cases</a>
-    </h2>
-    <div class="home-cards">
+  <section class="ideas-block home-use-cases" id="use-cases" aria-labelledby="use-cases-title">
+    <div class="ideas-block-head">
+      <h2 class="ideas-block-title" id="use-cases-title">Use Cases</h2>
+      <a class="ideas-block-more" href="{{ '/use-cases/' | relative_url }}">All Use Cases</a>
+    </div>
+    <div class="ideas-cards ideas-cards-use-cases">
       {% assign use_case_statuses = 'active,upcoming' | split: ',' %}
       {% for status in use_case_statuses %}
         {% assign home_use_cases = site.projects | where: 'category', 'use-case' | where: 'status', status | sort: 'importance' %}
         {% for use_case in home_use_cases %}
-          <a class="home-card" href="{{ '/use-cases/' | relative_url }}#{{ use_case.slug }}">
-            <p class="home-card-kicker">{{ status | capitalize }} Use Case</p>
-            <h3 class="home-card-name">{{ use_case.title }}</h3>
-            <p class="home-card-tagline">{{ use_case.tagline }}</p>
+          <a class="ideas-card" href="{{ '/use-cases/' | relative_url }}#{{ use_case.slug }}">
+            {% if use_case.figure %}
+              <div class="ideas-card-media{% if use_case.figure.fit == 'contain' %} ideas-card-media-diagram{% endif %}">
+                <img src="{{ use_case.figure.src | relative_url }}" alt="" loading="lazy">
+              </div>
+            {% else %}
+              <!-- No figure yet for this Use Case: a ramp-coloured voxel tile stands in. -->
+              <div class="ideas-card-media ideas-card-media-grid" aria-hidden="true">
+                <span class="ideas-card-grid-label">{{ use_case.media_label }}</span>
+              </div>
+            {% endif %}
+            <div class="ideas-card-body">
+              <p class="ideas-kicker">{{ status | capitalize }} Use Case</p>
+              <h3 class="ideas-card-title">{{ use_case.title }}</h3>
+              <p class="ideas-card-tagline">{{ use_case.tagline }}</p>
+            </div>
           </a>
         {% endfor %}
       {% endfor %}
     </div>
-  </div>
+  </section>
 
-  <div class="home-news" id="news">
-    <h2 class="home-block-title">
-      <a href="{{ '/news/' | relative_url }}">Latest news</a>
-    </h2>
+<div class="home-split">
+  <section class="ideas-block home-news" id="news" aria-labelledby="news-title">
+    <div class="ideas-block-head">
+      <h2 class="ideas-block-title" id="news-title">Latest news</h2>
+      <a class="ideas-block-more" href="{{ '/news/' | relative_url }}">All news</a>
+    </div>
     {% include news.liquid limit=true %}
-    <p class="home-more">
-      <a href="{{ '/news/' | relative_url }}">All news</a>
-    </p>
-  </div>
+  </section>
 
-  <div class="home-events" id="events">
-    <h2 class="home-block-title">
-      <a href="{{ '/events/' | relative_url }}">Upcoming events</a>
-    </h2>
+  <section class="ideas-block home-events" id="events" aria-labelledby="events-title">
+    <div class="ideas-block-head">
+      <h2 class="ideas-block-title" id="events-title">Upcoming events</h2>
+      <a class="ideas-block-more" href="{{ '/events/' | relative_url }}">All events</a>
+    </div>
     {% comment %}
       The same upcoming/past rule as the Events index: an event is past only
       once its end date has fully passed, so a whole-day event stays
@@ -216,19 +296,19 @@ layout: default
     {% assign home_upcoming_events = home_upcoming_events | sort: 'start_date' %}
     {% if home_upcoming_events.size > 0 %}
       {% assign next_event = home_upcoming_events.first %}
-      <article class="home-event-card">
-        <p class="home-card-kicker">{{ next_event.event_type }}</p>
-        <h3>
+      <article class="ideas-event-card">
+        <p class="ideas-kicker">{{ next_event.event_type }}</p>
+        <h3 class="ideas-event-title">
           <a href="{{ next_event.url | relative_url }}">{{ next_event.title }}</a>
         </h3>
-        <p class="home-event-dates">
+        <p class="ideas-event-dates">
           {% if next_event.start_date == next_event.end_date %}
             {{ next_event.start_date | date: '%B %-d, %Y' }}
           {% else %}
             {{ next_event.start_date | date: '%B %-d' }} – {{ next_event.end_date | date: '%B %-d, %Y' }}
           {% endif %}
         </p>
-        <p class="home-event-meta">
+        <p class="ideas-event-meta">
           {% if next_event.venue and next_event.venue.name %}{{ next_event.venue.name }}{% else %}Venue TBA{% endif %}
           · {{ next_event.format -}}
           {%- if next_event.rsvp_required %} · RSVP required{% endif %}
@@ -237,10 +317,7 @@ layout: default
     {% else %}
       <p>No upcoming events yet.</p>
     {% endif %}
-    <p class="home-more">
-      <a href="{{ '/events/' | relative_url }}">All events</a>
-    </p>
-  </div>
+  </section>
 </div>
 
 {% if story[1] %}

@@ -11,6 +11,6 @@ Short dated announcements of what has happened in IDEAS — papers published and
 
 {% include news.liquid %}
 
-<!-- News Items are short inline entries from the _news collection: the theme's
-     news.liquid renders them as a dated table, newest first. Events never
-     appear here — they live in the _events collection (issue #8). -->
+<!-- News Items are short inline entries from the _news collection: the local
+     news override renders them as a P1 dated stream, newest first. Events
+     never appear here — they live in the _events collection (issue #8). -->

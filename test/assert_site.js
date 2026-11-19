@@ -29,7 +29,10 @@
  * meeting WCAG AA against their backgrounds), and the logo and favicon
  * acceptance criteria (the Horizontal Lockup on every page in both colour
  * versions with an on-palette, dark-legible ramp; the multi-size .ico and
- * Apple touch icon linked everywhere).
+ * Apple touch icon linked everywhere), and the P1 site-design acceptance
+ * criteria (issue #20: the Inter and JetBrains Mono type families and the
+ * Partner Strip footer on every page, the one-row header, the Home Ink hero
+ * and 2×2 Objective cards with summaries, and the figure-led Use Case cards).
  */
 const fs = require("fs");
 const path = require("path");
@@ -53,6 +56,15 @@ const fail = (msg) => failures.push(msg);
 // Data-file values could contain characters HTML escapes in rendered text.
 const escapeHtml = (value) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
+// Front matter of the collection/project sources, read directly so the
+// assertions can compare rendered pages against their own sources.
+const parseFrontMatter = (file) => {
+  const match = fs.readFileSync(file, "utf8").match(/^---\n([\s\S]*?)\n---\n/);
+  return match ? yaml.load(match[1]) : null;
+};
+
+const projectsDir = path.join(__dirname, "..", "_projects");
+
 // Returns the complete <div ...>...</div> starting at html[startIndex] (the
 // index of an opening <div), tracking nesting depth.
 const extractDiv = (html, startIndex) => {
@@ -70,8 +82,27 @@ if (htmlFiles.length === 0) {
   process.exit(1);
 }
 
+// Returns the complete element starting at html[startIndex] (the index of an
+// opening <tag>), up to and including its closing tag. Used for elements that
+// never nest their own kind (sections, the news list).
+const extractElement = (html, startIndex, tagName) => {
+  const end = html.indexOf(`</${tagName}>`, startIndex);
+  return end === -1 ? null : html.slice(startIndex, end + tagName.length + 3);
+};
+
+// True when the img with the given src renders inside a P1 figure frame
+// (issue #20) — the nearest opening tag before it is the frame's div, not
+// the <figure> itself.
+const figureIsFramed = (html, srcPattern) => {
+  const imgIndex = html.indexOf(srcPattern);
+  if (imgIndex === -1) return false;
+  const frameOpen = html.lastIndexOf('<div class="ideas-figure-frame"', imgIndex);
+  const figureOpen = html.lastIndexOf("<figure", imgIndex);
+  return frameOpen !== -1 && frameOpen > figureOpen;
+};
+
 // 1. Every nav page exists and has one primary heading.
-for (const p of NAV_PAGES) {
+for (const [index, p] of NAV_PAGES.entries()) {
   const file = path.join(SITE, p);
   if (!fs.existsSync(file)) {
     fail(`missing page: ${p}`);
@@ -80,6 +111,19 @@ for (const p of NAV_PAGES) {
   const html = fs.readFileSync(file, "utf8");
   const headings = html.match(/<h1(?:\s|>)/gi) || [];
   if (headings.length !== 1) fail(`${p}: expected one primary heading, found ${headings.length}`);
+
+  // The header marks the current page with aria-current="page" on exactly one
+  // navbar link — the link to the page itself (P1's accent underline hangs
+  // off it, issue #20).
+  const navStart = html.indexOf('id="navbar');
+  const navEnd = html.indexOf("</nav>", navStart);
+  const navRegion = navStart === -1 || navEnd === -1 ? "" : html.slice(navStart, navEnd);
+  const currentLinks = [...navRegion.matchAll(/<a\b[^>]*aria-current="page"[^>]*>/g)];
+  if (currentLinks.length !== 1) {
+    fail(`${p}: expected exactly one aria-current="page" nav link, found ${currentLinks.length}`);
+  } else if (!currentLinks[0][0].includes(`href="${NAV_LINKS[index]}"`)) {
+    fail(`${p}: aria-current="page" is not on the link to ${NAV_LINKS[index]}`);
+  }
 }
 
 // 2. Privacy applies to all published bytes, including binary metadata,
@@ -132,9 +176,8 @@ for (const file of htmlFiles) {
   if (!/rel="apple-touch-icon"\s+href="[^"]*\/apple-touch-icon\.png/.test(html)) fail(`${rel}: apple-touch-icon link missing`);
   if (!html.includes("DE-AC02-06CH11357")) fail(`${rel}: ASCR contract missing from footer`);
   if (!html.includes("Office of Science")) fail(`${rel}: Office of Science acknowledgment missing`);
-  if (!html.includes("assets/img/logos/argonne.svg")) fail(`${rel}: Argonne logo missing`);
-  if (!html.includes("assets/img/logos/doe-office-of-science.svg")) {
-    fail(`${rel}: DOE Office of Science logo missing`);
+  if (!html.includes("assets/img/logos/ideas-partner-strip-large-on-light.svg")) {
+    fail(`${rel}: the Partner Strip is missing from the footer`);
   }
   for (const snippet of ANALYTICS_SNIPPETS) {
     if (html.includes(snippet)) fail(`${rel}: contains analytics reference "${snippet}"`);
@@ -490,8 +533,39 @@ if (!fs.existsSync(RESEARCH_PAGE)) {
       fail(`research/index.html: ${figure.name} is not inside a <figure>`);
     } else {
       if (!/<img[^>]*\salt="[^"]+"/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no alt text`);
-      if (!/<figcaption>[\s\S]*?\S[\s\S]*?<\/figcaption>/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no caption`);
+        if (!/<figcaption>[\s\S]*?\S[\s\S]*?<\/figcaption>/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no caption`);
       if (!/Credit:/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no credit line`);
+      // P1 (issue #20): figures render inside a frame on the figure surface.
+      if (!figureIsFramed(figureBlock[0], srcPattern)) {
+        fail(`research/index.html: ${figure.name} is not rendered in a P1 figure frame`);
+      }
+    }
+  }
+
+  // P1 (issue #20): every Objective's own figure (if any) renders in its
+  // section — the overview crops from the card figures included — and is
+  // framed like the rest.
+  const researchObjectives = fs
+    .readdirSync(projectsDir)
+    .filter((name) => name.endsWith(".md"))
+    .map((name) => {
+      const data = parseFrontMatter(path.join(projectsDir, name));
+      return data && data.category === "objective" ? { slug: name.replace(/\.md$/, ""), ...data } : null;
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.importance - b.importance);
+  for (const objective of researchObjectives) {
+    if (!objective.figure) continue;
+    const srcPattern = `${BASEURL}/${objective.figure.src}`;
+    if (!researchHtml.includes(srcPattern)) {
+      fail(`research/index.html: Objective "${objective.title}" does not render its figure ${objective.figure.src}`);
+      continue;
+    }
+    if (!fs.existsSync(path.join(SITE, objective.figure.src))) {
+      fail(`${objective.figure.src}: not published in the build`);
+    }
+    if (!figureIsFramed(researchHtml, srcPattern)) {
+      fail(`research/index.html: the ${objective.figure.src} figure is not rendered in a P1 figure frame`);
     }
   }
 }
@@ -698,10 +772,6 @@ const eventSlugs = fs
   .readdirSync(EVENTS_DIR)
   .filter((name) => name.endsWith(".md"))
   .map((name) => name.replace(/\.md$/, ""));
-const parseFrontMatter = (file) => {
-  const match = fs.readFileSync(file, "utf8").match(/^---\n([\s\S]*?)\n---\n/);
-  return match ? yaml.load(match[1]) : null;
-};
 // Matches the layout's date format ("Tuesday, February 2, 2027").
 const formatEventDay = (yamlDate) => {
   const [year, month, day] = String(yamlDate).slice(0, 10).split("-").map(Number);
@@ -850,11 +920,11 @@ const newsSlugs = fs
   .readdirSync(path.join(__dirname, "..", "_news"))
   .filter((name) => name.endsWith(".md"))
   .map((name) => name.replace(/\.md$/, ""));
-// Matches the theme's news.liquid date format ('%b %d, %Y', zero-padded day).
+// Matches the local news override's date format ('%b %-d, %Y').
 const NEWS_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const formatNewsDate = (yamlDate) => {
   const [year, month, day] = String(yamlDate).slice(0, 10).split("-").map(Number);
-  return `${NEWS_MONTHS[month - 1]} ${String(day).padStart(2, "0")}, ${year}`;
+  return `${NEWS_MONTHS[month - 1]} ${day}, ${year}`;
 };
 // Comparable plain text: strips rendered tags / markdown link syntax, folds
 // kramdown's smart quotes back to straight ones, collapses whitespace.
@@ -891,13 +961,12 @@ if (newsSlugs.length === 0) {
   if (!newsHtml) {
     fail("news/index.html: missing — the News page did not build");
   } else {
-    const newsStart = newsHtml.indexOf('<div class="news">');
-    const newsDiv = newsStart === -1 ? null : extractDiv(newsHtml, newsStart);
-    if (!newsDiv) {
+    const newsListHtml = extractElement(newsHtml, newsHtml.indexOf('<ul class="ideas-news-list"'), "ul");
+    if (!newsListHtml) {
       fail("news/index.html: no rendered news block");
     } else {
-      const newsText = normalizeText(newsDiv);
-      const renderedDates = [...newsDiv.matchAll(/<th scope="row" style="width: 20%">([^<]+)<\/th>/g)].map((m) => m[1].trim());
+      const newsText = normalizeText(newsListHtml);
+      const renderedDates = [...newsListHtml.matchAll(/<time class="ideas-date"[^>]*>([^<]+)<\/time>/g)].map((m) => m[1].trim());
 
       // Newest first: the rendered date sequence is the News Items sorted by
       // date descending.
@@ -928,7 +997,7 @@ if (newsSlugs.length === 0) {
       // Events never appear in News: no link to an Event page and no Event
       // title inside the rendered news block (scoping to the block keeps the
       // navbar's Events link out of the check).
-      if (newsDiv.includes(`href="${BASEURL}/events/`)) {
+      if (newsListHtml.includes(`href="${BASEURL}/events/`)) {
         fail("news/index.html: the News page links to an Event");
       }
       for (const slug of eventSlugs) {
@@ -1014,9 +1083,35 @@ if (!fs.existsSync(HOME_PAGE)) {
     fail("index.html: sibling-Thrust note missing");
   }
 
+  // The P1 hero (issue #20): an Ink band carrying the Wordmark Hero above the
+  // title and the chameleon render — both decorative (alt="") — with a filled
+  // button into the Research page.
+  const homeHeroHtml = extractElement(homeHtml, homeHtml.indexOf('<section class="home-hero"'), "section");
+  if (!homeHeroHtml) {
+    fail("index.html: no hero section");
+  } else {
+    const wordmarkImg = homeHeroHtml.match(/<img[^>]*ideas-wordmark-hero[^>]*>/);
+    if (!wordmarkImg) {
+      fail("index.html: the hero does not carry the Wordmark Hero");
+    } else if (!/alt=""/.test(wordmarkImg[0])) {
+      fail("index.html: the Wordmark Hero must be decorative (alt=\"\")");
+    }
+    const chameleonImg = homeHeroHtml.match(/<img[^>]*chameleon-hero[^>]*>/);
+    if (!chameleonImg) {
+      fail("index.html: the hero does not carry the chameleon render");
+    } else if (!/alt=""/.test(chameleonImg[0])) {
+      fail('index.html: the chameleon render must be decorative (alt="")');
+    }
+    if (!homeHeroHtml.includes("DOE ASCR · Argonne Base · Thrust 2")) {
+      fail("index.html: the hero is missing its kicker");
+    }
+    if (!homeHeroHtml.match(new RegExp(`<a\\b[^>]*class="[^"]*\\bideas-button\\b[^"]*"[^>]*href="${BASEURL}/research/"`))) {
+      fail("index.html: the hero has no button into the Research page");
+    }
+  }
+
   // Objective cards: one per objective project, in importance order, linking
   // to its anchor on the Research page with title and tagline visible.
-  const projectsDir = path.join(__dirname, "..", "_projects");
   const homeProjects = fs
     .readdirSync(projectsDir)
     .filter((name) => name.endsWith(".md"))
@@ -1028,12 +1123,12 @@ if (!fs.existsSync(HOME_PAGE)) {
   const homeObjectives = homeProjects.filter((project) => project.category === "objective").sort((a, b) => a.importance - b.importance);
   const homeUseCases = homeProjects.filter((project) => project.category === "use-case").sort((a, b) => a.importance - b.importance);
 
-  const homeObjectivesDiv = extractDiv(homeHtml, homeHtml.indexOf('<div class="home-objectives"'));
-  if (!homeObjectivesDiv) {
+  const homeObjectivesHtml = extractElement(homeHtml, homeHtml.indexOf('<section class="ideas-block home-objectives"'), "section");
+  if (!homeObjectivesHtml) {
     fail("index.html: no Objectives block");
   } else {
-    const objectiveCards = [...homeObjectivesDiv.matchAll(/<a class="home-card"/g)].map((match, index, all) =>
-      homeObjectivesDiv.slice(match.index, index + 1 < all.length ? all[index + 1].index : homeObjectivesDiv.length)
+    const objectiveCards = [...homeObjectivesHtml.matchAll(/<a class="ideas-card"/g)].map((match, index, all) =>
+      homeObjectivesHtml.slice(match.index, index + 1 < all.length ? all[index + 1].index : homeObjectivesHtml.length)
     );
     if (objectiveCards.length !== homeObjectives.length) {
       fail(`index.html: expected ${homeObjectives.length} Objective cards, found ${objectiveCards.length}`);
@@ -1050,18 +1145,40 @@ if (!fs.existsSync(HOME_PAGE)) {
       if (!normalizeText(card).includes(normalizeText(escapeHtml(objective.tagline)))) {
         fail(`index.html: Objective card for ${objective.slug} does not show its tagline`);
       }
+      // P1 (issue #20): each card is figure-led and carries the Objective's
+      // own summary — authored once in the Objective's source, not a cut of
+      // the Research essay.
+      if (!objective.summary) {
+        fail(`_projects/${objective.slug}.md: no summary — every Objective card needs one`);
+        return;
+      }
+      if (!normalizeText(card).includes(normalizeText(escapeHtml(objective.summary)))) {
+        fail(`index.html: Objective card for ${objective.slug} does not show its summary from its source`);
+      }
+      const cardImg = card.match(/<img[^>]*src="([^"]*)"[^>]*>/);
+      if (!cardImg) {
+        fail(`index.html: Objective card for ${objective.slug} has no figure`);
+      } else if (objective.figure) {
+        const expectedSrc = `${BASEURL}/${objective.figure.src}`;
+        if (!cardImg[1].includes(expectedSrc)) {
+          fail(`index.html: Objective card for ${objective.slug} does not show its figure ${objective.figure.src}`);
+        }
+        if (!fs.existsSync(path.join(SITE, objective.figure.src))) {
+          fail(`${objective.figure.src}: not published in the build`);
+        }
+      }
     });
   }
 
   // Use Case cards: one per use-case project, Active before Upcoming (the
   // layout renders the statuses in that order), linking to the Use Cases
   // page with the status visible on the card.
-  const homeUseCasesDiv = extractDiv(homeHtml, homeHtml.indexOf('<div class="home-use-cases"'));
-  if (!homeUseCasesDiv) {
+  const homeUseCasesHtml = extractElement(homeHtml, homeHtml.indexOf('<section class="ideas-block home-use-cases"'), "section");
+  if (!homeUseCasesHtml) {
     fail("index.html: no Use Cases block");
   } else {
-    const useCaseCards = [...homeUseCasesDiv.matchAll(/<a class="home-card"/g)].map((match, index, all) =>
-      homeUseCasesDiv.slice(match.index, index + 1 < all.length ? all[index + 1].index : homeUseCasesDiv.length)
+    const useCaseCards = [...homeUseCasesHtml.matchAll(/<a class="ideas-card"/g)].map((match, index, all) =>
+      homeUseCasesHtml.slice(match.index, index + 1 < all.length ? all[index + 1].index : homeUseCasesHtml.length)
     );
     if (useCaseCards.length !== homeUseCases.length) {
       fail(`index.html: expected ${homeUseCases.length} Use Case cards, found ${useCaseCards.length}`);
@@ -1084,17 +1201,33 @@ if (!fs.existsSync(HOME_PAGE)) {
       if (!normalizeText(card).includes(normalizeText(escapeHtml(useCase.title)))) {
         fail(`index.html: Use Case card for ${useCase.slug} does not show its title`);
       }
+      // P1 (issue #20): the Home Use Case cards are figure-led. A Use Case
+      // with a figure shows it; one without shows the ramp voxel tile
+      // carrying its media label.
+      if (useCase.figure) {
+        const cardImg = card.match(/<img[^>]*src="([^"]*)"[^>]*>/);
+        const expectedSrc = `${BASEURL}/${useCase.figure.src}`;
+        if (!cardImg || !cardImg[1].includes(expectedSrc)) {
+          fail(`index.html: Use Case card for ${useCase.slug} does not show its figure ${useCase.figure.src}`);
+        }
+      } else if (useCase.media_label) {
+        if (!normalizeText(card).includes(normalizeText(escapeHtml(useCase.media_label)))) {
+          fail(`index.html: Use Case card for ${useCase.slug} does not label its media tile "${useCase.media_label}"`);
+        }
+      } else {
+        fail(`_projects/${useCase.slug}.md: needs a figure or a media_label for its Home card`);
+      }
     });
   }
 
   // Latest news: the newest page.announcements.limit News Items from the
-  // _news collection, newest first, with dates and inline bodies.
-  const homeNewsStart = homeHtml.indexOf('<div class="news">');
-  const homeNewsDiv = homeNewsStart === -1 ? null : extractDiv(homeHtml, homeNewsStart);
-  if (!homeNewsDiv) {
+  // _news collection, newest first, with dates and inline bodies — P1's dated
+  // stream (issue #20).
+  const homeNewsHtml = extractElement(homeHtml, homeHtml.indexOf('<section class="ideas-block home-news"'), "section");
+  if (!homeNewsHtml) {
     fail("index.html: no Latest news block");
   } else {
-    const homeNewsText = normalizeText(homeNewsDiv);
+    const homeNewsText = normalizeText(homeNewsHtml);
     const latestNews = newsSlugs
       .map((slug) => {
         const item = parseFrontMatter(path.join(__dirname, "..", "_news", `${slug}.md`));
@@ -1105,7 +1238,7 @@ if (!fs.existsSync(HOME_PAGE)) {
     const newsLimit = 3;
     const expectedLatest = latestNews.slice(0, newsLimit);
 
-    const homeRenderedDates = [...homeNewsDiv.matchAll(/<th scope="row" style="width: 20%">([^<]+)<\/th>/g)].map((m) => m[1].trim());
+    const homeRenderedDates = [...homeNewsHtml.matchAll(/<time class="ideas-date"[^>]*>([^<]+)<\/time>/g)].map((m) => m[1].trim());
     const expectedDates = expectedLatest.map((item) => formatNewsDate(item.date));
     if (homeRenderedDates.length !== expectedDates.length || !homeRenderedDates.every((date, index) => date === expectedDates[index])) {
       fail(
@@ -1131,12 +1264,11 @@ if (!fs.existsSync(HOME_PAGE)) {
   // Upcoming events: the next Event relative to the build date (same rule as
   // the Events index — past only once the end date has fully passed), linked
   // with its type, dates, venue and RSVP state visible.
-  const homeEventsStart = homeHtml.indexOf('<div class="home-events"');
-  const homeEventsDiv = homeEventsStart === -1 ? null : extractDiv(homeHtml, homeEventsStart);
-  if (!homeEventsDiv) {
+  const homeEventsHtml = extractElement(homeHtml, homeHtml.indexOf('<section class="ideas-block home-events"'), "section");
+  if (!homeEventsHtml) {
     fail("index.html: no Upcoming events block");
   } else {
-    const homeEventsText = normalizeText(homeEventsDiv);
+    const homeEventsText = normalizeText(homeEventsHtml);
     const isEventPast = (event) => {
       const [year, month, day] = String(event.end_date).slice(0, 10).split("-").map(Number);
       return new Date(year, month - 1, day, 23, 59, 59) < new Date();
@@ -1152,7 +1284,7 @@ if (!fs.existsSync(HOME_PAGE)) {
     if (!nextEvent) {
       fail("index.html: no upcoming Event in _events/ to assert against");
     } else {
-      if (!homeEventsDiv.includes(`href="${BASEURL}/events/${nextEvent.slug}/"`)) {
+      if (!homeEventsHtml.includes(`href="${BASEURL}/events/${nextEvent.slug}/"`)) {
         fail(`index.html: the Upcoming events block does not link the next Event ${nextEvent.slug}`);
       }
       if (!homeEventsText.includes(normalizeText(escapeHtml(nextEvent.event_type)))) {
@@ -1307,6 +1439,30 @@ if (!fs.existsSync(ICO)) {
   const expected = [16, 32, 48];
   if (JSON.stringify(sizes) !== JSON.stringify(expected)) {
     fail(`favicon.ico contains ${sizes.join("/")}px images, expected ${expected.join("/")}px (the ideas-branding build's set)`);
+  }
+}
+
+// 15. P1 site design (issue #20): every page loads the P1 type families —
+// Inter for headings and body text, JetBrains Mono for labels and dates —
+// through the theme's Google Fonts link, re-pointed in _config.yml.
+for (const file of htmlFiles) {
+  const html = fs.readFileSync(file, "utf8");
+  const rel = path.relative(SITE, file);
+  const fontsLink = html.match(/href="(https:\/\/fonts\.googleapis\.com\/css2[^"]*)"/);
+  if (!fontsLink) {
+    fail(`${rel}: no Google Fonts stylesheet link for the P1 type families`);
+    continue;
+  }
+  if (!/family=Inter\b/.test(fontsLink[1])) fail(`${rel}: the P1 sans (Inter) is not loaded`);
+  if (!/family=JetBrains\+Mono\b/.test(fontsLink[1])) fail(`${rel}: the P1 mono (JetBrains Mono) is not loaded`);
+}
+
+// The phone grid renders the same Partner logos byte for byte from their own
+// files; they must be published.
+const PARTNER_LOGOS = ["argonne", "ucdavis", "cincinnati", "uic", "unl", "kitware", "veeda"];
+for (const partner of PARTNER_LOGOS) {
+  if (!fs.existsSync(path.join(SITE, "assets", "img", "logos", "partners", `${partner}.svg`))) {
+    fail(`assets/img/logos/partners/${partner}.svg: not published in the build`);
   }
 }
 

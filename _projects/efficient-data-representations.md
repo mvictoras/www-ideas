@@ -4,6 +4,13 @@ slug: efficient-data-representations
 category: objective
 importance: 1
 tagline: Make the data small enough to think with.
+# The 2x2 card summary on Home (issue #20): authored once, here — not a cut
+# of the Research essay.
+summary: >-
+  Raw simulation output is enormous, rigid and slow to move. IDEAS replaces
+  it with homomorphic representations: compact models of the data, built
+  from neural networks and splines, that keep its analytical and visual
+  fidelity so rendering and analysis can run on the model directly.
 figure:
   src: assets/img/research/representative-pixels.png
   alt: Grid comparing three datasets, Chameleon, BeechNut and Rayleigh–Taylor, using 5%, 10% and 30% of total pixels respectively. Columns show the representative pixels, the partially rendered image, and the reconstruction with zoomed details and speed-ups of 4.3×, 3.2× and 2.1×.

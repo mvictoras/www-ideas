@@ -4,6 +4,21 @@ slug: ai-driven-rendering-and-visualization
 category: objective
 importance: 2
 tagline: Draw the picture from the model, not from the mountain of data.
+# The 2x2 card summary on Home (issue #20): authored once, here — not a cut
+# of the Research essay.
+summary: >-
+  At exascale, brute-force volume rendering runs out of road. IDEAS renders
+  straight from compact data models and lets AI fill in what was never
+  computed, from cached light transport (GSCache) to diffusion-model shadows,
+  and spreads the work across many GPUs.
+# Placeholder card figure (issue #20): the maintainer will supply an image at
+# least 1200px wide; until then the overview crop stands in.
+figure:
+  src: assets/img/objectives/overview-rendering.png
+  alt: "Detail of the IDEAS overview diagram: AI-driven advanced rendering and visualization, for VR headsets, laptops, tablets and display walls."
+  caption: "AI-driven rendering serves every display, from a headset to a display wall. Detail of the IDEAS overview."
+  credit: IDEAS team, Argonne Base proposal (2025).
+  fit: contain
 ---
 
 Once data lives as a model, the picture no longer has to be made the old way. Traditional volume rendering marches rays through the data and samples light again and again along each one. At exascale, that brute force runs out of road. IDEAS renders straight from homomorphic representations, and asks AI to do what it does well: fill in what was never computed.

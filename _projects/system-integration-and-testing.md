@@ -4,6 +4,21 @@ slug: system-integration-and-testing
 category: objective
 importance: 4
 tagline: Put the assistant where the science happens.
+# The 2x2 card summary on Home (issue #20): authored once, here — not a cut
+# of the Research essay.
+summary: >-
+  IDEAS is meant to run beside live simulations on DOE supercomputers and in
+  the data streams of DOE light sources, so scientists can watch, question
+  and steer an experiment while it runs. AI agents already reach from a
+  workstation to an Argonne cluster to act on cosmology data.
+# Placeholder card figure (issue #20): the maintainer will supply an image at
+# least 1200px wide; until then the overview crop stands in.
+figure:
+  src: assets/img/objectives/overview-sources.png
+  alt: "Detail of the IDEAS overview diagram: scientific sources, namely Argonne, the Advanced Photon Source, HACC, NekRS and other science codes and facilities."
+  caption: "Where the science happens: Argonne facilities, the Advanced Photon Source, and simulation codes such as HACC and NekRS. Detail of the IDEAS overview."
+  credit: IDEAS team, Argonne Base proposal (2025).
+  fit: contain
 ---
 
 An assistant that only runs on a laptop is a demonstration. IDEAS is meant to work where discovery happens: beside live simulations on DOE supercomputers, and in the stream of data from DOE light sources. There, scientists can watch an experiment unfold, question it and steer it while it is still running.

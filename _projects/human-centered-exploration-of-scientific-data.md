@@ -4,6 +4,21 @@ slug: human-centered-exploration-of-scientific-data
 category: objective
 importance: 3
 tagline: Ask the data a question, in your own words.
+# The 2x2 card summary on Home (issue #20): authored once, here — not a cut
+# of the Research essay.
+summary: >-
+  A simple question about a simulation can mean hours of scripting. IDEAS is
+  building an AI assistant that understands what the scientist wants, drives
+  the visualization tools for them, and records every step so a discovery can
+  be explained and reproduced.
+# Placeholder card figure (issue #20): the maintainer will supply an image at
+# least 1200px wide; until then the overview crop stands in.
+figure:
+  src: assets/img/objectives/overview-assistant.png
+  alt: "Detail of the IDEAS overview diagram: a scientist plus an AI assistant, reaching out through LLMs, voice, agents and workflows."
+  caption: "A scientist and an AI assistant, working through language models, voice, agents and workflows. Detail of the IDEAS overview."
+  credit: IDEAS team, Argonne Base proposal (2025).
+  fit: contain
 ---
 
 The most powerful visualization tools in science are also among the hardest to use. A simple question, such as where the gas is hottest or what a slice through a vortex would reveal, can mean writing and debugging scripts before the first image appears. IDEAS is building an AI assistant that works alongside the scientist. It understands what they are trying to find, drives the visualization tools for them, adapts to their level of expertise, and keeps a transparent record of every step, so that a discovery can be explained and reproduced.
