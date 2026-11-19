@@ -1,0 +1,56 @@
+{%- comment -%}
+  P1 site design (issue #20): the shared look ported from the prototype's
+  shell.css + p1.css (prototype/site-designs, throwaway) into the al-folio
+  theme — ADR-0001 stands, so this restyles the theme rather than replacing
+  it. Included from the header override on every page.
+
+  The prototype's semantic tokens map onto the theme's --global-* variables,
+  which the header override already re-points per mode (Ink text, ramp-blue
+  accent in light; light text, sky accent on Ink in dark). Only tokens the
+  theme lacks are defined here, prefixed --ideas-.
+{%- endcomment -%}
+<style>
+  :root {
+    --ideas-font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --ideas-font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+    --ideas-shadow:
+      0 1px 2px rgba(11, 31, 58, 0.08),
+      0 8px 24px rgba(11, 31, 58, 0.06);
+    /* The Ink hero band keeps its own colours in both modes (it is always an
+       Ink surface); dark mode deepens it toward black like the prototype. */
+    --ideas-hero-bg: #0b1f3a;
+    --ideas-hero-text: #ffffff;
+    --ideas-hero-muted: rgba(255, 255, 255, 0.76);
+  }
+  html[data-theme='dark'] {
+    --ideas-hero-bg: #071527;
+    --ideas-shadow: none;
+  }
+
+  body {
+    font-family: var(--ideas-font-sans);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--ideas-font-sans);
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+  }
+
+  /* Labels and dates are set in the mono family, uppercase (the prototype's
+     .kicker / .date). */
+  .ideas-kicker,
+  .ideas-date {
+    font-family: var(--ideas-font-mono);
+    font-weight: 500;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .ideas-kicker {
+    margin: 0 0 6px;
+    color: var(--global-text-color-light);
+  }
+</style>

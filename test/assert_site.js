@@ -29,7 +29,10 @@
  * meeting WCAG AA against their backgrounds), and the logo and favicon
  * acceptance criteria (the Horizontal Lockup on every page in both colour
  * versions with an on-palette, dark-legible ramp; the multi-size .ico and
- * Apple touch icon linked everywhere).
+ * Apple touch icon linked everywhere), and the P1 site-design acceptance
+ * criteria (issue #20: the Inter and JetBrains Mono type families on every
+ * page, the one-row header, the Partner Strip footer, the Home Ink hero and
+ * 2×2 Objective cards with summaries, and the figure-led Use Case cards).
  */
 const fs = require("fs");
 const path = require("path");
@@ -1308,6 +1311,21 @@ if (!fs.existsSync(ICO)) {
   if (JSON.stringify(sizes) !== JSON.stringify(expected)) {
     fail(`favicon.ico contains ${sizes.join("/")}px images, expected ${expected.join("/")}px (the ideas-branding build's set)`);
   }
+}
+
+// 15. P1 site design (issue #20): every page loads the P1 type families —
+// Inter for headings and body text, JetBrains Mono for labels and dates —
+// through the theme's Google Fonts link, re-pointed in _config.yml.
+for (const file of htmlFiles) {
+  const html = fs.readFileSync(file, "utf8");
+  const rel = path.relative(SITE, file);
+  const fontsLink = html.match(/href="(https:\/\/fonts\.googleapis\.com\/css2[^"]*)"/);
+  if (!fontsLink) {
+    fail(`${rel}: no Google Fonts stylesheet link for the P1 type families`);
+    continue;
+  }
+  if (!/family=Inter\b/.test(fontsLink[1])) fail(`${rel}: the P1 sans (Inter) is not loaded`);
+  if (!/family=JetBrains\+Mono\b/.test(fontsLink[1])) fail(`${rel}: the P1 mono (JetBrains Mono) is not loaded`);
 }
 
 if (failures.length > 0) {
