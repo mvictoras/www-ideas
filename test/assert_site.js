@@ -82,6 +82,25 @@ if (htmlFiles.length === 0) {
   process.exit(1);
 }
 
+// Returns the complete element starting at html[startIndex] (the index of an
+// opening <tag>), up to and including its closing tag. Used for elements that
+// never nest their own kind (sections, the news list).
+const extractElement = (html, startIndex, tagName) => {
+  const end = html.indexOf(`</${tagName}>`, startIndex);
+  return end === -1 ? null : html.slice(startIndex, end + tagName.length + 3);
+};
+
+// True when the img with the given src renders inside a P1 figure frame
+// (issue #20) — the nearest opening tag before it is the frame's div, not
+// the <figure> itself.
+const figureIsFramed = (html, srcPattern) => {
+  const imgIndex = html.indexOf(srcPattern);
+  if (imgIndex === -1) return false;
+  const frameOpen = html.lastIndexOf('<div class="ideas-figure-frame"', imgIndex);
+  const figureOpen = html.lastIndexOf("<figure", imgIndex);
+  return frameOpen !== -1 && frameOpen > figureOpen;
+};
+
 // 1. Every nav page exists and has one primary heading.
 for (const [index, p] of NAV_PAGES.entries()) {
   const file = path.join(SITE, p);
@@ -514,12 +533,12 @@ if (!fs.existsSync(RESEARCH_PAGE)) {
       fail(`research/index.html: ${figure.name} is not inside a <figure>`);
     } else {
       if (!/<img[^>]*\salt="[^"]+"/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no alt text`);
-      if (!/<figcaption>[\s\S]*?\S[\s\S]*?<\/figcaption>/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no caption`);
+        if (!/<figcaption>[\s\S]*?\S[\s\S]*?<\/figcaption>/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no caption`);
       if (!/Credit:/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no credit line`);
       // P1 (issue #20): figures render inside a frame on the figure surface.
-      const figureImgIndex = figureBlock[0].indexOf(srcPattern);
-      const frameOpen = figureBlock[0].lastIndexOf('<div class="ideas-figure-frame"', figureImgIndex);
-      if (frameOpen === -1) fail(`research/index.html: ${figure.name} is not rendered in a P1 figure frame`);
+      if (!figureIsFramed(figureBlock[0], srcPattern)) {
+        fail(`research/index.html: ${figure.name} is not rendered in a P1 figure frame`);
+      }
     }
   }
 
@@ -545,10 +564,7 @@ if (!fs.existsSync(RESEARCH_PAGE)) {
     if (!fs.existsSync(path.join(SITE, objective.figure.src))) {
       fail(`${objective.figure.src}: not published in the build`);
     }
-    const figureImgIndex = researchHtml.indexOf(srcPattern);
-    const frameOpen = researchHtml.lastIndexOf('<div class="ideas-figure-frame"', figureImgIndex);
-    const figureOpen = researchHtml.lastIndexOf("<figure", figureImgIndex);
-    if (frameOpen === -1 || frameOpen < figureOpen) {
+    if (!figureIsFramed(researchHtml, srcPattern)) {
       fail(`research/index.html: the ${objective.figure.src} figure is not rendered in a P1 figure frame`);
     }
   }
@@ -945,14 +961,12 @@ if (newsSlugs.length === 0) {
   if (!newsHtml) {
     fail("news/index.html: missing — the News page did not build");
   } else {
-    const newsStart = newsHtml.indexOf('<ul class="ideas-news-list"');
-    const newsEnd = newsStart === -1 ? -1 : newsHtml.indexOf("</ul>", newsStart);
-    const newsDiv = newsStart === -1 ? null : newsHtml.slice(newsStart, newsEnd);
-    if (!newsDiv) {
+    const newsListHtml = extractElement(newsHtml, newsHtml.indexOf('<ul class="ideas-news-list"'), "ul");
+    if (!newsListHtml) {
       fail("news/index.html: no rendered news block");
     } else {
-      const newsText = normalizeText(newsDiv);
-      const renderedDates = [...newsDiv.matchAll(/<time class="ideas-date"[^>]*>([^<]+)<\/time>/g)].map((m) => m[1].trim());
+      const newsText = normalizeText(newsListHtml);
+      const renderedDates = [...newsListHtml.matchAll(/<time class="ideas-date"[^>]*>([^<]+)<\/time>/g)].map((m) => m[1].trim());
 
       // Newest first: the rendered date sequence is the News Items sorted by
       // date descending.
@@ -983,7 +997,7 @@ if (newsSlugs.length === 0) {
       // Events never appear in News: no link to an Event page and no Event
       // title inside the rendered news block (scoping to the block keeps the
       // navbar's Events link out of the check).
-      if (newsDiv.includes(`href="${BASEURL}/events/`)) {
+      if (newsListHtml.includes(`href="${BASEURL}/events/`)) {
         fail("news/index.html: the News page links to an Event");
       }
       for (const slug of eventSlugs) {
@@ -1072,28 +1086,26 @@ if (!fs.existsSync(HOME_PAGE)) {
   // The P1 hero (issue #20): an Ink band carrying the Wordmark Hero above the
   // title and the chameleon render — both decorative (alt="") — with a filled
   // button into the Research page.
-  const homeHeroStart = homeHtml.indexOf('<section class="home-hero"');
-  const homeHeroEnd = homeHeroStart === -1 ? -1 : homeHtml.indexOf("</section>", homeHeroStart);
-  const homeHero = homeHeroStart === -1 ? "" : homeHtml.slice(homeHeroStart, homeHeroEnd);
-  if (!homeHero) {
+  const homeHeroHtml = extractElement(homeHtml, homeHtml.indexOf('<section class="home-hero"'), "section");
+  if (!homeHeroHtml) {
     fail("index.html: no hero section");
   } else {
-    const wordmarkImg = homeHero.match(/<img[^>]*ideas-wordmark-hero[^>]*>/);
+    const wordmarkImg = homeHeroHtml.match(/<img[^>]*ideas-wordmark-hero[^>]*>/);
     if (!wordmarkImg) {
       fail("index.html: the hero does not carry the Wordmark Hero");
     } else if (!/alt=""/.test(wordmarkImg[0])) {
       fail("index.html: the Wordmark Hero must be decorative (alt=\"\")");
     }
-    const chameleonImg = homeHero.match(/<img[^>]*chameleon-hero[^>]*>/);
+    const chameleonImg = homeHeroHtml.match(/<img[^>]*chameleon-hero[^>]*>/);
     if (!chameleonImg) {
       fail("index.html: the hero does not carry the chameleon render");
     } else if (!/alt=""/.test(chameleonImg[0])) {
       fail('index.html: the chameleon render must be decorative (alt="")');
     }
-    if (!homeHero.includes("DOE ASCR · Argonne Base · Thrust 2")) {
+    if (!homeHeroHtml.includes("DOE ASCR · Argonne Base · Thrust 2")) {
       fail("index.html: the hero is missing its kicker");
     }
-    if (!homeHero.match(new RegExp(`<a\\b[^>]*class="[^"]*\\bideas-button\\b[^"]*"[^>]*href="${BASEURL}/research/"`))) {
+    if (!homeHeroHtml.match(new RegExp(`<a\\b[^>]*class="[^"]*\\bideas-button\\b[^"]*"[^>]*href="${BASEURL}/research/"`))) {
       fail("index.html: the hero has no button into the Research page");
     }
   }
@@ -1111,14 +1123,12 @@ if (!fs.existsSync(HOME_PAGE)) {
   const homeObjectives = homeProjects.filter((project) => project.category === "objective").sort((a, b) => a.importance - b.importance);
   const homeUseCases = homeProjects.filter((project) => project.category === "use-case").sort((a, b) => a.importance - b.importance);
 
-  const homeObjectivesStart = homeHtml.indexOf('<section class="ideas-block home-objectives"');
-  const homeObjectivesEnd = homeObjectivesStart === -1 ? -1 : homeHtml.indexOf("</section>", homeObjectivesStart);
-  const homeObjectivesDiv = homeObjectivesStart === -1 ? null : homeHtml.slice(homeObjectivesStart, homeObjectivesEnd);
-  if (!homeObjectivesDiv) {
+  const homeObjectivesHtml = extractElement(homeHtml, homeHtml.indexOf('<section class="ideas-block home-objectives"'), "section");
+  if (!homeObjectivesHtml) {
     fail("index.html: no Objectives block");
   } else {
-    const objectiveCards = [...homeObjectivesDiv.matchAll(/<a class="ideas-card"/g)].map((match, index, all) =>
-      homeObjectivesDiv.slice(match.index, index + 1 < all.length ? all[index + 1].index : homeObjectivesDiv.length)
+    const objectiveCards = [...homeObjectivesHtml.matchAll(/<a class="ideas-card"/g)].map((match, index, all) =>
+      homeObjectivesHtml.slice(match.index, index + 1 < all.length ? all[index + 1].index : homeObjectivesHtml.length)
     );
     if (objectiveCards.length !== homeObjectives.length) {
       fail(`index.html: expected ${homeObjectives.length} Objective cards, found ${objectiveCards.length}`);
@@ -1163,14 +1173,12 @@ if (!fs.existsSync(HOME_PAGE)) {
   // Use Case cards: one per use-case project, Active before Upcoming (the
   // layout renders the statuses in that order), linking to the Use Cases
   // page with the status visible on the card.
-  const homeUseCasesStart = homeHtml.indexOf('<section class="ideas-block home-use-cases"');
-  const homeUseCasesEnd = homeUseCasesStart === -1 ? -1 : homeHtml.indexOf("</section>", homeUseCasesStart);
-  const homeUseCasesDiv = homeUseCasesStart === -1 ? null : homeHtml.slice(homeUseCasesStart, homeUseCasesEnd);
-  if (!homeUseCasesDiv) {
+  const homeUseCasesHtml = extractElement(homeHtml, homeHtml.indexOf('<section class="ideas-block home-use-cases"'), "section");
+  if (!homeUseCasesHtml) {
     fail("index.html: no Use Cases block");
   } else {
-    const useCaseCards = [...homeUseCasesDiv.matchAll(/<a class="ideas-card"/g)].map((match, index, all) =>
-      homeUseCasesDiv.slice(match.index, index + 1 < all.length ? all[index + 1].index : homeUseCasesDiv.length)
+    const useCaseCards = [...homeUseCasesHtml.matchAll(/<a class="ideas-card"/g)].map((match, index, all) =>
+      homeUseCasesHtml.slice(match.index, index + 1 < all.length ? all[index + 1].index : homeUseCasesHtml.length)
     );
     if (useCaseCards.length !== homeUseCases.length) {
       fail(`index.html: expected ${homeUseCases.length} Use Case cards, found ${useCaseCards.length}`);
@@ -1215,13 +1223,11 @@ if (!fs.existsSync(HOME_PAGE)) {
   // Latest news: the newest page.announcements.limit News Items from the
   // _news collection, newest first, with dates and inline bodies — P1's dated
   // stream (issue #20).
-  const homeNewsStart = homeHtml.indexOf('<section class="ideas-block home-news"');
-  const homeNewsEnd = homeNewsStart === -1 ? -1 : homeHtml.indexOf("</section>", homeNewsStart);
-  const homeNewsDiv = homeNewsStart === -1 ? null : homeHtml.slice(homeNewsStart, homeNewsEnd);
-  if (!homeNewsDiv) {
+  const homeNewsHtml = extractElement(homeHtml, homeHtml.indexOf('<section class="ideas-block home-news"'), "section");
+  if (!homeNewsHtml) {
     fail("index.html: no Latest news block");
   } else {
-    const homeNewsText = normalizeText(homeNewsDiv);
+    const homeNewsText = normalizeText(homeNewsHtml);
     const latestNews = newsSlugs
       .map((slug) => {
         const item = parseFrontMatter(path.join(__dirname, "..", "_news", `${slug}.md`));
@@ -1232,7 +1238,7 @@ if (!fs.existsSync(HOME_PAGE)) {
     const newsLimit = 3;
     const expectedLatest = latestNews.slice(0, newsLimit);
 
-    const homeRenderedDates = [...homeNewsDiv.matchAll(/<time class="ideas-date"[^>]*>([^<]+)<\/time>/g)].map((m) => m[1].trim());
+    const homeRenderedDates = [...homeNewsHtml.matchAll(/<time class="ideas-date"[^>]*>([^<]+)<\/time>/g)].map((m) => m[1].trim());
     const expectedDates = expectedLatest.map((item) => formatNewsDate(item.date));
     if (homeRenderedDates.length !== expectedDates.length || !homeRenderedDates.every((date, index) => date === expectedDates[index])) {
       fail(
@@ -1258,13 +1264,11 @@ if (!fs.existsSync(HOME_PAGE)) {
   // Upcoming events: the next Event relative to the build date (same rule as
   // the Events index — past only once the end date has fully passed), linked
   // with its type, dates, venue and RSVP state visible.
-  const homeEventsStart = homeHtml.indexOf('<section class="ideas-block home-events"');
-  const homeEventsEnd = homeEventsStart === -1 ? -1 : homeHtml.indexOf("</section>", homeEventsStart);
-  const homeEventsDiv = homeEventsStart === -1 ? null : homeHtml.slice(homeEventsStart, homeEventsEnd);
-  if (!homeEventsDiv) {
+  const homeEventsHtml = extractElement(homeHtml, homeHtml.indexOf('<section class="ideas-block home-events"'), "section");
+  if (!homeEventsHtml) {
     fail("index.html: no Upcoming events block");
   } else {
-    const homeEventsText = normalizeText(homeEventsDiv);
+    const homeEventsText = normalizeText(homeEventsHtml);
     const isEventPast = (event) => {
       const [year, month, day] = String(event.end_date).slice(0, 10).split("-").map(Number);
       return new Date(year, month - 1, day, 23, 59, 59) < new Date();
@@ -1280,7 +1284,7 @@ if (!fs.existsSync(HOME_PAGE)) {
     if (!nextEvent) {
       fail("index.html: no upcoming Event in _events/ to assert against");
     } else {
-      if (!homeEventsDiv.includes(`href="${BASEURL}/events/${nextEvent.slug}/"`)) {
+      if (!homeEventsHtml.includes(`href="${BASEURL}/events/${nextEvent.slug}/"`)) {
         fail(`index.html: the Upcoming events block does not link the next Event ${nextEvent.slug}`);
       }
       if (!homeEventsText.includes(normalizeText(escapeHtml(nextEvent.event_type)))) {
