@@ -522,76 +522,118 @@
     margin: 0;
   }
 </style> <div class="post"> <header class="post-header"> <h1 class="post-title">Use Cases</h1> <p class="post-description">DOE science applications motivating and validating IDEAS</p> </header> <article> <style>
+  /* P1's container-narrow for the essay. This block renders only on pages
+     using the use-cases layout, so the cap is effectively page-scoped. */
+  .container {
+    max-width: 820px;
+  }
+
+  /* P1's page head: title and lead. */
+  .post-header {
+    padding: 56px 0 8px;
+  }
+  .post-title {
+    font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin: 0 0 12px;
+  }
+  .post-description {
+    color: var(--global-text-color-light);
+    font-size: 1.15rem;
+    margin: 0;
+  }
+
+  article p {
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+
   .use-cases-lede {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     line-height: 1.7;
+    margin-top: 32px;
   }
 
+  /* The Active / Upcoming groups head with the shared P1 block heading
+     (rule underneath). */
   .use-case-group {
-    margin-top: 4rem;
-  }
-
-  .use-case-group > h2 {
-    margin-top: 0;
+    margin-top: 64px;
   }
 
   .use-case {
-    margin-top: 3rem;
-    padding-top: 2rem;
     border-top: 1px solid var(--global-divider-color);
+    margin-top: 56px;
+    padding-top: 32px;
+    scroll-margin-top: 72px;
   }
 
-  .use-case:first-of-type {
-    margin-top: 1.5rem;
+  /* The group's first section follows the block heading, whose rule it
+     would otherwise double. */
+  .use-case-group .use-case:first-of-type {
     border-top: none;
+    margin-top: 24px;
     padding-top: 0;
   }
 
   .use-case-kicker {
-    margin-bottom: 0.25rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
     color: var(--global-theme-color);
   }
 
-  .use-case h2 {
-    margin-top: 0;
+  .use-case-title {
+    font-size: 1.85rem;
+    font-weight: 700;
+    margin: 0 0 8px;
   }
 
   .use-case-tagline {
-    margin-bottom: 1.5rem;
-    font-size: 1.35rem;
-    font-style: italic;
+    color: var(--global-text-color-light);
+    font-size: 1.3rem;
+    font-style: normal;
+    font-weight: 500;
     line-height: 1.4;
+    margin-bottom: 24px;
+  }
+
+  /* Diagrams (figure.fit: contain) keep their own aspect inside the frame,
+     capped so a screenshot does not stretch across the column. */
+  .use-case-figure-diagram .ideas-figure-frame img {
+    max-width: 640px;
+  }
+
+  /* Upcoming Use Cases read as clearly secondary: a quiet tinted surface
+     behind a dashed rule, muted heading and kicker, smaller title. */
+  .use-case-secondary {
+    background: color-mix(in srgb, var(--global-divider-color) 18%, transparent);
+    border: 1px dashed var(--global-divider-color);
+    border-radius: 10px;
+    margin-top: 56px;
+    padding: 24px 24px 8px;
+  }
+  .use-case-secondary .use-case-kicker {
     color: var(--global-text-color-light);
   }
-
-  .use-case-figure {
-    margin: 2.5rem 0;
-  }
-
-  .use-case-figure img {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: 0.5rem;
-  }
-
-  .use-case-figure figcaption {
-    margin-top: 0.75rem;
-    font-size: 0.875rem;
-    line-height: 1.5;
+  .use-case-secondary .use-case-title {
     color: var(--global-text-color-light);
+    font-size: 1.5rem;
+  }
+  .use-case-secondary .use-case-tagline {
+    font-size: 1.15rem;
+  }
+  .use-case-secondary article p,
+  .use-case-secondary p {
+    font-size: 1rem;
+  }
+  .use-case-secondary .ideas-figure {
+    margin: 24px 0 8px;
   }
 
   .use-cases-closing {
-    margin-top: 4rem;
-    padding-top: 2.5rem;
     border-top: 1px solid var(--global-divider-color);
+    margin-top: 56px;
+    padding-top: 32px;
   }
-</style> <p class="use-cases-lede">IDEAS exists for the scientists who use it. Two Use Cases drive the research today — Cosmology, where the data is measured in petabytes, and Turbulence in Complex Geometries, where it hides inside unforgiving reactor geometry — and a third, X-Ray Science at the Advanced Photon Source, is upcoming. Each stresses a different edge of the problem: sheer volume, geometric and multiphysics complexity, and the speed at which data arrive.</p> <div class="use-case-group" id="active"> <h2>Active</h2> <section class="use-case" id="cosmology"> <p class="use-case-kicker">Active Use Case</p> <h2>Cosmology</h2> <p class="use-case-tagline">Finding the one-in-a-billion in a petabyte of universe.</p> <p>Cosmology’s most instructive objects are its rarest. In large-scale cosmological simulations such as HACC, scientists seek rare but scientifically critical structures — Bullet Cluster analogs, where dark matter and baryonic matter are spatially offset — because these phenomena offer key insights into cosmological models. Yet they are extremely difficult to isolate amid petabytes of multiscale, multivariate data. Today’s workflows rely on manual scripting and exhaustive, error-prone searches, which makes targeted follow-up simulations slow and inefficient.</p> <p>The IDEAS assistant attacks the search directly. Compact homomorphic representations preserve the salient structures of a simulation while downsampling the irrelevant regions around them, so a scientist can interactively query and visualize simulation outputs in natural language, rapidly identify regions of interest, and initiate high-resolution follow-up simulations through provenance-aware, multiagent orchestration.</p> <p>The working testbed is Frontier-E, the first cosmological simulation to combine survey-scale volumes with self-consistent modeling of gravity, gas dynamics and galaxy formation: multiple petabytes across hundreds of snapshots. A version downscaled 2000× — same resolution, same physics, a far smaller volume — serves as a reproducible testbed where natural-language-driven spatial slices and galaxy-distribution visualizations generated with the assistant have been validated against known structures. The next target is rare-object detection, with Bullet Cluster analogs as the initial benchmark, before the methods extend to the full Frontier-E volume.</p> <figure class="use-case-figure"> <img src="/www-ideas/assets/img/use-cases/hacc.png" alt="A wide-field cosmology simulation in blue, with a small region zoomed into three panels showing the matter density, stellar density and gas temperature of a massive cluster."> <figcaption>A rare cluster identified within a 4-trillion-particle HACC simulation: the full matter-density field, with the zoomed region showing matter density, stellar density and gas temperature. Credit: IDEAS team, Argonne Base proposal (2025).</figcaption> </figure> </section> <section class="use-case" id="turbulence-in-complex-geometries"> <p class="use-case-kicker">Active Use Case</p> <h2>Turbulence in Complex Geometries</h2> <p class="use-case-tagline">The hardest flows hide inside the most complex machines.</p> <p>Turbulence in Complex Geometries takes on the flows that matter in engineering, where the physics and the geometry are both unforgiving. The motivating problems come from next-generation reactors: pebble-bed cores and the breeding blankets of fusion machines, where performance depends on complex internal geometry and multiphysics interactions — particularly between liquid-metal coolant flow and strong magnetic fields. Scientists model these systems with NekRS, an exascale-ready, GPU-accelerated computational fluid dynamics code, at extreme resolution; the resulting massive, multivariable datasets demand expert-driven, time-intensive analysis.</p> <p>IDEAS attacks the data side of that bottleneck. Implicit neural representations and multivariate functional approximations compress and structure the fields for efficient access, so scientists can interactively explore the time-varying data with natural-language queries and context-aware visual tools, automatically detect behaviors such as flow stagnation or pressure anomalies, and adapt the visualization to the user’s focus.</p> <p>The controlled testbed is the Taylor-Green Vortex: a box geometry with simple initial conditions that nonetheless spontaneously generates the full complexity of turbulence. It benchmarks vortex identification, challenges volume rendering and Lagrangian particle tracking, and — because any research group can reproduce it — enables meaningful comparison across teams. Natural-language-driven slice visualizations already run against it, and datasets for the more complex engineering geometries, including the pebble-bed reactor and the fusion breeding blanket, extend the testbed toward the motivating problems.</p> </section> </div> <div class="use-case-group" id="upcoming"> <h2>Upcoming</h2> <section class="use-case" id="x-ray-science"> <p class="use-case-kicker">Upcoming Use Case</p> <h2>X-Ray Science</h2> <p class="use-case-tagline">From beamtime bottleneck to real-time dialogue.</p> <p>X-Ray Science moves the assistant from supercomputer output to live instrument data. X-ray photon correlation spectroscopy (XPCS) experiments at the Advanced Photon Source (APS) probe nanoscale dynamics by measuring temporal fluctuations in scattered X-ray intensity, producing g₂(τ) correlation curves that encode information about diffusion, relaxation and aging processes. To reduce noise, scientists perform hundreds to thousands of repeat measurements and manually aggregate the valid g₂ curves while discarding those with anomalies such as detector glitches or misalignments — a workflow that is largely post hoc and reliant on manual judgment, limiting the ability to interact with data during beamtime.</p> <p>IDEAS will address this bottleneck through real-time data streaming from APS to the Argonne Leadership Computing Facility, combined with progressive homomorphic modeling that enables on-the-fly curve analysis. The assistant will let users query, aggregate and visualize g₂ curves in natural language, automatically filter outliers based on metadata and statistical properties, and maintain full experiment context through integrated provenance tracking — turning a tedious post-processing chore into a dialogue that can steer a beamtime.</p> <figure class="use-case-figure"> <img src="/www-ideas/assets/img/use-cases/xpcs-interface.png" alt="Screenshot of an XPCS data analysis interface. A g2 curve plot compares single (orange) and averaged (blue) curves, with red outlier bounds for filtering anomalous datasets, above averaging settings and a job list."> <figcaption>Interface for XPCS data analysis showing single (orange) and averaged (blue) g₂(τ) curves. Outlier bounds (red lines) are applied to filter anomalous datasets before averaging, ensuring data quality and efficient beamtime use. Credit: IDEAS team, Argonne Base proposal (2025).</figcaption> </figure> </section> </div> <div class="use-cases-closing"> <p>The active Use Cases double as validation grounds. The downscaled Frontier-E volume and the Taylor-Green Vortex are reproducible testbeds where the assistant is checked against data the whole community can regenerate, and the streaming patterns proven with them are the blueprint for the X-Ray Science integration. The <a href="/www-ideas/research/">Research</a> page describes the Objectives that serve these Use Cases; the <a href="/www-ideas/publications/">Publications</a> and <a href="/www-ideas/software/">Software</a> pages track what has resulted so far.</p> </div> </article> </div> </div> <footer class="site-footer" role="contentinfo"> <div class="container"> <div class="ideas-partner-strip" role="img" aria-label="Argonne National Laboratory, which leads IDEAS, and the Partners: University of California Davis, University of Cincinnati, University of Illinois Chicago, University of Nebraska–Lincoln, Kitware and Veeda AI."> <img class="ideas-partner-strip-line" src="/www-ideas/assets/img/logos/ideas-partner-strip-large-on-light.svg?v=2f91fc5028f3497e8bf4c90fea190050" alt="" width="907" height="64" loading="lazy"> <ul class="ideas-partner-strip-grid" aria-hidden="true"> <li> <img src="/www-ideas/assets/img/logos/partners/argonne.svg?v=f21e6da3b26a0f3b10bcb650bb509373" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/ucdavis.svg?v=9f55f9d3e6aaa7bc2883e62f1f18dc1f" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/cincinnati.svg?v=778c80dab350a8cfd49c66c96698cce4" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/uic.svg?v=b2ceb127dc6f64dc25c32e6e512aead6" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/unl.svg?v=c38fa06ec4243aaa9ed6c4a7430b6af7" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/kitware.svg?v=a85b0d1663bab67c9c3f72013eaee479" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/veeda.svg?v=2b849bdde0234f6d878bb49bfdc4e080" alt="" loading="lazy"> </li> </ul> </div> <p class="ideas-acknowledgment"> This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Advanced Scientific Computing Research (ASCR) under Contract DE-AC02-06CH11357. </p> </div> </footer> <script>
+</style> <p class="use-cases-lede">IDEAS exists for the scientists who use it. Two Use Cases drive the research today — Cosmology, where the data is measured in petabytes, and Turbulence in Complex Geometries, where it hides inside unforgiving reactor geometry — and a third, X-Ray Science at the Advanced Photon Source, is upcoming. Each stresses a different edge of the problem: sheer volume, geometric and multiphysics complexity, and the speed at which data arrive.</p> <div class="use-case-group" id="active"> <div class="ideas-block-head"> <h2 class="ideas-block-title">Active</h2> </div> <section class="use-case" id="cosmology"> <p class="ideas-kicker use-case-kicker">Active Use Case</p> <h2 class="use-case-title">Cosmology</h2> <p class="use-case-tagline">Finding the one-in-a-billion in a petabyte of universe.</p> <p>Cosmology’s most instructive objects are its rarest. In large-scale cosmological simulations such as HACC, scientists seek rare but scientifically critical structures — Bullet Cluster analogs, where dark matter and baryonic matter are spatially offset — because these phenomena offer key insights into cosmological models. Yet they are extremely difficult to isolate amid petabytes of multiscale, multivariate data. Today’s workflows rely on manual scripting and exhaustive, error-prone searches, which makes targeted follow-up simulations slow and inefficient.</p> <p>The IDEAS assistant attacks the search directly. Compact homomorphic representations preserve the salient structures of a simulation while downsampling the irrelevant regions around them, so a scientist can interactively query and visualize simulation outputs in natural language, rapidly identify regions of interest, and initiate high-resolution follow-up simulations through provenance-aware, multiagent orchestration.</p> <p>The working testbed is Frontier-E, the first cosmological simulation to combine survey-scale volumes with self-consistent modeling of gravity, gas dynamics and galaxy formation: multiple petabytes across hundreds of snapshots. A version downscaled 2000× — same resolution, same physics, a far smaller volume — serves as a reproducible testbed where natural-language-driven spatial slices and galaxy-distribution visualizations generated with the assistant have been validated against known structures. The next target is rare-object detection, with Bullet Cluster analogs as the initial benchmark, before the methods extend to the full Frontier-E volume.</p> <figure class="ideas-figure use-case-figure"> <div class="ideas-figure-frame"> <img src="/www-ideas/assets/img/use-cases/hacc.png" alt="A wide-field cosmology simulation in blue, with a small region zoomed into three panels showing the matter density, stellar density and gas temperature of a massive cluster."> </div> <figcaption> A rare cluster identified within a 4-trillion-particle HACC simulation: the full matter-density field, with the zoomed region showing matter density, stellar density and gas temperature. <span class="credit">Credit: IDEAS team, Argonne Base proposal (2025).</span> </figcaption> </figure> </section> <section class="use-case" id="turbulence-in-complex-geometries"> <p class="ideas-kicker use-case-kicker">Active Use Case</p> <h2 class="use-case-title">Turbulence in Complex Geometries</h2> <p class="use-case-tagline">The hardest flows hide inside the most complex machines.</p> <p>Turbulence in Complex Geometries takes on the flows that matter in engineering, where the physics and the geometry are both unforgiving. The motivating problems come from next-generation reactors: pebble-bed cores and the breeding blankets of fusion machines, where performance depends on complex internal geometry and multiphysics interactions — particularly between liquid-metal coolant flow and strong magnetic fields. Scientists model these systems with NekRS, an exascale-ready, GPU-accelerated computational fluid dynamics code, at extreme resolution; the resulting massive, multivariable datasets demand expert-driven, time-intensive analysis.</p> <p>IDEAS attacks the data side of that bottleneck. Implicit neural representations and multivariate functional approximations compress and structure the fields for efficient access, so scientists can interactively explore the time-varying data with natural-language queries and context-aware visual tools, automatically detect behaviors such as flow stagnation or pressure anomalies, and adapt the visualization to the user’s focus.</p> <p>The controlled testbed is the Taylor-Green Vortex: a box geometry with simple initial conditions that nonetheless spontaneously generates the full complexity of turbulence. It benchmarks vortex identification, challenges volume rendering and Lagrangian particle tracking, and — because any research group can reproduce it — enables meaningful comparison across teams. Natural-language-driven slice visualizations already run against it, and datasets for the more complex engineering geometries, including the pebble-bed reactor and the fusion breeding blanket, extend the testbed toward the motivating problems.</p> </section> </div> <div class="use-case-group" id="upcoming"> <div class="ideas-block-head"> <h2 class="ideas-block-title">Upcoming</h2> </div> <section class="use-case use-case-secondary" id="x-ray-science"> <p class="ideas-kicker use-case-kicker">Upcoming Use Case</p> <h2 class="use-case-title">X-Ray Science</h2> <p class="use-case-tagline">From beamtime bottleneck to real-time dialogue.</p> <p>X-Ray Science moves the assistant from supercomputer output to live instrument data. X-ray photon correlation spectroscopy (XPCS) experiments at the Advanced Photon Source (APS) probe nanoscale dynamics by measuring temporal fluctuations in scattered X-ray intensity, producing g₂(τ) correlation curves that encode information about diffusion, relaxation and aging processes. To reduce noise, scientists perform hundreds to thousands of repeat measurements and manually aggregate the valid g₂ curves while discarding those with anomalies such as detector glitches or misalignments — a workflow that is largely post hoc and reliant on manual judgment, limiting the ability to interact with data during beamtime.</p> <p>IDEAS will address this bottleneck through real-time data streaming from APS to the Argonne Leadership Computing Facility, combined with progressive homomorphic modeling that enables on-the-fly curve analysis. The assistant will let users query, aggregate and visualize g₂ curves in natural language, automatically filter outliers based on metadata and statistical properties, and maintain full experiment context through integrated provenance tracking — turning a tedious post-processing chore into a dialogue that can steer a beamtime.</p> <figure class="ideas-figure use-case-figure use-case-figure-diagram"> <div class="ideas-figure-frame"> <img src="/www-ideas/assets/img/use-cases/xpcs-interface.png" alt="Screenshot of an XPCS data analysis interface. A g2 curve plot compares single (orange) and averaged (blue) curves, with red outlier bounds for filtering anomalous datasets, above averaging settings and a job list."> </div> <figcaption> Interface for XPCS data analysis showing single (orange) and averaged (blue) g₂(τ) curves. Outlier bounds (red lines) are applied to filter anomalous datasets before averaging, ensuring data quality and efficient beamtime use. <span class="credit">Credit: IDEAS team, Argonne Base proposal (2025).</span> </figcaption> </figure> </section> </div> <div class="use-cases-closing"> <p>The active Use Cases double as validation grounds. The downscaled Frontier-E volume and the Taylor-Green Vortex are reproducible testbeds where the assistant is checked against data the whole community can regenerate, and the streaming patterns proven with them are the blueprint for the X-Ray Science integration. The <a href="/www-ideas/research/">Research</a> page describes the Objectives that serve these Use Cases; the <a href="/www-ideas/publications/">Publications</a> and <a href="/www-ideas/software/">Software</a> pages track what has resulted so far.</p> </div> </article> </div> </div> <footer class="site-footer" role="contentinfo"> <div class="container"> <div class="ideas-partner-strip" role="img" aria-label="Argonne National Laboratory, which leads IDEAS, and the Partners: University of California Davis, University of Cincinnati, University of Illinois Chicago, University of Nebraska–Lincoln, Kitware and Veeda AI."> <img class="ideas-partner-strip-line" src="/www-ideas/assets/img/logos/ideas-partner-strip-large-on-light.svg?v=2f91fc5028f3497e8bf4c90fea190050" alt="" width="907" height="64" loading="lazy"> <ul class="ideas-partner-strip-grid" aria-hidden="true"> <li> <img src="/www-ideas/assets/img/logos/partners/argonne.svg?v=f21e6da3b26a0f3b10bcb650bb509373" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/ucdavis.svg?v=9f55f9d3e6aaa7bc2883e62f1f18dc1f" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/cincinnati.svg?v=778c80dab350a8cfd49c66c96698cce4" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/uic.svg?v=b2ceb127dc6f64dc25c32e6e512aead6" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/unl.svg?v=c38fa06ec4243aaa9ed6c4a7430b6af7" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/kitware.svg?v=a85b0d1663bab67c9c3f72013eaee479" alt="" loading="lazy"> </li> <li> <img src="/www-ideas/assets/img/logos/partners/veeda.svg?v=2b849bdde0234f6d878bb49bfdc4e080" alt="" loading="lazy"> </li> </ul> </div> <p class="ideas-acknowledgment"> This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Advanced Scientific Computing Research (ASCR) under Contract DE-AC02-06CH11357. </p> </div> </footer> <script>
   window.alFolio = {
     compatBootstrap: false
   };
