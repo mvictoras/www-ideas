@@ -533,7 +533,7 @@ if (!fs.existsSync(RESEARCH_PAGE)) {
       fail(`research/index.html: ${figure.name} is not inside a <figure>`);
     } else {
       if (!/<img[^>]*\salt="[^"]+"/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no alt text`);
-        if (!/<figcaption>[\s\S]*?\S[\s\S]*?<\/figcaption>/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no caption`);
+      if (!/<figcaption>[\s\S]*?\S[\s\S]*?<\/figcaption>/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no caption`);
       if (!/Credit:/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no credit line`);
       // P1 (issue #20): figures render inside a frame on the figure surface.
       if (!figureIsFramed(figureBlock[0], srcPattern)) {
@@ -784,6 +784,17 @@ const formatEventDay = (yamlDate) => {
   });
 };
 
+// Matches the index card's date range format ("February 2 – February 3, 2027").
+const EVENT_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const formatEventRange = (event) => {
+  const [startYear, startMonth, startDay] = String(event.start_date).slice(0, 10).split("-").map(Number);
+  const [endYear, endMonth, endDay] = String(event.end_date).slice(0, 10).split("-").map(Number);
+  if (startYear === endYear && startMonth === endMonth && startDay === endDay) {
+    return `${EVENT_MONTHS[startMonth - 1]} ${startDay}, ${startYear}`;
+  }
+  return `${EVENT_MONTHS[startMonth - 1]} ${startDay} – ${EVENT_MONTHS[endMonth - 1]} ${endDay}, ${endYear}`;
+};
+
 if (eventSlugs.length === 0) {
   fail("_events/: no Event entries found");
 } else {
@@ -802,7 +813,9 @@ if (eventSlugs.length === 0) {
 
     // The details block runs from the kicker to the closing of the details
     // list, so text outside the event (nav, footer) cannot satisfy checks.
-    const start = html.indexOf('<p class="event-kicker">');
+    // P1 (issue #25): the kicker and the day dates carry the shared mono
+    // classes (.ideas-kicker / .ideas-date) alongside their semantic hooks.
+    const start = html.indexOf('<p class="ideas-kicker event-kicker">');
     const end = html.indexOf("</dl>", start);
     if (start === -1 || end === -1) {
       fail(`events/${slug}/index.html: no event details block rendered`);
@@ -813,13 +826,13 @@ if (eventSlugs.length === 0) {
     if (!html.includes(`<h1 class="post-title">${escapeHtml(event.title)}</h1>`)) {
       fail(`events/${slug}/index.html: <h1> is not its title "${event.title}"`);
     }
-    if (!segment.includes(`<p class="event-kicker">${escapeHtml(event.event_type)}</p>`)) {
+    if (!segment.includes(`<p class="ideas-kicker event-kicker">${escapeHtml(event.event_type)}</p>`)) {
       fail(`events/${slug}/index.html: does not render its event type "${event.event_type}"`);
     }
 
     // Both dates with their per-day notes (e.g. the half-day note).
     for (const day of event.days || []) {
-      if (!segment.includes(`<span class="event-day">${formatEventDay(day.date)}</span>`)) {
+      if (!segment.includes(`<span class="event-day ideas-date">${formatEventDay(day.date)}</span>`)) {
         fail(`events/${slug}/index.html: does not show the date ${day.date} in words`);
       }
       if (day.note && !segment.includes(escapeHtml(day.note))) {
@@ -898,14 +911,44 @@ if (eventSlugs.length === 0) {
           if (groupHtmls[otherGroup].includes(cardLink)) {
             fail(`events/index.html: "${event.title}" is also listed under ${otherGroup}`);
           }
+          // P1 (issue #25): each Event is an .ideas-event-card whose dates
+          // are set in the shared mono .ideas-date treatment.
+          if (!groupHtmls[expectedGroup].includes('<article class="ideas-event-card">')) {
+            fail(`events/index.html: "${event.title}" is not an .ideas-event-card`);
+          }
+        }
+
+        // The groups use the shared P1 section-heading system (rule
+        // underneath, via .ideas-block-head / .ideas-block-title).
+        if (!groupHtmls.upcoming.includes('<h2 class="ideas-block-title">Upcoming</h2>')) {
+          fail("events/index.html: the Upcoming group does not use the P1 block head");
+        }
+        if (!groupHtmls.past.includes('<h2 class="ideas-block-title">Past</h2>')) {
+          fail("events/index.html: the Past group does not use the P1 block head");
         }
 
         // The All-Hands Meeting is the first seeded Event: assert its card
-        // explicitly (dates, venue, format and RSVP state are visible on the
-        // index, not only on the event page).
+        // explicitly (mono dates, venue, format and RSVP state are visible
+        // on the index, not only on the event page).
         const upcomingHtml = groupHtmls.upcoming;
         if (!upcomingHtml.includes(`href="${BASEURL}/events/${ALL_HANDS_SLUG}/"`)) {
           fail(`events/index.html: the All-Hands Meeting (${ALL_HANDS_SLUG}) is not listed under Upcoming`);
+        } else {
+          const allHands = parseFrontMatter(path.join(EVENTS_DIR, `${ALL_HANDS_SLUG}.md`));
+          const linkAt = upcomingHtml.indexOf(`href="${BASEURL}/events/${ALL_HANDS_SLUG}/"`);
+          const cardStart = upcomingHtml.lastIndexOf("<article", linkAt);
+          const cardHtml = upcomingHtml.slice(cardStart, upcomingHtml.indexOf("</article>", linkAt));
+          if (!cardHtml.includes('<time class="ideas-date"')) {
+            fail("events/index.html: the All-Hands card does not set its dates in the mono .ideas-date treatment");
+          }
+          if (!cardHtml.includes(formatEventRange(allHands))) {
+            fail(`events/index.html: the All-Hands card does not show the date range "${formatEventRange(allHands)}"`);
+          }
+          for (const expected of [allHands.venue.name, allHands.format, "RSVP required"]) {
+            if (!cardHtml.includes(escapeHtml(expected))) {
+              fail(`events/index.html: the All-Hands card does not show "${expected}"`);
+            }
+          }
         }
       }
     }
@@ -1094,7 +1137,7 @@ if (!fs.existsSync(HOME_PAGE)) {
     if (!wordmarkImg) {
       fail("index.html: the hero does not carry the Wordmark Hero");
     } else if (!/alt=""/.test(wordmarkImg[0])) {
-      fail("index.html: the Wordmark Hero must be decorative (alt=\"\")");
+      fail('index.html: the Wordmark Hero must be decorative (alt="")');
     }
     const chameleonImg = homeHeroHtml.match(/<img[^>]*chameleon-hero[^>]*>/);
     if (!chameleonImg) {
