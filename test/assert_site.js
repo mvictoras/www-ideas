@@ -533,7 +533,7 @@ if (!fs.existsSync(RESEARCH_PAGE)) {
       fail(`research/index.html: ${figure.name} is not inside a <figure>`);
     } else {
       if (!/<img[^>]*\salt="[^"]+"/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no alt text`);
-        if (!/<figcaption>[\s\S]*?\S[\s\S]*?<\/figcaption>/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no caption`);
+      if (!/<figcaption>[\s\S]*?\S[\s\S]*?<\/figcaption>/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no caption`);
       if (!/Credit:/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no credit line`);
       // P1 (issue #20): figures render inside a frame on the figure surface.
       if (!figureIsFramed(figureBlock[0], srcPattern)) {
@@ -753,6 +753,25 @@ if (!fs.existsSync(SOFTWARE_PAGE)) {
       for (const segment of softwareCardSegments) {
         if (!softwareReleases.some((release) => segment.includes(`<h2 class="software-name">${escapeHtml(release.name)}</h2>`))) {
           fail("software/index.html: contains a card with no entry in _data/software.yml");
+        }
+      }
+
+      // P1 rendering (issue #24): the page head is the shared post-header
+      // treatment and every card is the text-led P1 card — a mono kicker over
+      // the name, and the links in a rule-separated footer list.
+      if (!softwareHtml.includes('<h1 class="post-title">Software</h1>')) {
+        fail("software/index.html: missing the P1 post-header page title");
+      }
+      const softwarePageDescription = "Software Releases produced or substantially extended by IDEAS";
+      if (!softwareHtml.includes(`<p class="post-description">${escapeHtml(softwarePageDescription)}</p>`)) {
+        fail("software/index.html: missing the P1 post-header page description");
+      }
+      for (const segment of softwareCardSegments) {
+        if (!segment.includes('class="ideas-kicker')) {
+          fail("software/index.html: a Software Release card is missing the P1 mono kicker");
+        }
+        if (!segment.includes('<ul class="software-links">')) {
+          fail("software/index.html: a Software Release card is missing its links list");
         }
       }
     }
@@ -1094,7 +1113,7 @@ if (!fs.existsSync(HOME_PAGE)) {
     if (!wordmarkImg) {
       fail("index.html: the hero does not carry the Wordmark Hero");
     } else if (!/alt=""/.test(wordmarkImg[0])) {
-      fail("index.html: the Wordmark Hero must be decorative (alt=\"\")");
+      fail('index.html: the Wordmark Hero must be decorative (alt="")');
     }
     const chameleonImg = homeHeroHtml.match(/<img[^>]*chameleon-hero[^>]*>/);
     if (!chameleonImg) {

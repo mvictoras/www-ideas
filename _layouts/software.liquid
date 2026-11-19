@@ -6,43 +6,109 @@ layout: page
   with its description, repository link and — when present — the related
   paper DOI and project page. The build harness (test/assert_site.js)
   asserts the rendered cards match the data file 1:1.
+
+  P1 (issue #24): the Software Releases have no figures, so the cards are
+  text-led — the .ideas-card-body treatment without media, headed by a
+  subtle ramp-coloured strip and the shared mono kicker. Class names are
+  kept from the pre-P1 layout so the harness's 1:1 data assertions hold.
 {% endcomment %}
 
 <style>
+  /* P1's page head (as on Research). */
+  .post-header {
+    padding: 56px 0 8px;
+  }
+  .post-title {
+    font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin: 0 0 12px;
+  }
+  .post-description {
+    color: var(--global-text-color-light);
+    font-size: 1.15rem;
+    margin: 0;
+  }
+
   .software-grid {
     display: grid;
+    gap: 20px;
     grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
-    gap: 1.25rem;
+    margin-top: 32px;
   }
 
   .software-card {
-    background-color: var(--global-card-bg-color);
+    /* The P1 card: white surface, 1px rule, 10px radius, lift on hover.
+       The ramp gradient across the top is the subtle brand-coloured header
+       standing in for the figure-led cards' media block. */
+    background: var(--global-card-bg-color);
     border: 1px solid var(--global-divider-color);
-    border-radius: 0.5rem;
-    padding: 1.5rem 1.25rem;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 20px 22px;
+    position: relative;
+    transition:
+      border-color 0.15s,
+      transform 0.15s,
+      box-shadow 0.15s;
+  }
+  .software-card::before {
+    content: '';
+    background: linear-gradient(90deg, #1e3a8a, #1d4ed8, #0284c7, #0ea5e9, #14b8a6, #84cc16, #f59e0b);
+    inset: 0 0 auto 0;
+    height: 3px;
+    opacity: 0.85;
+    position: absolute;
+  }
+  .software-card:hover {
+    border-color: var(--global-theme-color);
+    box-shadow: var(--ideas-shadow);
+    transform: translateY(-2px);
+  }
+
+  .software-card .ideas-kicker {
+    color: var(--global-theme-color);
+    margin-bottom: 10px;
   }
 
   .software-name {
-    font-size: 1.25rem;
-    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+    letter-spacing: -0.015em;
+    margin: 0 0 8px;
   }
 
   .software-description {
-    color: var(--global-text-color);
-    margin-bottom: 0.75rem;
+    color: var(--global-text-color-light);
+    flex: 1;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
   }
 
+  /* Rule-separated footer list, links in the mono family like P1's
+     "more" links. */
   .software-links {
+    border-top: 1px solid var(--global-divider-color);
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem 1.25rem;
-    margin-bottom: 0;
-    padding-left: 0;
+    gap: 10px 20px;
     list-style: none;
+    margin: 18px 0 0;
+    padding: 14px 0 0;
   }
 
   .software-links a {
     color: var(--global-theme-color);
+    font: 500 0.8rem var(--ideas-font-mono);
+    letter-spacing: 0.04em;
+    text-decoration: none;
+  }
+
+  .software-links a:hover {
+    color: var(--global-hover-color);
+    text-decoration: underline;
   }
 </style>
 
@@ -50,6 +116,7 @@ layout: page
 <div class="software-grid">
   {% for release in software_releases %}
     <div class="software-card">
+      <p class="ideas-kicker">Software Release</p>
       <h2 class="software-name">{{ release.name }}</h2>
       <p class="software-description">{{ release.description }}</p>
       <ul class="software-links">
