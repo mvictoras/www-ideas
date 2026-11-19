@@ -200,7 +200,11 @@ if (fs.existsSync(sitemapPath)) {
 }
 
 // 5. The Team grid renders exactly the members in _data/team.yml, 1:1, in a
-// single grid with no institution-type group headings.
+// single grid with no institution-type group headings. P1 (issue #22): the
+// grid sits under one "Team Members" section heading with the rule
+// underneath; cards are figure-led (media frame with one consistent crop),
+// the institution is a mono kicker, and a member without a photo gets a
+// brand-coloured initials placeholder instead of a broken image.
 const TEAM_PAGE = path.join(SITE, "team", "index.html");
 if (!fs.existsSync(TEAM_PAGE)) {
   fail("team/index.html: missing — the Team page did not build");
@@ -210,13 +214,22 @@ if (!fs.existsSync(TEAM_PAGE)) {
     fail("_data/team.yml: expected a non-empty list of team members");
   } else {
     const teamHtml = fs.readFileSync(TEAM_PAGE, "utf8");
-    const gridStarts = [...teamHtml.matchAll(/<div class="team-grid">/g)];
-    if (gridStarts.length !== 1) fail(`team/index.html: expected exactly one team grid, found ${gridStarts.length}`);
 
-    // No group headings: every h2 on the Team page is a member name.
+    // The P1 section heading: one block head with the rule underneath.
+    if ((teamHtml.match(/<h2 class="ideas-block-title">Team Members<\/h2>/g) || []).length !== 1) {
+      fail('team/index.html: expected exactly one "Team Members" P1 section heading');
+    }
+    if (!teamHtml.includes('<div class="ideas-block-head">')) {
+      fail("team/index.html: the Team section heading does not use the P1 block head with the rule underneath");
+    }
+
+    // No group headings: the block title is the page's only h2; every member
+    // name is an h3 inside the grid.
     const h2s = (teamHtml.match(/<h2(?:\s|>)/g) || []).length;
-    const nameHeadings = (teamHtml.match(/<h2 class="team-name"/g) || []).length;
-    if (h2s !== nameHeadings) fail("team/index.html: contains headings other than Team Member names");
+    if (h2s !== 1) fail(`team/index.html: expected one section h2 (the block title), found ${h2s}`);
+
+    const gridStarts = [...teamHtml.matchAll(/<div class="team-grid ideas-cards">/g)];
+    if (gridStarts.length !== 1) fail(`team/index.html: expected exactly one team grid, found ${gridStarts.length}`);
 
     const teamGridHtml = gridStarts.length === 1 ? extractDiv(teamHtml, gridStarts[0].index) : null;
     if (!teamGridHtml) {
@@ -224,11 +237,11 @@ if (!fs.existsSync(TEAM_PAGE)) {
     } else {
       // Cards are flat siblings of the grid, so slicing between consecutive
       // card opening tags yields each card's rendered markup.
-      const cardStarts = [...teamGridHtml.matchAll(/<div class="team-card">/g)];
+      const cardStarts = [...teamGridHtml.matchAll(/<div class="team-card ideas-card">/g)];
       const cardSegments = cardStarts.map((match, index) =>
         teamGridHtml.slice(match.index, index + 1 < cardStarts.length ? cardStarts[index + 1].index : teamGridHtml.length)
       );
-      const pageCardCount = (teamHtml.match(/<div class="team-card">/g) || []).length;
+      const pageCardCount = (teamHtml.match(/<div class="team-card ideas-card">/g) || []).length;
       if (cardStarts.length !== team.length) {
         fail(`team/index.html: expected ${team.length} team cards in the grid, found ${cardStarts.length}`);
       }
@@ -242,7 +255,7 @@ if (!fs.existsSync(TEAM_PAGE)) {
       };
 
       for (const member of team) {
-        const renderedName = `<h2 class="team-name">${escapeHtml(member.name)}</h2>`;
+        const renderedName = `<h3 class="team-name">${escapeHtml(member.name)}</h3>`;
         const matches = cardSegments.filter((segment) => segment.includes(renderedName));
         if (matches.length !== 1) {
           fail(`team/index.html: expected exactly one card for data-file member "${member.name}", found ${matches.length}`);
@@ -253,8 +266,8 @@ if (!fs.existsSync(TEAM_PAGE)) {
         if (!segment.includes(`<p class="team-role">${escapeHtml(member.role)}</p>`)) {
           fail(`team/index.html: "${member.name}" card does not render role "${member.role}"`);
         }
-        if (!segment.includes(`<p class="team-institution">${escapeHtml(member.institution)}</p>`)) {
-          fail(`team/index.html: "${member.name}" card does not render institution "${member.institution}"`);
+        if (!segment.includes(`<p class="team-institution ideas-kicker">${escapeHtml(member.institution)}</p>`)) {
+          fail(`team/index.html: "${member.name}" card does not render institution "${member.institution}" as a mono kicker`);
         }
 
         // Optional links: rendered hrefs match the data file exactly, and no
@@ -270,26 +283,39 @@ if (!fs.existsSync(TEAM_PAGE)) {
           }
         }
 
-        // Optional photo: an <img> when present, a legible initials avatar when not.
+        // Optional photo: a consistently-cropped <img> in the P1 media frame
+        // when present, a brand-coloured initials placeholder when not.
+        if (!segment.includes('<div class="team-media ideas-card-media">')) {
+          fail(`team/index.html: "${member.name}" card has no P1 media frame for its consistent crop`);
+        }
         if (member.photo) {
           const expectedSrc = `src="${BASEURL}/assets/img/team/${member.photo}"`;
           if (!segment.includes('<img class="team-photo"') || !segment.includes(expectedSrc)) {
             fail(`team/index.html: "${member.name}" card does not render photo assets/img/team/${member.photo}`);
           }
         } else {
-          if (!segment.includes('class="team-avatar"')) {
+          if (!segment.includes('<div class="team-avatar"')) {
             fail(`team/index.html: "${member.name}" card has neither photo nor initials avatar`);
           }
-          if (!segment.includes(`>${initialsOf(member.name)}</div>`)) {
+          if (!segment.includes(`<span class="team-avatar-initials">${initialsOf(member.name)}</span>`)) {
             fail(`team/index.html: "${member.name}" card avatar does not show initials "${initialsOf(member.name)}"`);
           }
         }
       }
 
       for (const segment of cardSegments) {
-        if (!team.some((member) => segment.includes(`<h2 class="team-name">${escapeHtml(member.name)}</h2>`))) {
+        if (!team.some((member) => segment.includes(`<h3 class="team-name">${escapeHtml(member.name)}</h3>`))) {
           fail("team/index.html: contains a card with no entry in _data/team.yml");
         }
+      }
+
+      // One consistent aspect ratio for every photo crop, and a brand-ramp
+      // placeholder background — both live in the page's own style block.
+      if (!/\.team-media \{[^}]*aspect-ratio: 1 \/ 1;/.test(teamHtml)) {
+        fail("team/index.html: the media frame does not fix one aspect ratio for the photo crops");
+      }
+      if (!/\.team-avatar \{[^}]*linear-gradient\(90deg, #1e3a8a/.test(teamHtml)) {
+        fail("team/index.html: the initials placeholder is not brand-coloured (no ramp gradient)");
       }
     }
   }
@@ -533,7 +559,7 @@ if (!fs.existsSync(RESEARCH_PAGE)) {
       fail(`research/index.html: ${figure.name} is not inside a <figure>`);
     } else {
       if (!/<img[^>]*\salt="[^"]+"/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no alt text`);
-        if (!/<figcaption>[\s\S]*?\S[\s\S]*?<\/figcaption>/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no caption`);
+      if (!/<figcaption>[\s\S]*?\S[\s\S]*?<\/figcaption>/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no caption`);
       if (!/Credit:/.test(figureBlock[0])) fail(`research/index.html: ${figure.name} figure has no credit line`);
       // P1 (issue #20): figures render inside a frame on the figure surface.
       if (!figureIsFramed(figureBlock[0], srcPattern)) {
@@ -1094,7 +1120,7 @@ if (!fs.existsSync(HOME_PAGE)) {
     if (!wordmarkImg) {
       fail("index.html: the hero does not carry the Wordmark Hero");
     } else if (!/alt=""/.test(wordmarkImg[0])) {
-      fail("index.html: the Wordmark Hero must be decorative (alt=\"\")");
+      fail('index.html: the Wordmark Hero must be decorative (alt="")');
     }
     const chameleonImg = homeHeroHtml.match(/<img[^>]*chameleon-hero[^>]*>/);
     if (!chameleonImg) {
